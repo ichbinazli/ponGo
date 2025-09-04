@@ -1,0 +1,38 @@
+<div class="form-container">
+    <div class="form-header">
+        <h2>Giriş Yap</h2>
+        <p class="form-subtitle">Hesabınıza erişin</p>
+    </div>
+
+    <form class="login-form">
+        <div class="input-group">
+            <label for="email">E-posta veya Kullanıcı Adı</label>
+            <input type="text" id="email" placeholder="E-posta veya Kullanıcı Adı" required>
+            <div class="input-line"></div>
+        </div>
+
+        <div class="input-group">
+            <label for="password">Şifre</label>
+            <input type="password" id="password" placeholder="Şifre" required>
+            <div class="input-line"></div>
+        </div>
+
+        <div class="form-options">
+            <label class="remember-me">
+                <input type="checkbox" id="remember">
+                <span class="checkmark"></span>
+                Beni Hatırla
+            </label>
+            <a href="#" class="forgot-password" onclick="showForgotPassword()">Şifremi Unuttum?</a>
+        </div>
+
+        <button type="submit" class="login-btn">
+            <span>Giriş Yap</span>
+            <div class="btn-effect"></div>
+        </button>
+
+        <div class="signup">
+            Hesabın yok mu? <a href="#" class="register-link">Kayıt Ol</a>
+        </div>
+    </form>
+</div>

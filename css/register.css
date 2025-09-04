@@ -1,0 +1,234 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e);
+    color: #ffffff;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animated background particles */
+.bg-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
+        opacity: 0.3;
+    }
+    50% { 
+        transform: translateY(-20px) rotate(180deg); 
+        opacity: 0.8;
+    }
+}
+.header-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(90deg, #0f3460, #1a1a2e, #0f3460);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.header-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s ease-in-out infinite;
+    letter-spacing: 3px;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Header bar */
+.header-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(15, 52, 96, 0.6);
+    border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00ffff;
+    letter-spacing: 2px;
+}
+
+/* Form container */
+.form-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 30px 25px;
+    width: 100%;
+    max-width: 380px;
+    position: relative;
+    z-index: 10;
+    margin-top: 80px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.form-header h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #00ffff;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.form-subtitle {
+    color: #cccccc;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Input styles */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.input-group input:focus {
+    border-color: #00ffff;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+/* Button styles */
+.register-btn {
+    width: 100%;
+    padding: 12px;
+    background: #0f3460;
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.register-btn:hover {
+    background: #1a1a2e;
+    border-color: #00ffff;
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+}
+
+.register-btn:active {
+    transform: translateY(-1px);
+}
+
+/* Signup link */
+.signup {
+    text-align: center;
+    color: #cccccc;
+    font-size: 0.85rem;
+}
+
+.login-link {
+    color: #00ffff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.login-link:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .form-container {
+        margin: 20px;
+        padding: 25px 20px;
+        max-width: 90%;
+    }
+    
+    .form-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .input-group input {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .register-btn {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+}
