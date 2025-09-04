@@ -1,12 +1,156 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sohbet</title>
-    <link rel="stylesheet" href="css/chat.css">
-</head>
-<body>
+<div class="chat-container">
+    <!-- Chat List Sidebar -->
+    <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+            <h3 class="chat-title">💬 Sohbetler</h3>
+            <button class="new-chat-btn" onclick="startNewChat()">+</button>
+        </div>
+        
+        <div class="chat-search">
+            <input type="text" placeholder="Sohbet ara..." class="search-input" id="chat-search">
+        </div>
 
-</body>
-</html>
+        <div class="chat-list">
+            <div class="chat-item active" data-chat="progamer">
+                <div class="chat-avatar">🎯</div>
+                <div class="chat-info">
+                    <div class="chat-name">ProGamer_X</div>
+                    <div class="chat-last-message">Hey, oyuna hazır mısın?</div>
+                    <div class="chat-time">2 dk</div>
+                </div>
+                <div class="chat-status online"></div>
+            </div>
+
+            <div class="chat-item" data-chat="speedmaster">
+                <div class="chat-avatar">⚡</div>
+                <div class="chat-info">
+                    <div class="chat-name">SpeedMaster</div>
+                    <div class="chat-last-message">Turnuvaya katılacak mısın?</div>
+                    <div class="chat-time">15 dk</div>
+                </div>
+                <div class="chat-status away"></div>
+            </div>
+
+            <div class="chat-item" data-chat="firestorm">
+                <div class="chat-avatar">🔥</div>
+                <div class="chat-info">
+                    <div class="chat-name">FireStorm</div>
+                    <div class="chat-last-message">GG! Harika oyundu</div>
+                    <div class="chat-time">1 saat</div>
+                </div>
+                <div class="chat-status online"></div>
+            </div>
+
+            <div class="chat-item" data-chat="gameknight">
+                <div class="chat-avatar">🎮</div>
+                <div class="chat-info">
+                    <div class="chat-name">GameKnight</div>
+                    <div class="chat-last-message">Yarın maç var mı?</div>
+                    <div class="chat-time">3 saat</div>
+                </div>
+                <div class="chat-status online"></div>
+            </div>
+
+            <div class="chat-item" data-chat="starplayer">
+                <div class="chat-avatar">⭐</div>
+                <div class="chat-info">
+                    <div class="chat-name">StarPlayer</div>
+                    <div class="chat-last-message">Teşekkürler dostum!</div>
+                    <div class="chat-time">1 gün</div>
+                </div>
+                <div class="chat-status offline"></div>
+            </div>
+
+            <div class="chat-item" data-chat="rocketboost">
+                <div class="chat-avatar">🚀</div>
+                <div class="chat-info">
+                    <div class="chat-name">RocketBoost</div>
+                    <div class="chat-last-message">Yeni taktik deneyebiliriz</div>
+                    <div class="chat-time">2 gün</div>
+                </div>
+                <div class="chat-status online"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Main Area -->
+    <div class="chat-main">
+        <div class="chat-header">
+            <div class="chat-user-info">
+                <div class="chat-user-avatar">🎯</div>
+                <div class="chat-user-details">
+                    <div class="chat-user-name">ProGamer_X</div>
+                    <div class="chat-user-status">🟢 Çevrimiçi</div>
+                </div>
+            </div>
+            <div class="chat-actions">
+                <button class="chat-action-btn" onclick="inviteToGame()">🎮 Oyuna Davet</button>
+                <button class="chat-action-btn" onclick="viewProfile()">👤 Profil</button>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message received">
+                <div class="message-avatar">🎯</div>
+                <div class="message-content">
+                    <div class="message-text">Hey! Nasılsın?</div>
+                    <div class="message-time">14:30</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-content">
+                    <div class="message-text">İyiyim! Sen nasılsın?</div>
+                    <div class="message-time">14:31</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <div class="message-avatar">🎯</div>
+                <div class="message-content">
+                    <div class="message-text">Ben de iyiyim. Oyuna hazır mısın? Yeni turnuva başlıyor.</div>
+                    <div class="message-time">14:32</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-content">
+                    <div class="message-text">Elbette! Hangi saatte başlıyoruz?</div>
+                    <div class="message-time">14:33</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <div class="message-avatar">🎯</div>
+                <div class="message-content">
+                    <div class="message-text">15:00'da. Diğer arkadaşları da çağıralım mı?</div>
+                    <div class="message-time">14:34</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-content">
+                    <div class="message-text">Harika fikir! SpeedMaster'ı da çağır.</div>
+                    <div class="message-time">14:35</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <div class="message-avatar">🎯</div>
+                <div class="message-content">
+                    <div class="message-text">Tamam, hemen yazıyorum ona. Görüşürüz!</div>
+                    <div class="message-time">14:36</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="chat-input-container">
+                <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
+                <input type="text" class="chat-input" placeholder="Mesajınızı yazın..." id="message-input">
+                <button class="attach-btn" onclick="attachFile()">📎</button>
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+</div>
