@@ -1,12 +1,65 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oyun</title>
-    <link rel="stylesheet" href="css/game.css">
-</head>
-<body>
+<div class="game-section">
+    <!-- Başlık -->
+    <div class="game-header">
+        <h1 class="game-title">🎮 Oyun Merkezi</h1>
+        <p class="game-subtitle">Mükemmel rakibini bul ve efsanevi maçlara başla</p>
+    </div>
 
-</body>
-</html>
+    <!-- Üst Satır: Hızlı Maç / Klasik Mod / Turnuva -->
+    <div class="game-modes">
+        <div class="game-mode quick-match">
+            <div class="mode-title">⚡ Hızlı Maç</div>
+            <p class="mode-description">Anında rakip bul ve oyuna başla</p>
+            <button class="play-btn">Başlat</button>
+        </div>
+
+        <div class="game-mode">
+            <div class="mode-title">🎯 Klasik Mod</div>
+            <p class="mode-description">Geleneksel Pong oyunu. İki oyuncu, bir top ve sonsuz eğlence.</p>
+            <button class="play-btn">Oyna</button>
+        </div>
+
+        <div class="game-mode">
+            <div class="mode-title">🏆 Turnuva</div>
+            <p class="mode-description">Rakiplerle mücadele et ve şampiyon ol!</p>
+            <button class="play-btn">Katıl</button>
+        </div>
+    </div>
+
+    <!-- Alt Satır: Son Oynanan Maçlar -->
+    <div class="recent-games">
+        <h2 class="recent-games-title">🕹️ Son Oynanan Maçlar</h2>
+        <div class="game-history-item">
+            <div class="game-info">
+                <div class="opponent-avatar">🎯</div>
+                <div class="game-details">
+                    <div class="opponent-name">Rakip1</div>
+                    <div class="game-time">2 saat önce</div>
+                </div>
+            </div>
+            <div class="game-result win">Kazandı</div>
+        </div>
+
+        <div class="game-history-item">
+            <div class="game-info">
+                <div class="opponent-avatar">⚡</div>
+                <div class="game-details">
+                    <div class="opponent-name">Rakip2</div>
+                    <div class="game-time">5 saat önce</div>
+                </div>
+            </div>
+            <div class="game-result lose">Kaybetti</div>
+        </div>
+
+        <div class="game-history-item">
+            <div class="game-info">
+                <div class="opponent-avatar">🔥</div>
+                <div class="game-details">
+                    <div class="opponent-name">Rakip3</div>
+                    <div class="game-time">1 gün önce</div>
+                </div>
+            </div>
+            <div class="game-result draw">Berabere</div>
+        </div>
+    </div>
+</div>
