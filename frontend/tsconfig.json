@@ -1,0 +1,13 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    "rootDir": "src",       // kaynak kod klasörün
+    "outDir": "dist",       // derlenmiş dosyaların gideceği yer
+    "module": "ES2020",     // ES modules kullan
+    "target": "ES2020",
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
+  }
+}
