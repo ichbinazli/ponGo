@@ -1,0 +1,155 @@
+<div class="max-w-6xl mx-auto space-y-8">
+    <!-- Game Modes -->
+    <div class="card animate-fade-in">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow">
+            🎮 Oyun Seçenekleri
+        </h1>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <!-- Classic Pong -->
+            <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300">
+                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">🏓 Klasik Pong</h3>
+                <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Yapay zeka rakibi ile geleneksel Pong oyunu</p>
+                <button class="btn w-full text-sm sm:text-base">Klasik Oyna</button>
+            </div>
+            
+            <!-- Speed Pong -->
+            <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300">
+                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">⚡ Hız Pong</h3>
+                <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Artan hız ile hızlı tempolu Pong</p>
+                <button class="btn w-full text-sm sm:text-base">Hız Oyna</button>
+            </div>
+            
+            <!-- Multiplayer -->
+            <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300">
+                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">👥 Çok Oyunculu</h3>
+                <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Diğer oyuncularla çevrimiçi oyna</p>
+                <button class="btn w-full text-sm sm:text-base">Çok Oyunculu Oyna</button>
+            </div>
+            
+            <!-- Tournament -->
+            <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300">
+                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">🏆 Turnuva</h3>
+                <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Rekabetçi turnuvalara katıl</p>
+                <button class="btn w-full text-sm sm:text-base">Turnuvaya Katıl</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Customization -->
+    <div class="card animate-fade-in">
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow">
+            🎨 Oyun Özelleştirmesi
+        </h2>
+        <p class="text-center text-slate-300 mb-8">
+            Oyunu kişiselleştirin ve benzersiz deneyim yaşayın
+        </p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            <!-- Ball Customization -->
+            <div class="card bg-slate-800/50">
+                <h3 class="text-lg font-semibold text-slate-100 mb-4">⚪ Top Özelleştirmesi</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-slate-300 mb-2">Top Rengi</label>
+                        <div class="grid grid-cols-4 gap-3">
+                            <button class="w-12 h-12 rounded-full bg-white border-2 border-violet-500 hover:scale-110 transition-transform" data-color="white"></button>
+                            <button class="w-12 h-12 rounded-full bg-red-500 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-color="red"></button>
+                            <button class="w-12 h-12 rounded-full bg-blue-500 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-color="blue"></button>
+                            <button class="w-12 h-12 rounded-full bg-green-500 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-color="green"></button>
+                            <button class="w-12 h-12 rounded-full bg-yellow-500 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-color="yellow"></button>
+                            <button class="w-12 h-12 rounded-full bg-purple-500 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-color="purple"></button>
+                            <button class="w-12 h-12 rounded-full bg-orange-500 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-color="orange"></button>
+                            <button class="w-12 h-12 rounded-full bg-pink-500 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-color="pink"></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-2">Top Efektleri</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between">
+                                <span class="text-slate-300 text-sm">Parıltı efekti</span>
+                                <input type="checkbox" class="w-4 h-4 text-violet-500">
+                            </label>
+                            <label class="flex items-center justify-between">
+                                <span class="text-slate-300 text-sm">İz efekti</span>
+                                <input type="checkbox" checked class="w-4 h-4 text-violet-500">
+                            </label>
+                            <label class="flex items-center justify-between">
+                                <span class="text-slate-300 text-sm">Çarpma efekti</span>
+                                <input type="checkbox" class="w-4 h-4 text-violet-500">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Field Customization -->
+            <div class="card bg-slate-800/50">
+                <h3 class="text-lg font-semibold text-slate-100 mb-4">🏓 Oyun Alanı Özelleştirmesi</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-slate-300 mb-2">Alan Rengi</label>
+                            <div class="grid grid-cols-4 gap-3">
+                                <button class="w-12 h-12 rounded bg-slate-900 border-2 border-violet-500 hover:scale-110 transition-transform" data-field-color="dark"></button>
+                                <button class="w-12 h-12 rounded bg-slate-700 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-field-color="gray"></button>
+                                <button class="w-12 h-12 rounded bg-blue-900 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-field-color="blue"></button>
+                                <button class="w-12 h-12 rounded bg-green-900 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-field-color="green"></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 mb-2">Çizgi Stili</label>
+                            <select class="input w-full">
+                                <option value="solid">Düz Çizgi</option>
+                                <option value="dashed" selected>Kesikli Çizgi</option>
+                                <option value="dotted">Noktalı Çizgi</option>
+                                <option value="neon">Neon Çizgi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-slate-300 mb-2">Çizgi Rengi</label>
+                            <div class="grid grid-cols-4 gap-3">
+                                <button class="w-12 h-12 rounded bg-white border-2 border-violet-500 hover:scale-110 transition-transform" data-line-color="white"></button>
+                                <button class="w-12 h-12 rounded bg-cyan-400 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-line-color="cyan"></button>
+                                <button class="w-12 h-12 rounded bg-violet-400 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-line-color="violet"></button>
+                                <button class="w-12 h-12 rounded bg-yellow-400 border-2 border-transparent hover:border-violet-500 hover:scale-110 transition-all" data-line-color="yellow"></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 mb-2">Ek Efektler</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center justify-between">
+                                    <span class="text-slate-300 text-sm">Işıltı efekti</span>
+                                    <input type="checkbox" class="w-4 h-4 text-violet-500">
+                                </label>
+                                <label class="flex items-center justify-between">
+                                    <span class="text-slate-300 text-sm">Gölge efekti</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-violet-500">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preview -->
+                <div class="mt-6 p-4 bg-slate-800/50 rounded-lg">
+                    <h4 class="text-slate-300 text-sm font-medium mb-3">Önizleme</h4>
+                    <div class="w-full h-32 bg-slate-900 rounded border-2 border-dashed border-white/30 relative overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-4 h-4 bg-white rounded-full shadow-lg"></div>
+                        </div>
+                        <div class="absolute left-2 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-white/70"></div>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-white/70"></div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center mt-6 space-x-4">
+                    <button class="btn bg-violet-600 hover:bg-violet-700">💾 Özelleştirmeleri Kaydet</button>
+                    <button class="btn btn-secondary">🔄 Varsayılana Sıfırla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
