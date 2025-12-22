@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        #gameBoard {
+            background-color: #000;
+            border: 2px solid #fff;
+            position: relative;
+            width: 800px;
+            height: 600px;
+            margin: auto;
+        }
+        .paddle {
+            background-color: #fff;
+            position: absolute;
+            width: 15px;
+            height: 100px;
+        }
+        #paddle1 {
+            left: 10px;
+            top: 250px;
+        }
+        #paddle2 {
+            right: 10px;
+            top: 250px;
+        }
+        #ball {
+            background-color: #fff;
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 390px;
+            top: 290px;
+            border-radius: 50%;
+        }
+        #scoreboard {
+            font-size: 2rem;
+            margin-top: 20px;
+        }
+        #startButton {
+            background-color: #1e1e1e;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #startButton:hover {
+            background-color: #fff;
+            color: #000;
+        }
+        .net {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background-color: #fff;
+            opacity: 0.5;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>Ping Pong</h1>
+        <div id="scoreboard">
+            <span id="player1Score">0</span> - <span id="player2Score">0</span>
+        </div>
+        <div id="gameBoard">
+            <div class="net"></div>
+            <div id="paddle1" class="paddle"></div>
+            <div id="paddle2" class="paddle"></div>
+            <div id="ball"></div>
+        </div>
+        <button id="startButton">Start Game</button>
+    </div>
+
+    <script src="./dist/main.js" type="module"></script>
+</body>
+</html>
