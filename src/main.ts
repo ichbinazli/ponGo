@@ -97,15 +97,19 @@ const CONSTANTS = {
     ROUTES: {
         HOME: '/',
         GAME_OPTIONS: '/game-options',
+        TOURNAMENT: '/tournament',
         LEADERBOARD: '/leaderboard',
         PROFILE: '/profile',
         FRIENDS: '/friends',
         SETTINGS: '/settings',
-        LOGOUT: '/logout'
+        LOGOUT: '/logout',
+        LOADING: '/loading',
+        ERROR: '/error'
     },
     TEMPLATES: {
         HOME: 'home',
         GAME_OPTIONS: 'game-options',
+        TOURNAMENT: 'tournament',
         LEADERBOARD: 'leaderboard',
         PROFILE: 'profile',
         FRIENDS: 'friends',
@@ -157,6 +161,7 @@ class App {
         const routes = [
             { path: CONSTANTS.ROUTES.HOME, handler: () => this.renderHome() },
             { path: CONSTANTS.ROUTES.GAME_OPTIONS, handler: () => this.renderGameOptions() },
+            { path: CONSTANTS.ROUTES.TOURNAMENT, handler: () => this.renderTournament() },
             { path: CONSTANTS.ROUTES.LEADERBOARD, handler: () => this.renderLeaderboard() },
             { path: CONSTANTS.ROUTES.PROFILE, handler: () => this.renderProfile() },
             { path: CONSTANTS.ROUTES.FRIENDS, handler: () => this.renderFriends() },
@@ -341,6 +346,177 @@ class App {
     private async renderGameOptions(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.GAME_OPTIONS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_OPTIONS, false);
+    }
+
+    private async renderTournament(): Promise<void> {
+        this.updateActiveNavLink(CONSTANTS.ROUTES.TOURNAMENT);
+        await this.loadTemplate(CONSTANTS.TEMPLATES.TOURNAMENT, false);
+        
+        // Tournament functionality
+        this.setupTournamentFunctionality();
+    }
+    
+    private setupTournamentFunctionality(): void {
+        let tournamentPlayers: Array<{id: number, alias: string, number: number}> = [];
+        const maxPlayers = 8;
+        
+        const addPlayer = () => {
+            console.log('addPlayer called');
+            
+            const playerInput = document.getElementById('player-alias-input') as HTMLInputElement;
+            const playerList = document.getElementById('player-list');
+            const playerCountSpan = document.getElementById('player-count');
+            
+            if (!playerInput || !playerList || !playerCountSpan) {
+                console.error('Required elements not found:', { playerInput, playerList, playerCountSpan });
+                return;
+            }
+            
+            const alias = playerInput.value.trim();
+            console.log('Alias:', alias);
+            
+            if (!alias) {
+                alert('Lütfen bir isim girin!');
+                playerInput.focus();
+                return;
+            }
+            
+            if (tournamentPlayers.some(p => p.alias.toLowerCase() === alias.toLowerCase())) {
+                alert('Bu isim zaten kullanılıyor!');
+                playerInput.focus();
+                return;
+            }
+            
+            if (tournamentPlayers.length >= maxPlayers) {
+                alert('Maksimum oyuncu sayısına ulaşıldı!');
+                return;
+            }
+            
+            const player = {
+                id: Date.now(),
+                alias: alias,
+                number: tournamentPlayers.length + 1
+            };
+            
+            tournamentPlayers.push(player);
+            console.log('Player added:', player);
+            console.log('Current players:', tournamentPlayers);
+            
+            renderPlayers();
+            playerInput.value = '';
+            updatePlayerCount();
+            playerInput.focus();
+        };
+        
+        const removePlayer = (playerId: number) => {
+            console.log('removePlayer called with id:', playerId);
+            
+            const index = tournamentPlayers.findIndex(p => p.id === playerId);
+            if (index > -1) {
+                tournamentPlayers.splice(index, 1);
+                // Renumber players
+                tournamentPlayers.forEach((player, idx) => {
+                    player.number = idx + 1;
+                });
+                renderPlayers();
+                updatePlayerCount();
+            }
+        };
+        
+        const renderPlayers = () => {
+            console.log('renderPlayers called');
+            const playerList = document.getElementById('player-list');
+            
+            if (!playerList) {
+                console.error('player-list element not found');
+                return;
+            }
+            
+            playerList.innerHTML = '';
+            console.log('Rendering', tournamentPlayers.length, 'players');
+            
+            tournamentPlayers.forEach((player) => {
+                console.log('Rendering player:', player);
+                
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player-item';
+                playerElement.innerHTML = `
+                    <span class="player-number">#${player.number}</span>
+                    <span class="player-alias">${player.alias}</span>
+                    <button class="remove-player-btn" data-player-id="${player.id}">
+                        🗑️
+                    </button>
+                `;
+                
+                // Add event listener for remove button
+                const removeBtn = playerElement.querySelector('.remove-player-btn');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', () => removePlayer(player.id));
+                }
+                
+                playerList.appendChild(playerElement);
+            });
+        };
+        
+        const updatePlayerCount = () => {
+            const playerCountSpan = document.getElementById('player-count');
+            const startTournamentBtn = document.getElementById('start-tournament-btn') as HTMLButtonElement;
+            
+            if (playerCountSpan) {
+                playerCountSpan.textContent = tournamentPlayers.length.toString();
+            }
+            
+            if (startTournamentBtn) {
+                startTournamentBtn.disabled = tournamentPlayers.length < 2;
+            }
+        };
+        
+        const startTournament = () => {
+            if (tournamentPlayers.length < 2) {
+                alert('En az 2 oyuncu gereklidir!');
+                return;
+            }
+            
+            alert(`Turnuva ${tournamentPlayers.length} oyuncu ile başlatılıyor!`);
+        };
+        
+        // Setup event listeners
+        const setupEventListeners = () => {
+            const playerInput = document.getElementById('player-alias-input') as HTMLInputElement;
+            const addPlayerBtn = document.getElementById('add-player-btn');
+            const startTournamentBtn = document.getElementById('start-tournament-btn');
+            
+            console.log('Setting up event listeners:', { playerInput, addPlayerBtn, startTournamentBtn });
+            
+            if (addPlayerBtn) {
+                addPlayerBtn.addEventListener('click', () => {
+                    console.log('Add player button clicked');
+                    addPlayer();
+                });
+            }
+            
+            if (playerInput) {
+                playerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        console.log('Enter key pressed');
+                        addPlayer();
+                    }
+                });
+            }
+            
+            if (startTournamentBtn) {
+                startTournamentBtn.addEventListener('click', startTournament);
+            }
+            
+            updatePlayerCount();
+            
+            if (playerInput) {
+                setTimeout(() => playerInput.focus(), 100);
+            }
+        };
+        
+        // Initialize
+        setTimeout(setupEventListeners, 100);
     }
 
     private async renderLeaderboard(): Promise<void> {
