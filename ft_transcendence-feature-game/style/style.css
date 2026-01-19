@@ -1,0 +1,89 @@
+body {
+    background-color: rgb(50, 50, 50);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    margin: 0;
+}
+
+.game-container {
+    text-align: center;
+}
+
+h1 {
+    font-size: 3rem;
+    margin-bottom: 10%;
+}
+
+#gameBoard {
+    background-color: #000;
+    border: 2px solid #fff;
+    position: relative;
+    width: 50dvw;
+    height: 50dvh;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.paddle {
+    background-color: #fff;
+    position: absolute;
+    width: 1.5%;
+    height: 15%;
+}
+
+#paddle1 {
+    left: 0.3dvw;
+    top: 42%;
+}
+
+#paddle2 {
+    right: 0.3dvw;
+    top: 42%;
+}
+
+#ball {
+    background-color: #fff;
+    position: absolute;
+    width: 1.5vmin;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+
+    min-width: 10px;
+    min-height: 10px;
+}
+
+#scoreboard {
+    font-size: 2rem;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#startButton {
+    background-color: #1e1e1e;
+    color: #fff;
+    border: 2px solid #fff;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top: 20px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#startButton:hover {
+    background-color: #fff;
+    color: #000;
+}
+
+.net {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background-color: #fff;
+    opacity: 0.5;
+}
