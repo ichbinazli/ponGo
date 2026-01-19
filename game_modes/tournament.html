@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <link rel="stylesheet" href="../style.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="tournamentPage" class="page active">
+        <div class="tournament-header">
+            <button id="tournamentBackButton" class="back-btn">← Back to Menu</button>
+            <h1>Tournament Setup</h1>
+        </div>
+        <div class="tournament-container">
+            <div class="tournament-content">
+                <!-- Players Input Card -->
+                <div id="addPlayersCard" class="tournament-card">
+                    <h2>Add Players</h2>
+                    <p class="card-subtitle">Enter player names (3-6 players)</p>
+                    <div class="player-input-section">
+                        <input 
+                            type="text" 
+                            id="playerNameInput" 
+                            placeholder="Enter player name" 
+                            maxlength="20"
+                        >
+                        <button id="addPlayerButton" class="add-btn">+</button>
+                    </div>
+                    <div class="players-list">
+                        <ul id="playersList">
+                            <!-- Players will be added here -->
+                        </ul>
+                    </div>
+                    <div class="player-count">
+                        <span id="playerCount">0</span> / 6 players
+                    </div>
+                    <button disabled id="setMatchesButton" class="set-matches-btn">Set Matches</button>
+                </div>
+
+                <!-- Tournament Bracket Card -->
+                <div id="bracketContainer" class="tournament-card bracket-card hidden">
+                    <h2>Tournament Bracket</h2>
+                    <div class="bracket-content" id="bracketContent">
+                        <p class="empty-bracket">Add 3-6 players to see bracket</p>
+                    </div>
+                    <button id="startTournamentButton" class="start-tournament-btn" disabled>Start Tournament</button>
+                </div>
+
+                <!-- Tournament Status Card (shown when tournament is in progress) -->
+                <div id="tournamentStatusCard" class="tournament-card hidden">
+                    <h2>Tournament Status</h2>
+                    <div id="tournamentStatusContent" class="tournament-status-content">
+                        <!-- Match results will be displayed here -->
+                    </div>
+                    <button id="continueTournamentButton" class="start-tournament-btn">Continue Tournament</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../dist/game_modes/tournament.js" type="module"></script>
+</body>
+</html>

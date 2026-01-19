@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="gamePage" class="page active">
+        <div class="game-header">
+            <button id="backButton" class="back-btn">← Back to Menu</button>
+            <h1>Ping Pong</h1>
+            <div class="game-mode-label" id="gameModeLabel">vs AI</div>
+        </div>
+        <div class="game-container">
+            <div id="scoreboard">
+                <span id="player1Name" class="player-name"></span>
+                <span id="player1Score">0</span>
+                <span class="score-separator">-</span>
+                <span id="player2Score">0</span>
+                <span id="player2Name" class="player-name"></span>
+            </div>
+            <div id="gameBoard">
+                <div class="net"></div>
+                <div id="paddle1" class="paddle"></div>
+                <div id="paddle2" class="paddle"></div>
+                <div id="ball"></div>
+            </div>
+            <button id="startButton">Start Game</button>
+        </div>
+    </div>
+    
+    <div id="gameOverModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Game Over!</h2>
+            <p id="winnerText"></p>
+            <div id="finalStats" class="final-stats"></div>
+            <button id="backToTournamentButton" class="btn-secondary">Back to Tournament</button>
+        </div>
+    </div>
+
+    <script src="./dist/game.js" type="module"></script>
+</body>
+</html>

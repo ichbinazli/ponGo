@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
     <title>Ping Pong</title>
-    <style>
+    <!-- <style>
         body {
             background-color: #121212;
             color: #fff;
@@ -23,7 +24,7 @@
             margin-bottom: 20px;
         }
         #gameBoard {
-            background-color: #000;
+            background-color: #020617;
             border: 2px solid #fff;
             position: relative;
             width: 800px;
@@ -39,13 +40,15 @@
         #paddle1 {
             left: 10px;
             top: 250px;
+            background-color: #ef4444;
         }
         #paddle2 {
             right: 10px;
             top: 250px;
+            background-color: #10b981;
         }
         #ball {
-            background-color: #fff;
+            background-color: #fde047;
             position: absolute;
             width: 20px;
             height: 20px;
@@ -78,25 +81,48 @@
             height: 100%;
             width: 2px;
             background-color: #fff;
-            opacity: 0.5;
+            opacity: 0.4;
             transform: translateX(-50%);
         }
-    </style>
+    </style> -->
 </head>
 <body>
 
-    <div class="game-container">
-        <h1>Ping Pong</h1>
-        <div id="scoreboard">
-            <span id="player1Score">0</span> - <span id="player2Score">0</span>
+    <!-- Menu Page -->
+    <div id="menuPage" class="page active">
+        <div class="menu-container">
+            <h1 class="game-title">PING PONG</h1>
+            <p class="subtitle">Choose Your Game Mode</p>
+            
+            <div class="cards-grid">
+                <div class="game-card" id="aiCard">
+                    <div class="card-icon">🤖</div>
+                    <h2>Play vs AI</h2>
+                    <p>Challenge the computer</p>
+                    <div class="card-footer">
+                        <span class="difficulty-badge">Easy • Medium • Hard</span>
+                    </div>
+                </div>
+
+                <div class="game-card" id="h2hCard">
+                    <div class="card-icon">👥</div>
+                    <h2>Play vs Human</h2>
+                    <p>Local multiplayer mode</p>
+                    <div class="card-footer">
+                        <span class="difficulty-badge">1 vs 1</span>
+                    </div>
+                </div>
+
+                <div class="game-card" id="tournamentCard">
+                    <div class="card-icon">🏆</div>
+                    <h2>Tournament</h2>
+                    <p>Compete in tournament mode</p>
+                    <div class="card-footer">
+                        <span class="difficulty-badge">3 - 6 Players</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="gameBoard">
-            <div class="net"></div>
-            <div id="paddle1" class="paddle"></div>
-            <div id="paddle2" class="paddle"></div>
-            <div id="ball"></div>
-        </div>
-        <button id="startButton">Start Game</button>
     </div>
 
     <script src="./dist/main.js" type="module"></script>
