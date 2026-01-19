@@ -132,7 +132,7 @@ const registerRoutes = async (server: FastifyInstance): Promise<void> => {
 
 // Error handler
 const registerErrorHandler = (server: FastifyInstance): void => {
-    server.setErrorHandler((error, request, reply) => {
+    server.setErrorHandler((error, _request, reply) => {
         server.log.error(error);
 
         // Validation errors
@@ -203,7 +203,7 @@ const bootstrap = async (): Promise<void> => {
         await initializeDatabase();
         server.log.info('✅ Database initialized');
     } catch (error) {
-        server.log.error('❌ Database initialization failed:', error);
+        server.log.error({ err: error }, '❌ Database initialization failed');
         process.exit(1);
     }
 
@@ -226,7 +226,7 @@ const bootstrap = async (): Promise<void> => {
 
     // Start server
     try {
-        const address = await server.listen({
+        await server.listen({
             port: env.port,
             host: env.host,
         });

@@ -6,7 +6,6 @@ import { hashPassword, verifyPassword, hashToken, verifyToken } from '../service
 import {
     generateTokenPair,
     verifyJwtToken,
-    getRefreshTokenExpiry,
     generateRandomToken,
 } from '../services/jwt.service.js';
 import { verifyTotpCode, isValidTotpFormat, isValidBackupCodeFormat } from '../services/twoFactor.service.js';

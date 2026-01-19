@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { userModel, User } from '../models/user.model.js';
+import { userModel } from '../models/user.model.js';
 import { sessionModel } from '../models/session.model.js';
 import { friendshipModel } from '../models/friendship.model.js';
 import { matchHistoryModel } from '../models/match.model.js';
@@ -101,7 +101,7 @@ export const exportUserData = async (
                 userAgent: s.user_agent,
                 ipAddress: s.ip_address,
                 createdAt: s.created_at,
-                lastUsedAt: s.last_used_at,
+                lastUsedAt: null,
             })),
             friends: friends.map((f) => ({
                 id: f.friend_id,
@@ -309,7 +309,7 @@ export const deleteAccount = async (
  * GET /api/gdpr/info
  */
 export const getPrivacyInfo = async (
-    request: FastifyRequest,
+    _request: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
     return reply.send(

@@ -1,5 +1,5 @@
 import { createWriteStream, unlinkSync, existsSync, mkdirSync } from 'fs';
-import { join, extname } from 'path';
+import { join } from 'path';
 import { pipeline } from 'stream/promises';
 import { randomBytes } from 'crypto';
 import { env } from '../config/env.js';
@@ -84,9 +84,9 @@ export const validateUpload = (
     }
 
     // Check file size
-    if (fileSize > env.upload.maxSize) {
+    if (fileSize > env.upload.maxFileSize) {
         throw new UploadError(
-            `File too large. Maximum size: ${env.upload.maxSize / 1024 / 1024}MB`,
+            `File too large. Maximum size: ${env.upload.maxFileSize / 1024 / 1024}MB`,
             'FILE_TOO_LARGE'
         );
     }

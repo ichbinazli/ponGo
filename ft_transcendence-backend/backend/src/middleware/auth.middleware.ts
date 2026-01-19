@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { JwtPayload, extractTokenFromHeader, verifyJwtToken } from '../services/jwt.service.js';
+import { extractTokenFromHeader, verifyJwtToken } from '../services/jwt.service.js';
 import { userModel } from '../models/user.model.js';
 import { errorResponse, ErrorCodes } from '../utils/response.js';
 
@@ -8,7 +8,7 @@ import { errorResponse, ErrorCodes } from '../utils/response.js';
  */
 declare module 'fastify' {
     interface FastifyRequest {
-        user?: {
+        user: {
             id: number;
             email: string;
             displayName: string;

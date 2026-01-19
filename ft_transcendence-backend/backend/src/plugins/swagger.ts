@@ -601,7 +601,7 @@ export const registerSwagger = async (server: FastifyInstance): Promise<void> =>
     });
 
     // Serve Swagger UI HTML
-    server.get('/api/docs', async (request, reply) => {
+    server.get('/api/docs', async (_request, reply) => {
         const html = `
 <!DOCTYPE html>
 <html lang="en">

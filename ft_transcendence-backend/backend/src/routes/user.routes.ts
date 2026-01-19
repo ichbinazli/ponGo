@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import multipart from '@fastify/multipart';
-import { authenticate, optionalAuth } from '../middleware/auth.middleware.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 import {
     getMyProfile,
     getUserProfile,
@@ -23,7 +23,7 @@ export const userRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =
     // Register multipart for file uploads
     await fastify.register(multipart, {
         limits: {
-            fileSize: env.upload.maxSize, // Max file size from env
+            fileSize: env.upload.maxFileSize, // Max file size from env
             files: 1, // Only 1 file at a time
         },
     });

@@ -34,7 +34,7 @@ setInterval(() => {
  * Get available OAuth providers
  */
 export const getProviders = async (
-    request: FastifyRequest,
+    _request: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
     const providers: { name: string; id: OAuthProvider; enabled: boolean }[] = [
@@ -227,21 +227,16 @@ export const oauthCallback = async (
         const ipAddress = request.ip || 'unknown';
 
         // Create session
-        const session = sessionModel.create({
+        sessionModel.create({
             user_id: user.id,
             refresh_token_hash: refreshTokenHash,
             user_agent: userAgent,
             ip_address: ipAddress,
-            expires_at: expiresAt,
+            expires_at: expiresAt.toISOString(),
         });
 
         // Generate JWT tokens
-        const tokens = await generateTokenPair(request.server, {
-            id: user.id,
-            email: user.email,
-            displayName: user.display_name,
-            sessionId: session.id,
-        });
+        const tokens = generateTokenPair(request.server, user);
 
         // Update user online status
         userModel.setOnlineStatus(user.id, true);
@@ -262,7 +257,7 @@ export const oauthCallback = async (
                     tokens: {
                         accessToken: tokens.accessToken,
                         refreshToken,
-                        expiresIn: tokens.expiresIn,
+                        expiresAt: tokens.accessTokenExpiresAt.toISOString(),
                     },
                     isNewUser: !user.password_hash,
                 })

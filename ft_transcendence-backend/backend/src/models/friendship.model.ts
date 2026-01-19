@@ -1,5 +1,4 @@
 import { getDatabase } from '../config/database.js';
-import { PublicUser } from './user.model.js';
 
 /**
  * Friendship status types

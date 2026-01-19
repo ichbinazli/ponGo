@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { userModel, PublicUser } from '../models/user.model.js';
-import { matchHistoryModel, UserStats, MatchWithPlayers } from '../models/match.model.js';
+import { userModel } from '../models/user.model.js';
+import { matchHistoryModel } from '../models/match.model.js';
 import { hashPassword, verifyPassword } from '../services/hash.service.js';
 import { saveAvatar, deleteAvatar, UploadError } from '../services/upload.service.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';

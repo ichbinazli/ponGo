@@ -146,6 +146,20 @@ export class SessionModel {
         const session = this.findByTokenHash(tokenHash);
         return session !== undefined;
     }
+
+    /**
+     * Alias for findByUserId - used by GDPR controller
+     */
+    getUserSessions(userId: number): Session[] {
+        return this.findByUserId(userId);
+    }
+
+    /**
+     * Alias for revokeAllForUser - used by GDPR controller
+     */
+    revokeAllUserSessions(userId: number): number {
+        return this.revokeAllForUser(userId);
+    }
 }
 
 // Export singleton instance

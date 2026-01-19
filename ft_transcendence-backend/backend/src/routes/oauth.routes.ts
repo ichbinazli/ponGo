@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { FastifyInstance, FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 import { authenticate } from '../middleware/auth.middleware.js';
 import {
     getProviders,
@@ -35,7 +35,7 @@ export const oauthRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) 
                 required: ['provider'],
             },
         },
-    }, initiateOAuth);
+    }, initiateOAuth as (request: FastifyRequest, reply: FastifyReply) => Promise<void>);
 
     /**
      * OAuth callback
@@ -60,7 +60,7 @@ export const oauthRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) 
                 },
             },
         },
-    }, oauthCallback);
+    }, oauthCallback as (request: FastifyRequest, reply: FastifyReply) => Promise<void>);
 
     // ===== Protected Routes =====
 
@@ -80,7 +80,7 @@ export const oauthRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) 
                 required: ['provider'],
             },
         },
-    }, linkOAuth);
+    }, linkOAuth as (request: FastifyRequest, reply: FastifyReply) => Promise<void>);
 
     /**
      * Unlink OAuth from account
