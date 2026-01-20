@@ -67,7 +67,7 @@ export class SessionModel {
     findByTokenHash(tokenHash: string): Session | undefined {
         return this.db
             .prepare(
-                'SELECT * FROM sessions WHERE refresh_token_hash = ? AND revoked = 0 AND expires_at > datetime("now")'
+                "SELECT * FROM sessions WHERE refresh_token_hash = ? AND revoked = 0 AND expires_at > datetime('now')"
             )
             .get(tokenHash) as Session | undefined;
     }
@@ -78,7 +78,7 @@ export class SessionModel {
     findByUserId(userId: number): Session[] {
         return this.db
             .prepare(
-                'SELECT * FROM sessions WHERE user_id = ? AND revoked = 0 AND expires_at > datetime("now") ORDER BY created_at DESC'
+                "SELECT * FROM sessions WHERE user_id = ? AND revoked = 0 AND expires_at > datetime('now') ORDER BY created_at DESC"
             )
             .all(userId) as Session[];
     }
@@ -124,7 +124,7 @@ export class SessionModel {
      */
     cleanupExpired(): number {
         const result = this.db
-            .prepare('DELETE FROM sessions WHERE expires_at < datetime("now")')
+            .prepare("DELETE FROM sessions WHERE expires_at < datetime('now')")
             .run();
         return result.changes;
     }

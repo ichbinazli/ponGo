@@ -69,7 +69,7 @@ module.exports = (env, argv) => {
           publicPath: '/frontend',
         }
       ],
-      port: 3000,
+      port: 5173,
       hot: true,
       historyApiFallback: true,
       open: false,
