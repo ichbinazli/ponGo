@@ -9,6 +9,13 @@ export class Router {
 
     constructor() {
         this.currentPath = window.location.pathname;
+        this.setupPopstateHandler();
+    }
+
+    private setupPopstateHandler(): void {
+        window.addEventListener('popstate', () => {
+            this.handleRouteChange();
+        });
     }
 
     public addRoute(path: string, handler: () => void): void {

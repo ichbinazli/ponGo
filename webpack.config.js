@@ -52,6 +52,11 @@ module.exports = (env, argv) => {
             from: 'src/frontend',
             to: 'frontend',
             noErrorOnMissing: true,
+          },
+          {
+            from: 'src/frontend/login.html',
+            to: 'login.html',
+            noErrorOnMissing: true,
           }
         ],
       }),
@@ -67,9 +72,13 @@ module.exports = (env, argv) => {
         {
           directory: path.join(__dirname, 'src/frontend'),
           publicPath: '/frontend',
+        },
+        {
+          directory: path.join(__dirname, 'src'),
+          publicPath: '/',
         }
       ],
-      port: 3000,
+      port: 5173,
       hot: true,
       historyApiFallback: true,
       open: false,

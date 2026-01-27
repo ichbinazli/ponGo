@@ -96,6 +96,7 @@ const CONSTANTS = {
     },
     ROUTES: {
         HOME: '/',
+        GAME: '/game',
         GAME_OPTIONS: '/game-options',
         TOURNAMENT: '/tournament',
         LEADERBOARD: '/leaderboard',
@@ -104,7 +105,11 @@ const CONSTANTS = {
         SETTINGS: '/settings',
         LOGOUT: '/logout',
         LOADING: '/loading',
-        ERROR: '/error'
+        ERROR: '/error',
+        LOGIN: '/login',
+        REGISTER: '/register',
+        FORGOT_PASSWORD: '/forgot-password',
+        RESET_PASSWORD: '/reset-password'
     },
     TEMPLATES: {
         HOME: 'home',
@@ -116,7 +121,11 @@ const CONSTANTS = {
         SETTINGS: 'settings',
         LOGOUT: 'logout',
         LOADING: 'loading',
-        ERROR: 'error'
+        ERROR: 'error',
+        LOGIN: 'login',
+        REGISTER: 'register',
+        FORGOT_PASSWORD: 'forgot-password',
+        RESET_PASSWORD: 'reset-password'
     },
     SELECTORS: {
         MAIN_CONTENT: 'main-content',
@@ -160,13 +169,18 @@ class App {
     private setupRoutes(): void {
         const routes = [
             { path: CONSTANTS.ROUTES.HOME, handler: () => this.renderHome() },
+            { path: CONSTANTS.ROUTES.GAME, handler: () => this.renderGame() },
             { path: CONSTANTS.ROUTES.GAME_OPTIONS, handler: () => this.renderGameOptions() },
             { path: CONSTANTS.ROUTES.TOURNAMENT, handler: () => this.renderTournament() },
             { path: CONSTANTS.ROUTES.LEADERBOARD, handler: () => this.renderLeaderboard() },
             { path: CONSTANTS.ROUTES.PROFILE, handler: () => this.renderProfile() },
             { path: CONSTANTS.ROUTES.FRIENDS, handler: () => this.renderFriends() },
             { path: CONSTANTS.ROUTES.SETTINGS, handler: () => this.renderSettings() },
-            { path: CONSTANTS.ROUTES.LOGOUT, handler: () => this.renderLogout() }
+            { path: CONSTANTS.ROUTES.LOGOUT, handler: () => this.renderLogout() },
+            { path: CONSTANTS.ROUTES.LOGIN, handler: () => this.renderLogin() },
+            { path: CONSTANTS.ROUTES.REGISTER, handler: () => this.renderRegister() },
+            { path: CONSTANTS.ROUTES.FORGOT_PASSWORD, handler: () => this.renderForgotPassword() },
+            { path: CONSTANTS.ROUTES.RESET_PASSWORD, handler: () => this.renderResetPassword() }
         ];
 
         routes.forEach(route => {
@@ -189,10 +203,6 @@ class App {
                     this.router.navigate(href);
                 }
             }
-        });
-
-        window.addEventListener('popstate', () => {
-            this.router.handleRouteChange();
         });
     }
 
@@ -330,6 +340,12 @@ class App {
         this.updateActiveNavLink(CONSTANTS.ROUTES.HOME);
         await this.loadTemplate(CONSTANTS.TEMPLATES.HOME);
         this.loadHomeStats();
+    }
+
+    private async renderGame(): Promise<void> {
+        this.updateActiveNavLink(CONSTANTS.ROUTES.GAME);
+        // For now, redirect to game options or show game interface
+        await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_OPTIONS, false);
     }
 
     private async loadHomeStats(): Promise<void> {
@@ -677,10 +693,39 @@ class App {
         }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 
+    //render login
+    private async renderLogin(): Promise<void> {
+        this.updateActiveNavLink(CONSTANTS.ROUTES.LOGIN);
+        await this.loadTemplate(CONSTANTS.TEMPLATES.LOGIN, false);
+        const navigation = document.getElementById('navigation') as HTMLFormElement;
+        navigation.style.display = 'none';
+    }
+
+    private async renderRegister(): Promise<void> {
+        this.updateActiveNavLink(CONSTANTS.ROUTES.REGISTER);
+        await this.loadTemplate(CONSTANTS.TEMPLATES.REGISTER, false);
+        const navigation = document.getElementById('navigation') as HTMLFormElement;
+        navigation.style.display = 'none';
+    }
+
+    private async renderForgotPassword(): Promise<void> {
+        this.updateActiveNavLink(CONSTANTS.ROUTES.FORGOT_PASSWORD);
+        await this.loadTemplate(CONSTANTS.TEMPLATES.FORGOT_PASSWORD, false);
+        const navigation = document.getElementById('navigation') as HTMLFormElement;
+        navigation.style.display = 'none';
+    }
+
+    private async renderResetPassword(): Promise<void> {
+        this.updateActiveNavLink(CONSTANTS.ROUTES.RESET_PASSWORD);
+        await this.loadTemplate(CONSTANTS.TEMPLATES.RESET_PASSWORD, false);
+        const navigation = document.getElementById('navigation') as HTMLFormElement;
+        navigation.style.display = 'none';
+    }
+
     private confirmLogout(): void {
         setTimeout(() => {
             alert('Başarıyla çıkış yaptınız!');
-            this.router.navigate('/');
+            this.router.navigate('/login');
         }, 1000);
     }
 
