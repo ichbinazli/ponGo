@@ -16,6 +16,7 @@ import { twoFactorRoutes } from './routes/twoFactor.routes.js';
 import { gdprRoutes } from './routes/gdpr.routes.js';
 import { statsRoutes } from './routes/stats.routes.js';
 import { matchRoutes } from './routes/match.routes.js';
+import { localTournamentRoutes } from './routes/localTournament.routes.js';
 import { registerSwagger } from './plugins/swagger.js';
 
 // Create Fastify instance with HTTPS
@@ -125,6 +126,9 @@ const registerRoutes = async (server: FastifyInstance): Promise<void> => {
 
     // Match routes (for Game module)
     await server.register(matchRoutes, { prefix: '/api/matches' });
+
+    // Local Tournament routes
+    await server.register(localTournamentRoutes, { prefix: '/api/local-tournament' });
 
     // API Documentation (Swagger)
     await registerSwagger(server);

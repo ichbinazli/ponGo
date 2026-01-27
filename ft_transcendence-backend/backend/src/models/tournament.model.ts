@@ -22,6 +22,7 @@ export interface Tournament {
     current_round: number;
     winner_id: number | null;
     created_by: number;
+    is_local: number;
     created_at: string;
     started_at: string | null;
     ended_at: string | null;
@@ -33,10 +34,11 @@ export interface Tournament {
 export interface TournamentParticipant {
     id: number;
     tournament_id: number;
-    user_id: number;
-    alias: string | null;
+    user_id: number | null;
+    alias: string;
     placement: number | null;
     status: ParticipantStatus;
+    is_guest: number;
     joined_at: string;
 }
 
@@ -57,6 +59,54 @@ export interface CreateTournamentInput {
     description?: string;
     max_players?: number;
     created_by: number;
+    is_local?: boolean;
+}
+
+/**
+ * Tournament match status
+ */
+export type TournamentMatchStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+/**
+ * Tournament match interface
+ */
+export interface TournamentMatch {
+    id: number;
+    tournament_id: number;
+    round: number;
+    match_order: number;
+    participant1_id: number | null;
+    participant2_id: number | null;
+    participant1_score: number;
+    participant2_score: number;
+    winner_participant_id: number | null;
+    status: TournamentMatchStatus;
+    duration_seconds: number | null;
+    created_at: string;
+    started_at: string | null;
+    ended_at: string | null;
+}
+
+/**
+ * Create tournament match input
+ */
+export interface CreateTournamentMatchInput {
+    tournament_id: number;
+    round: number;
+    match_order: number;
+    participant1_id?: number;
+    participant2_id?: number;
+}
+
+/**
+ * Tournament match with participant info
+ */
+export interface TournamentMatchWithParticipants extends TournamentMatch {
+    participant1_alias: string | null;
+    participant1_user_id: number | null;
+    participant2_alias: string | null;
+    participant2_user_id: number | null;
+    winner_alias: string | null;
 }
 
 /**
@@ -70,15 +120,16 @@ export class TournamentModel {
      */
     create(input: CreateTournamentInput): Tournament {
         const stmt = this.db.prepare(`
-            INSERT INTO tournaments (name, description, max_players, created_by)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO tournaments (name, description, max_players, created_by, is_local)
+            VALUES (?, ?, ?, ?, ?)
         `);
 
         const result = stmt.run(
             input.name,
             input.description ?? null,
             input.max_players ?? 8,
-            input.created_by
+            input.created_by,
+            input.is_local ? 1 : 0
         );
 
         return this.findById(result.lastInsertRowid as number)!;
@@ -200,15 +251,28 @@ export class TournamentModel {
     }
 
     /**
-     * Add participant to tournament
+     * Add registered participant to tournament
      */
-    addParticipant(tournamentId: number, userId: number, alias?: string): TournamentParticipant {
+    addParticipant(tournamentId: number, userId: number, alias: string): TournamentParticipant {
         const stmt = this.db.prepare(`
-            INSERT INTO tournament_participants (tournament_id, user_id, alias)
-            VALUES (?, ?, ?)
+            INSERT INTO tournament_participants (tournament_id, user_id, alias, is_guest)
+            VALUES (?, ?, ?, 0)
         `);
 
-        const result = stmt.run(tournamentId, userId, alias ?? null);
+        const result = stmt.run(tournamentId, userId, alias);
+        return this.getParticipant(result.lastInsertRowid as number)!;
+    }
+
+    /**
+     * Add guest participant to tournament (no user account)
+     */
+    addGuestParticipant(tournamentId: number, alias: string): TournamentParticipant {
+        const stmt = this.db.prepare(`
+            INSERT INTO tournament_participants (tournament_id, user_id, alias, is_guest)
+            VALUES (?, NULL, ?, 1)
+        `);
+
+        const result = stmt.run(tournamentId, alias);
         return this.getParticipant(result.lastInsertRowid as number)!;
     }
 
@@ -222,11 +286,11 @@ export class TournamentModel {
     }
 
     /**
-     * Get all participants of a tournament
+     * Get all participants of a tournament (including guests)
      */
     getParticipants(tournamentId: number): (TournamentParticipant & {
-        display_name: string;
-        avatar_url: string;
+        display_name: string | null;
+        avatar_url: string | null;
     })[] {
         return this.db
             .prepare(`
@@ -235,13 +299,13 @@ export class TournamentModel {
                     u.display_name,
                     u.avatar_url
                 FROM tournament_participants tp
-                JOIN users u ON u.id = tp.user_id
+                LEFT JOIN users u ON u.id = tp.user_id
                 WHERE tp.tournament_id = ?
                 ORDER BY tp.placement ASC NULLS LAST, tp.joined_at ASC
             `)
             .all(tournamentId) as (TournamentParticipant & {
-                display_name: string;
-                avatar_url: string;
+                display_name: string | null;
+                avatar_url: string | null;
             })[];
     }
 
@@ -318,6 +382,187 @@ export class TournamentModel {
                 LIMIT ?
             `)
             .all(userId, limit) as TournamentWithCreator[];
+    }
+
+    // ==========================================
+    // Tournament Match Methods
+    // ==========================================
+
+    /**
+     * Create a tournament match
+     */
+    createMatch(input: CreateTournamentMatchInput): TournamentMatch {
+        const stmt = this.db.prepare(`
+            INSERT INTO tournament_matches (tournament_id, round, match_order, participant1_id, participant2_id)
+            VALUES (?, ?, ?, ?, ?)
+        `);
+
+        const result = stmt.run(
+            input.tournament_id,
+            input.round,
+            input.match_order,
+            input.participant1_id ?? null,
+            input.participant2_id ?? null
+        );
+
+        return this.getMatch(result.lastInsertRowid as number)!;
+    }
+
+    /**
+     * Get match by ID
+     */
+    getMatch(id: number): TournamentMatch | undefined {
+        return this.db
+            .prepare('SELECT * FROM tournament_matches WHERE id = ?')
+            .get(id) as TournamentMatch | undefined;
+    }
+
+    /**
+     * Get match with participant info
+     */
+    getMatchWithParticipants(id: number): TournamentMatchWithParticipants | undefined {
+        return this.db
+            .prepare(`
+                SELECT 
+                    tm.*,
+                    p1.alias as participant1_alias,
+                    p1.user_id as participant1_user_id,
+                    p2.alias as participant2_alias,
+                    p2.user_id as participant2_user_id,
+                    pw.alias as winner_alias
+                FROM tournament_matches tm
+                LEFT JOIN tournament_participants p1 ON p1.id = tm.participant1_id
+                LEFT JOIN tournament_participants p2 ON p2.id = tm.participant2_id
+                LEFT JOIN tournament_participants pw ON pw.id = tm.winner_participant_id
+                WHERE tm.id = ?
+            `)
+            .get(id) as TournamentMatchWithParticipants | undefined;
+    }
+
+    /**
+     * Get all matches of a tournament
+     */
+    getMatchesByTournament(tournamentId: number): TournamentMatchWithParticipants[] {
+        return this.db
+            .prepare(`
+                SELECT 
+                    tm.*,
+                    p1.alias as participant1_alias,
+                    p1.user_id as participant1_user_id,
+                    p2.alias as participant2_alias,
+                    p2.user_id as participant2_user_id,
+                    pw.alias as winner_alias
+                FROM tournament_matches tm
+                LEFT JOIN tournament_participants p1 ON p1.id = tm.participant1_id
+                LEFT JOIN tournament_participants p2 ON p2.id = tm.participant2_id
+                LEFT JOIN tournament_participants pw ON pw.id = tm.winner_participant_id
+                WHERE tm.tournament_id = ?
+                ORDER BY tm.round ASC, tm.match_order ASC
+            `)
+            .all(tournamentId) as TournamentMatchWithParticipants[];
+    }
+
+    /**
+     * Get matches by round
+     */
+    getMatchesByRound(tournamentId: number, round: number): TournamentMatchWithParticipants[] {
+        return this.db
+            .prepare(`
+                SELECT 
+                    tm.*,
+                    p1.alias as participant1_alias,
+                    p1.user_id as participant1_user_id,
+                    p2.alias as participant2_alias,
+                    p2.user_id as participant2_user_id,
+                    pw.alias as winner_alias
+                FROM tournament_matches tm
+                LEFT JOIN tournament_participants p1 ON p1.id = tm.participant1_id
+                LEFT JOIN tournament_participants p2 ON p2.id = tm.participant2_id
+                LEFT JOIN tournament_participants pw ON pw.id = tm.winner_participant_id
+                WHERE tm.tournament_id = ? AND tm.round = ?
+                ORDER BY tm.match_order ASC
+            `)
+            .all(tournamentId, round) as TournamentMatchWithParticipants[];
+    }
+
+    /**
+     * Update match result
+     */
+    updateMatchResult(
+        matchId: number,
+        participant1Score: number,
+        participant2Score: number,
+        winnerParticipantId: number,
+        durationSeconds?: number
+    ): boolean {
+        const result = this.db
+            .prepare(`
+                UPDATE tournament_matches 
+                SET participant1_score = ?,
+                    participant2_score = ?,
+                    winner_participant_id = ?,
+                    duration_seconds = ?,
+                    status = 'completed',
+                    ended_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `)
+            .run(
+                participant1Score,
+                participant2Score,
+                winnerParticipantId,
+                durationSeconds ?? null,
+                matchId
+            );
+        return result.changes > 0;
+    }
+
+    /**
+     * Start a match (update status to in_progress)
+     */
+    startMatch(matchId: number): boolean {
+        const result = this.db
+            .prepare(`
+                UPDATE tournament_matches 
+                SET status = 'in_progress',
+                    started_at = CURRENT_TIMESTAMP
+                WHERE id = ? AND status = 'pending'
+            `)
+            .run(matchId);
+        return result.changes > 0;
+    }
+
+    /**
+     * Set next round match participant (for bracket advancement)
+     */
+    setMatchParticipant(
+        matchId: number,
+        position: 1 | 2,
+        participantId: number
+    ): boolean {
+        const column = position === 1 ? 'participant1_id' : 'participant2_id';
+        const result = this.db
+            .prepare(`UPDATE tournament_matches SET ${column} = ? WHERE id = ?`)
+            .run(participantId, matchId);
+        return result.changes > 0;
+    }
+
+    /**
+     * Check if alias is unique in tournament
+     */
+    isAliasUnique(tournamentId: number, alias: string): boolean {
+        const result = this.db
+            .prepare('SELECT 1 FROM tournament_participants WHERE tournament_id = ? AND alias = ?')
+            .get(tournamentId, alias);
+        return result === undefined;
+    }
+
+    /**
+     * Get participant by alias in tournament
+     */
+    getParticipantByAlias(tournamentId: number, alias: string): TournamentParticipant | undefined {
+        return this.db
+            .prepare('SELECT * FROM tournament_participants WHERE tournament_id = ? AND alias = ?')
+            .get(tournamentId, alias) as TournamentParticipant | undefined;
     }
 }
 
