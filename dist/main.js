@@ -10,7 +10,8 @@ h2hCard.addEventListener('click', () => {
     window.location.href = './game.html';
 });
 tournamentCard.addEventListener('click', () => {
-    window.location.href = './game_modes/tournament.html';
+    sessionStorage.setItem('gameMode', 'tournament');
+    window.location.href = './game/tournament.html';
 });
 export {};
 //# sourceMappingURL=main.js.map

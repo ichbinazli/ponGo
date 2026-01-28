@@ -12,5 +12,8 @@
   "type": "commonjs",
   "devDependencies": {
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^8.47.0"
   }
 }

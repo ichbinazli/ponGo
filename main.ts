@@ -14,6 +14,7 @@ h2hCard.addEventListener('click', () => {
 });
 
 tournamentCard.addEventListener('click', () => {
-    window.location.href = './game_modes/tournament.html';
+    sessionStorage.setItem('gameMode', 'tournament');
+    window.location.href = './game/tournament.html';
 });
 
