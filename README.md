@@ -22,11 +22,17 @@
    http://localhost:5173
    ```
 -------------------------------------------------------
-# Detaylı loglar
+# **Detaylı loglar**
+```
 npm run dev
+```
 
-# TypeScript hataları
+# **TypeScript hataları**
+```
 npm run type-check
+```
 
-# ESLint uyarıları
+# **ESLint uyarıları**
+```
 npm run lint
+```
