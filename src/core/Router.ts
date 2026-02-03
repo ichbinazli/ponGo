@@ -1,3 +1,5 @@
+import Api from '../api/apiLibrary';
+
 export interface Route {
     path: string;
     handler: () => void;
@@ -22,12 +24,21 @@ export class Router {
         this.routes.set(path, handler);
     }
 
-    public navigate(path: string): void {
+    public async navigate(path: string): Promise<void> {
         if (path !== this.currentPath) {
             this.currentPath = path;
             window.history.pushState({}, '', path);
             this.handleRouteChange();
         }
+        let response = await Api.get('/api/users/me');
+        let unauthorizedPages = ['/register', '/reset-password', '/login'];
+        if (!response.success && !unauthorizedPages.includes(window.location.pathname)) {
+            window.location.href = '/login';
+        }
+        if (unauthorizedPages.includes(window.location.pathname))
+            document.getElementById('navigation')!.style.display = 'none';
+        else
+            document.getElementById('navigation')!.style.display = 'block';
     }
 
     public handleRouteChange(): void {

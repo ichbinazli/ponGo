@@ -2,6 +2,7 @@ import './styles.css';
 import { Router } from './core/Router';
 import { APIClient, LeaderboardEntry } from './api/APIClient';
 import { TemplateLoader } from './utils/templateLoader';
+import Api from './api/apiLibrary';
 
 // ============================================================================
 // THEME MANAGER
@@ -25,13 +26,62 @@ export class ThemeManager {
         return ThemeManager.instance;
     }
 
-    private init(): void {
-        // Wait for DOM to be ready
+    private async init(): Promise<void> {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.setupTheme());
         } else {
             this.setupTheme();
         }
+       let isRefreshing = false; // Çakışmaları önlemek için kilit
+
+        setInterval(async () => {
+            const expiresAt = localStorage.getItem('expiresAt');
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            if (!expiresAt) {
+                console.log("Token bulunamadı.");
+                let response = await Api.get('/api/users/me');
+                console.log('Auth check response:', response);
+                let unauthorizedPages = ['/register', '/reset-password', '/login'];
+                if (!response.success && !unauthorizedPages.includes(window.location.pathname)) {
+                    window.location.href = '/login';
+                }
+                return;
+            }
+
+            const now = Date.now();
+            const expiresTimestamp = new Date(expiresAt).getTime();
+            const timeLeftMs = expiresTimestamp - now; // Kalan milisaniye
+
+            // Zamanı formatla (Dakika:Saniye)
+            const minutes = Math.floor(timeLeftMs / 60000);
+            const seconds = Math.floor((timeLeftMs % 60000) / 1000);
+            const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const howMany = 14 * 60 * 1000;
+            console.log(`Token Bitiş Zamanı: ${new Date(expiresAt).toLocaleString()}, Kalan Süre: ${formattedTimeLeft}`);
+            if (timeLeftMs < howMany && !isRefreshing && refreshToken) {
+                try {
+                    isRefreshing = true;
+                    console.log("%c Token yenileniyor...", "color: orange; font-weight: bold;");
+
+                    const response = await Api.post('/api/auth/refresh', {
+                        refreshToken: refreshToken
+                    });
+
+                    if (response.success) {
+                        localStorage.setItem('accessToken', response.data.tokens.accessToken);
+                        localStorage.setItem('expiresAt', response.data.tokens.expiresAt);
+                        localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+                        await Api.setAuthToken(response.data.tokens.accessToken);
+                        console.log("%c Token başarıyla yenilendi!", "color: green; font-weight: bold;");
+                    }
+                } catch (error) {
+                    console.error("Yenileme hatası:", error);
+                } finally {
+                    isRefreshing = false;
+                }
+            }
+        }, 1000);
     }
 
     private setupTheme(): void {
@@ -96,25 +146,19 @@ const CONSTANTS = {
     },
     ROUTES: {
         HOME: '/',
-        GAME: '/game',
         GAME_OPTIONS: '/game-options',
-        TOURNAMENT: '/tournament',
         LEADERBOARD: '/leaderboard',
         PROFILE: '/profile',
         FRIENDS: '/friends',
         SETTINGS: '/settings',
         LOGOUT: '/logout',
-        LOADING: '/loading',
-        ERROR: '/error',
         LOGIN: '/login',
         REGISTER: '/register',
-        FORGOT_PASSWORD: '/forgot-password',
-        RESET_PASSWORD: '/reset-password'
+        REREGISTER: '/reset-password'
     },
     TEMPLATES: {
         HOME: 'home',
         GAME_OPTIONS: 'game-options',
-        TOURNAMENT: 'tournament',
         LEADERBOARD: 'leaderboard',
         PROFILE: 'profile',
         FRIENDS: 'friends',
@@ -124,8 +168,7 @@ const CONSTANTS = {
         ERROR: 'error',
         LOGIN: 'login',
         REGISTER: 'register',
-        FORGOT_PASSWORD: 'forgot-password',
-        RESET_PASSWORD: 'reset-password'
+        REREGISTER: 'reset-password'
     },
     SELECTORS: {
         MAIN_CONTENT: 'main-content',
@@ -163,24 +206,23 @@ class App {
 
     private async preloadTemplates(): Promise<void> {
         const templates = Object.values(CONSTANTS.TEMPLATES);
+        // also include auth templates
+        templates.push('login', 'register', 'reset-password');
         await TemplateLoader.preloadTemplates(templates).catch(console.error);
     }
 
     private setupRoutes(): void {
         const routes = [
             { path: CONSTANTS.ROUTES.HOME, handler: () => this.renderHome() },
-            { path: CONSTANTS.ROUTES.GAME, handler: () => this.renderGame() },
             { path: CONSTANTS.ROUTES.GAME_OPTIONS, handler: () => this.renderGameOptions() },
-            { path: CONSTANTS.ROUTES.TOURNAMENT, handler: () => this.renderTournament() },
             { path: CONSTANTS.ROUTES.LEADERBOARD, handler: () => this.renderLeaderboard() },
             { path: CONSTANTS.ROUTES.PROFILE, handler: () => this.renderProfile() },
             { path: CONSTANTS.ROUTES.FRIENDS, handler: () => this.renderFriends() },
             { path: CONSTANTS.ROUTES.SETTINGS, handler: () => this.renderSettings() },
             { path: CONSTANTS.ROUTES.LOGOUT, handler: () => this.renderLogout() },
-            { path: CONSTANTS.ROUTES.LOGIN, handler: () => this.renderLogin() },
-            { path: CONSTANTS.ROUTES.REGISTER, handler: () => this.renderRegister() },
-            { path: CONSTANTS.ROUTES.FORGOT_PASSWORD, handler: () => this.renderForgotPassword() },
-            { path: CONSTANTS.ROUTES.RESET_PASSWORD, handler: () => this.renderResetPassword() }
+            { path: '/login', handler: () => this.renderLogin() },
+            { path: '/register', handler: () => this.renderRegister() },
+            { path: '/reset-password', handler: () => this.renderResetPassword() },
         ];
 
         routes.forEach(route => {
@@ -203,6 +245,10 @@ class App {
                     this.router.navigate(href);
                 }
             }
+        });
+
+        window.addEventListener('popstate', () => {
+            this.router.handleRouteChange();
         });
     }
 
@@ -342,12 +388,6 @@ class App {
         this.loadHomeStats();
     }
 
-    private async renderGame(): Promise<void> {
-        this.updateActiveNavLink(CONSTANTS.ROUTES.GAME);
-        // For now, redirect to game options or show game interface
-        await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_OPTIONS, false);
-    }
-
     private async loadHomeStats(): Promise<void> {
         try {
             const stats = await this.apiClient.getStats();
@@ -364,184 +404,15 @@ class App {
         await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_OPTIONS, false);
     }
 
-    private async renderTournament(): Promise<void> {
-        this.updateActiveNavLink(CONSTANTS.ROUTES.TOURNAMENT);
-        await this.loadTemplate(CONSTANTS.TEMPLATES.TOURNAMENT, false);
-        
-        // Tournament functionality
-        this.setupTournamentFunctionality();
-    }
-    
-    private setupTournamentFunctionality(): void {
-        let tournamentPlayers: Array<{id: number, alias: string, number: number}> = [];
-        const maxPlayers = 8;
-        
-        const addPlayer = () => {
-            console.log('addPlayer called');
-            
-            const playerInput = document.getElementById('player-alias-input') as HTMLInputElement;
-            const playerList = document.getElementById('player-list');
-            const playerCountSpan = document.getElementById('player-count');
-            
-            if (!playerInput || !playerList || !playerCountSpan) {
-                console.error('Required elements not found:', { playerInput, playerList, playerCountSpan });
-                return;
-            }
-            
-            const alias = playerInput.value.trim();
-            console.log('Alias:', alias);
-            
-            if (!alias) {
-                alert('Lütfen bir isim girin!');
-                playerInput.focus();
-                return;
-            }
-            
-            if (tournamentPlayers.some(p => p.alias.toLowerCase() === alias.toLowerCase())) {
-                alert('Bu isim zaten kullanılıyor!');
-                playerInput.focus();
-                return;
-            }
-            
-            if (tournamentPlayers.length >= maxPlayers) {
-                alert('Maksimum oyuncu sayısına ulaşıldı!');
-                return;
-            }
-            
-            const player = {
-                id: Date.now(),
-                alias: alias,
-                number: tournamentPlayers.length + 1
-            };
-            
-            tournamentPlayers.push(player);
-            console.log('Player added:', player);
-            console.log('Current players:', tournamentPlayers);
-            
-            renderPlayers();
-            playerInput.value = '';
-            updatePlayerCount();
-            playerInput.focus();
-        };
-        
-        const removePlayer = (playerId: number) => {
-            console.log('removePlayer called with id:', playerId);
-            
-            const index = tournamentPlayers.findIndex(p => p.id === playerId);
-            if (index > -1) {
-                tournamentPlayers.splice(index, 1);
-                // Renumber players
-                tournamentPlayers.forEach((player, idx) => {
-                    player.number = idx + 1;
-                });
-                renderPlayers();
-                updatePlayerCount();
-            }
-        };
-        
-        const renderPlayers = () => {
-            console.log('renderPlayers called');
-            const playerList = document.getElementById('player-list');
-            
-            if (!playerList) {
-                console.error('player-list element not found');
-                return;
-            }
-            
-            playerList.innerHTML = '';
-            console.log('Rendering', tournamentPlayers.length, 'players');
-            
-            tournamentPlayers.forEach((player) => {
-                console.log('Rendering player:', player);
-                
-                const playerElement = document.createElement('div');
-                playerElement.className = 'player-item';
-                playerElement.innerHTML = `
-                    <span class="player-number">#${player.number}</span>
-                    <span class="player-alias">${player.alias}</span>
-                    <button class="remove-player-btn" data-player-id="${player.id}">
-                        🗑️
-                    </button>
-                `;
-                
-                // Add event listener for remove button
-                const removeBtn = playerElement.querySelector('.remove-player-btn');
-                if (removeBtn) {
-                    removeBtn.addEventListener('click', () => removePlayer(player.id));
-                }
-                
-                playerList.appendChild(playerElement);
-            });
-        };
-        
-        const updatePlayerCount = () => {
-            const playerCountSpan = document.getElementById('player-count');
-            const startTournamentBtn = document.getElementById('start-tournament-btn') as HTMLButtonElement;
-            
-            if (playerCountSpan) {
-                playerCountSpan.textContent = tournamentPlayers.length.toString();
-            }
-            
-            if (startTournamentBtn) {
-                startTournamentBtn.disabled = tournamentPlayers.length < 2;
-            }
-        };
-        
-        const startTournament = () => {
-            if (tournamentPlayers.length < 2) {
-                alert('En az 2 oyuncu gereklidir!');
-                return;
-            }
-            
-            alert(`Turnuva ${tournamentPlayers.length} oyuncu ile başlatılıyor!`);
-        };
-        
-        // Setup event listeners
-        const setupEventListeners = () => {
-            const playerInput = document.getElementById('player-alias-input') as HTMLInputElement;
-            const addPlayerBtn = document.getElementById('add-player-btn');
-            const startTournamentBtn = document.getElementById('start-tournament-btn');
-            
-            console.log('Setting up event listeners:', { playerInput, addPlayerBtn, startTournamentBtn });
-            
-            if (addPlayerBtn) {
-                addPlayerBtn.addEventListener('click', () => {
-                    console.log('Add player button clicked');
-                    addPlayer();
-                });
-            }
-            
-            if (playerInput) {
-                playerInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        console.log('Enter key pressed');
-                        addPlayer();
-                    }
-                });
-            }
-            
-            if (startTournamentBtn) {
-                startTournamentBtn.addEventListener('click', startTournament);
-            }
-            
-            updatePlayerCount();
-            
-            if (playerInput) {
-                setTimeout(() => playerInput.focus(), 100);
-            }
-        };
-        
-        // Initialize
-        setTimeout(setupEventListeners, 100);
-    }
-
     private async renderLeaderboard(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.LEADERBOARD);
         
         this.renderPage(this.createResponsiveContainer(this.createLoadingSpinner()));
 
-        try {
-            const leaderboard = await this.apiClient.getLeaderboard();
+        try {            
+            const response = await Api.get('/api/stats/leaderboard?limit=10');
+            const leaderboard: LeaderboardEntry[] = response.data.leaderboard;
+        
             await this.loadTemplate(CONSTANTS.TEMPLATES.LEADERBOARD);
             
             const podiumContainer = document.getElementById('podium-container');
@@ -594,65 +465,142 @@ class App {
     }
 
     private async renderProfile(): Promise<void> {
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
         this.updateActiveNavLink(CONSTANTS.ROUTES.PROFILE);
         this.renderPage(this.createLoadingSpinner());
 
         try {
-            const profile = await this.apiClient.getProfile();
+            let userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+            const stats = await Api.get(`/api/users/${userId}/stats`);
+            
             await this.loadTemplate(CONSTANTS.TEMPLATES.PROFILE, false);
-            this.fillProfileData(profile);
+            this.fillProfileData(stats);
             this.delayedExecution(() => this.setupProfileTabs(), CONSTANTS.TIMEOUTS.DOM_READY);
+            
+            const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
+            const displayNameInput = document.querySelector('input[name="displayName"]') as HTMLInputElement;
+            
+            emailInput.value = user.email;
+            displayNameInput.value = user.displayName;
+            document.getElementById('update-account-info')?.addEventListener('click', async () => {
+                const email = emailInput.value;
+                const displayName = displayNameInput.value;
+                const response = await Api.patch(`/api/users/me`, {
+                    email: email,
+                    displayName: displayName
+                });
+                console.log(response);
+            });
         } catch (error) {
             console.error('Error loading profile:', error);
             this.showError(CONSTANTS.ERROR_MESSAGES.PROFILE_LOAD);
         }
     }
 
-    private fillProfileData(profile: any): void {
+    private async fillProfileData(stats: any): Promise<void> {
+        if (!stats.success)
+            return;
+        stats = stats.data;
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+        let response = await Api.get('/api/stats/recent-matches?limit=10');
+        console.log('API Library Profile Data:', response);
+        if (response.success)
+        {
+            console.log(response.data);
+            
+            response.data.matches.forEach((item: any) => {
+                /*example data
+                {
+    "id": 17,
+    "player1_id": 4,
+    "player2_id": 8,
+    "player1_score": 11,
+    "player2_score": 6,
+    "winner_id": 4,
+    "game_type": "pong",
+    "tournament_id": null,
+    "duration_seconds": 420,
+    "started_at": "2026-02-03 10:26:03",
+    "ended_at": "2026-02-03 10:33:03",
+    "player1_display_name": "test",
+    "player1_avatar_url": "default-avatar.png",
+    "player2_display_name": "CharlieChamp",
+    "player2_avatar_url": "default-avatar.png",
+    "winner_display_name": "test"
+}
+    */
+                /* example table element
+                <tr class="border-b border-white/10 hover:bg-white/5">
+                                <td class="py-3 px-4">30 Eki 2025</td>
+                                <td class="py-3 px-4">Alex Master</td>
+                                <td class="py-3 px-4">Klasik</td>
+                                <td class="py-3 px-4">21 - 18</td>
+                                <td class="py-3 px-4"><span class="text-green-400 font-bold">GALİBİYET</span></td>
+                                <td class="py-3 px-4">3dk 45s</td>
+                            </tr>
+                            */
+                const tableBody = document.getElementById('game-history-table');
+                if (tableBody) {
+                    const isPlayer1 = item.player1_id === user.id;
+                    const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
+                    const playerScore = isPlayer1 ? item.player1_score : item.player2_score;
+                    const opponentScore = isPlayer1 ? item.player2_score : item.player1_score;
+                    const result = item.winner_id === user.id ?
+                        `<span class="text-green-400 font-bold">GALİBİYET</span>` :
+                        `<span class="text-red-400 font-bold">MAĞLUBİYET</span>`;
+                    const matchDate = new Date(item.ended_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const durationMinutes = Math.floor(item.duration_seconds / 60);
+                    const durationSeconds = item.duration_seconds % 60;
+                    const durationStr = `${durationMinutes}dk ${durationSeconds}s`;
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-white/10 hover:bg-white/5">
+                            <td class="py-3 px-4">${matchDate}</td>
+                            <td class="py-3 px-4">${opponentName}</td>
+                            <td class="py-3 px-4 capitalize">${item.game_type}</td>
+                            <td class="py-3 px-4">${playerScore} - ${opponentScore}</td>
+                            <td class="py-3 px-4">${result}</td>
+                            <td class="py-3 px-4">${durationStr}</td>
+                        </tr>
+                    `;
+                }
+            });
+        }
         const profileInfoContainer = document.getElementById('profile-info-container');
         if (profileInfoContainer) {
             profileInfoContainer.innerHTML = `
                 <div class="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-violet-500 to-purple-600 
-                           rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-xl relative">
-                    ${profile.name.charAt(0).toUpperCase()}
-                    <button class="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full text-white text-sm hover:bg-blue-600 transition-all">
-                        ✏️
-                    </button>
+                           rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-xl">
+                    ${user.displayName}
                 </div>
-                <h2 class="text-2xl font-bold text-white mb-2">${profile.name}</h2>
-                <p class="text-white/70 mb-4">Üye olduğu tarih: ${new Date(profile.joinDate).toLocaleDateString('tr-TR')}</p>
-                <div class="space-y-2">
-                    <button class="btn w-full text-sm">📝 Profili Düzenle</button>
-                </div>
+                <h2 class="text-2xl font-bold text-white mb-2">${user.displayName}</h2>
             `;
         }
-
         const statsGridContainer = document.getElementById('stats-grid-container');
         if (statsGridContainer) {
             statsGridContainer.innerHTML = `
                 <div class="stat-card">
                     <h4 class="text-sm font-semibold text-white/70 mb-2">Toplam Puan</h4>
-                    <div class="text-2xl font-bold text-yellow-400">${profile.totalScore.toLocaleString()}</div>
+                    <div class="text-2xl font-bold text-yellow-400">${stats.total_points_scored}</div>
                 </div>
                 <div class="stat-card">
                     <h4 class="text-sm font-semibold text-white/70 mb-2">Oyun Sayısı</h4>
-                    <div class="text-2xl font-bold text-blue-400">${profile.gamesPlayed}</div>
+                    <div class="text-2xl font-bold text-blue-400">${stats.total_matches}</div>
                 </div>
                 <div class="stat-card">
                     <h4 class="text-sm font-semibold text-white/70 mb-2">Galibiyetler</h4>
-                    <div class="text-2xl font-bold text-green-400">${profile.wins}</div>
+                    <div class="text-2xl font-bold text-green-400">${stats.wins}</div>
                 </div>
                 <div class="stat-card">
                     <h4 class="text-sm font-semibold text-white/70 mb-2">Mağlubiyetler</h4>
-                    <div class="text-2xl font-bold text-red-400">${profile.losses}</div>
+                    <div class="text-2xl font-bold text-red-400">${stats.losses}</div>
                 </div>
                 <div class="stat-card">
                     <h4 class="text-sm font-semibold text-white/70 mb-2">Kazanma Oranı</h4>
-                    <div class="text-2xl font-bold text-purple-400">${profile.winRate}%</div>
+                    <div class="text-2xl font-bold text-purple-400">${stats.win_rate}%</div>
                 </div>
                 <div class="stat-card">
-                    <h4 class="text-sm font-semibold text-white/70 mb-2">En İyi Seri</h4>
-                    <div class="text-2xl font-bold text-orange-400">${profile.bestStreak}</div>
+                    <h4 class="text-sm font-semibold text-white/70 mb-2">Beraberlik</h4>
+                    <div class="text-2xl font-bold text-orange-400">${stats.draws}</div>
                 </div>
             `;
         }
@@ -693,43 +641,20 @@ class App {
         }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 
-    //render login
-    private async renderLogin(): Promise<void> {
-        this.updateActiveNavLink(CONSTANTS.ROUTES.LOGIN);
-        await this.loadTemplate(CONSTANTS.TEMPLATES.LOGIN, false);
-        const navigation = document.getElementById('navigation') as HTMLFormElement;
-        navigation.style.display = 'none';
-    }
-
-    private async renderRegister(): Promise<void> {
-        this.updateActiveNavLink(CONSTANTS.ROUTES.REGISTER);
-        await this.loadTemplate(CONSTANTS.TEMPLATES.REGISTER, false);
-        const navigation = document.getElementById('navigation') as HTMLFormElement;
-        navigation.style.display = 'none';
-    }
-
-    private async renderForgotPassword(): Promise<void> {
-        this.updateActiveNavLink(CONSTANTS.ROUTES.FORGOT_PASSWORD);
-        await this.loadTemplate(CONSTANTS.TEMPLATES.FORGOT_PASSWORD, false);
-        const navigation = document.getElementById('navigation') as HTMLFormElement;
-        navigation.style.display = 'none';
-    }
-
-    private async renderResetPassword(): Promise<void> {
-        this.updateActiveNavLink(CONSTANTS.ROUTES.RESET_PASSWORD);
-        await this.loadTemplate(CONSTANTS.TEMPLATES.RESET_PASSWORD, false);
-        const navigation = document.getElementById('navigation') as HTMLFormElement;
-        navigation.style.display = 'none';
-    }
-
     private confirmLogout(): void {
         setTimeout(() => {
+            localStorage.clear();
+            Api.setAuthToken("");
             alert('Başarıyla çıkış yaptınız!');
             this.router.navigate('/login');
         }, 1000);
     }
 
     private async renderFriends(): Promise<void> {
+        let friends = await Api.get('/api/friends'); // Just to simulate API call
+        console.log(friends);
+        let pending = await Api.get('/api/friends/requests/pending'); // Just to simulate API call
+        console.log(pending);
         this.updateActiveNavLink(CONSTANTS.ROUTES.FRIENDS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.FRIENDS);
         this.loadFriendsData();
@@ -852,9 +777,88 @@ class App {
     }
 
     private delayedExecution(callback: () => void, delay: number = CONSTANTS.TIMEOUTS.DOM_READY): void {
+        let unauthorizedPages = ['/register', '/reset-password', '/login'];
+        if (unauthorizedPages.includes(window.location.pathname))
+            document.getElementById('navigation')!.style.display = 'none';
+        else
+            document.getElementById('navigation')!.style.display = 'block';
         setTimeout(callback, delay);
+    }
+
+    private async renderLogin(): Promise<void> {
+        await this.loadTemplate('login', false);
+
+        this.delayedExecution(() => {
+            const form = document.getElementById('login-form') as HTMLFormElement | null;
+            if (!form) return;
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = (document.getElementById('email') as HTMLInputElement).value;
+                const password = (document.getElementById('password') as HTMLInputElement).value;
+                try {
+                    const res = await Api.post('/api/auth/login', { email, password });
+                    if (res && res.data && res.data.tokens) {
+                        localStorage.setItem('accessToken', res.data.tokens.accessToken);
+                        localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+                        localStorage.setItem('expiresAt', res.data.tokens.expiresAt);
+                        localStorage.setItem('user', JSON.stringify(res.data.user));
+                        await Api.setAuthToken(res.data.tokens.accessToken);
+                        alert('Giriş başarılı');
+                        this.router.navigate('/home');
+                    } else {
+                        alert('Giriş başarısız');
+                    }
+                } catch (err) {
+                    console.error('Login error', err);
+                    alert('Giriş sırasında hata oluştu');
+                }
+            });
+        }, CONSTANTS.TIMEOUTS.DOM_READY);
+    }
+
+    private async renderRegister(): Promise<void> {
+        await this.loadTemplate('register', false);
+
+        this.delayedExecution(() => {
+            const form = document.getElementById('register-form') as HTMLFormElement | null;
+            if (!form) return;
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let displayName = (document.getElementById('displayName') as HTMLInputElement).value;
+                let email = (document.getElementById('email') as HTMLInputElement).value;
+                let password = (document.getElementById('password') as HTMLInputElement).value;
+                try {
+                    await Api.post('/api/auth/register', { displayName, email, password });
+                    alert('Kayıt başarılı. Giriş sayfasına yönlendiriliyorsunuz.');
+                    this.router.navigate('/login');
+                } catch (err) {
+                    console.error('Register error', err);
+                    alert('Kayıt sırasında hata oluştu');
+                }
+            });
+        }, CONSTANTS.TIMEOUTS.DOM_READY);
+    }
+
+    private async renderResetPassword(): Promise<void> {
+        await this.loadTemplate('reset-password', false);
+
+        this.delayedExecution(() => {
+            const form = document.getElementById('reset-password-form') as HTMLFormElement | null;
+            if (!form) return;
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = (document.getElementById('reset-email') as HTMLInputElement).value;
+                try {
+                    await Api.post('/api/auth/forgot-password', { email });
+                    alert('Sıfırlama bağlantısı gönderildi (test).');
+                    this.router.navigate('/login');
+                } catch (err) {
+                    console.error('Reregister error', err);
+                    alert('İşlem sırasında hata oluştu');
+                }
+            });
+        }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 }
 
-// Initialize the application
 new App();
