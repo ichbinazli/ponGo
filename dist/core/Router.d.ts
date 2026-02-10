@@ -8,7 +8,7 @@ export declare class Router {
     constructor();
     private setupPopstateHandler;
     addRoute(path: string, handler: () => void): void;
-    navigate(path: string): void;
+    navigate(path: string): Promise<void>;
     handleRouteChange(): void;
     init(): void;
     private handleNotFound;

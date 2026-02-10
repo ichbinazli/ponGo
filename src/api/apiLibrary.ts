@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosProgressEvent } from 'axios';
 
 class Api {
     private axiosInstance: AxiosInstance;
@@ -22,20 +22,15 @@ class Api {
         this.axiosInstance.defaults.headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // ... diğer metodlar aynı kalabilir ...
-    
     public async get(endpoint: string): Promise<any> {
         try {
             const response: AxiosResponse = await this.axiosInstance.get(endpoint);
-            // Artık 429 gelse bile burası çalışır ve response.data döner.
             return response.data;
         } catch (error) {
-            // Sadece ağ hataları (internet yok vs.) buraya düşer.
             throw new Error(`GET ${endpoint} failed: ${error}`);
         }
     }
 
-    // Diğer post, put, delete metodları da artık 429'u yakalayacaktır.
     public async post(endpoint: string, data: any): Promise<any> {
         try {
             const response: AxiosResponse = await this.axiosInstance.post(endpoint, data);
@@ -71,6 +66,43 @@ class Api {
             throw new Error(`PATCH ${endpoint} failed: ${error}`);
         }
     }
+
+    public async uploadFile(
+    endpoint: string, 
+    file: File | Blob, 
+    fieldName: string = 'file',
+    additionalData?: Record<string, any>,
+    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+): Promise<any> {
+    try {
+        const formData = new FormData();
+        formData.append(fieldName, file);
+
+        // Ek veriler varsa FormData'ya ekle
+        if (additionalData) {
+            Object.keys(additionalData).forEach(key => {
+                formData.append(key, additionalData[key]);
+            });
+        }
+
+        const config: any = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        };
+
+        if (onUploadProgress) {
+            config.onUploadProgress = onUploadProgress;
+        }
+
+        const response: AxiosResponse = await this.axiosInstance.post(endpoint, formData, config);
+
+        return response.data;
+    } catch (error) {
+        throw new Error(`File upload to ${endpoint} failed: ${error}`);
+    }
+}
+
 
     public async request(method: 'get' | 'post' | 'put' | 'delete' | 'patch', endpoint: string, data?: any): Promise<any> {
         switch (method) {

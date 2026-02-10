@@ -1,47 +1,41 @@
 <div class="max-w-6xl mx-auto space-y-8">
-    <!-- Game Modes -->
     <div class="card animate-fade-in">
         <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow">
-            🎮 Oyun Seçenekleri
+             Oyun Seçenekleri
         </h1>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- Classic Pong -->
             <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300">
-                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">🏓 Klasik Pong</h3>
+                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4"> Klasik Pong</h3>
                 <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Yapay zeka rakibi ile geleneksel Pong oyunu</p>
                 <button class="btn w-full text-sm sm:text-base">Klasik Oyna</button>
             </div>
             
-            <!-- Speed Pong -->
             <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300">
-                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">⚡ Hız Pong</h3>
+                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4"> Hız Pong</h3>
                 <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Artan hız ile hızlı tempolu Pong</p>
                 <button class="btn w-full text-sm sm:text-base">Hız Oyna</button>
             </div>
             
-            <!-- Tournament -->
             <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300">
-                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">🏆 Turnuva</h3>
+                <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4"> Turnuva</h3>
                 <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Rekabetçi turnuvalara katıl</p>
                 <a href="/tournament" data-route class="btn w-full text-sm sm:text-base inline-block text-center">Turnuvaya Katıl</a>
             </div>
         </div>
     </div>
 
-    <!-- Game Customization -->
     <div class="card animate-fade-in">
         <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow">
-            🎨 Oyun Özelleştirmesi
+             Oyun Özelleştirmesi
         </h2>
         <p class="text-center text-slate-300 mb-8">
             Oyunu kişiselleştirin ve benzersiz deneyim yaşayın
         </p>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-            <!-- Ball Customization -->
             <div class="card bg-slate-800/50">
-                <h3 class="text-lg font-semibold text-slate-100 mb-4">⚪ Top Özelleştirmesi</h3>
+                <h3 class="text-lg font-semibold text-slate-100 mb-4"> Top Özelleştirmesi</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-slate-300 mb-2">Top Rengi</label>
@@ -57,28 +51,14 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-slate-300 mb-2">Top Efektleri</label>
                         <div class="space-y-2">
-                            <label class="flex items-center justify-between">
-                                <span class="text-slate-300 text-sm">Parıltı efekti</span>
-                                <input type="checkbox" class="w-4 h-4 text-violet-500">
-                            </label>
-                            <label class="flex items-center justify-between">
-                                <span class="text-slate-300 text-sm">İz efekti</span>
-                                <input type="checkbox" checked class="w-4 h-4 text-violet-500">
-                            </label>
-                            <label class="flex items-center justify-between">
-                                <span class="text-slate-300 text-sm">Çarpma efekti</span>
-                                <input type="checkbox" class="w-4 h-4 text-violet-500">
-                            </label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Field Customization -->
             <div class="card bg-slate-800/50">
-                <h3 class="text-lg font-semibold text-slate-100 mb-4">🏓 Oyun Alanı Özelleştirmesi</h3>
+                <h3 class="text-lg font-semibold text-slate-100 mb-4"> Oyun Alanı Özelleştirmesi</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <div>
@@ -91,13 +71,6 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-slate-300 mb-2">Çizgi Stili</label>
-                            <select class="input w-full">
-                                <option value="solid">Düz Çizgi</option>
-                                <option value="dashed" selected>Kesikli Çizgi</option>
-                                <option value="dotted">Noktalı Çizgi</option>
-                                <option value="neon">Neon Çizgi</option>
-                            </select>
                         </div>
                     </div>
                     <div class="space-y-4">
@@ -111,22 +84,11 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-slate-300 mb-2">Ek Efektler</label>
-                            <div class="space-y-2">
-                                <label class="flex items-center justify-between">
-                                    <span class="text-slate-300 text-sm">Işıltı efekti</span>
-                                    <input type="checkbox" class="w-4 h-4 text-violet-500">
-                                </label>
-                                <label class="flex items-center justify-between">
-                                    <span class="text-slate-300 text-sm">Gölge efekti</span>
-                                    <input type="checkbox" checked class="w-4 h-4 text-violet-500">
-                                </label>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Preview -->
                 <div class="mt-6 p-4 bg-slate-800/50 rounded-lg">
                     <h4 class="text-slate-300 text-sm font-medium mb-3">Önizleme</h4>
                     <div class="w-full h-32 bg-slate-900 rounded border-2 border-dashed border-white/30 relative overflow-hidden">
@@ -139,8 +101,8 @@
                 </div>
                 
                 <div class="flex justify-center mt-6 space-x-4">
-                    <button class="btn bg-violet-600 hover:bg-violet-700">💾 Özelleştirmeleri Kaydet</button>
-                    <button class="btn btn-secondary">🔄 Varsayılana Sıfırla</button>
+                    <button class="btn bg-violet-600 hover:bg-violet-700"> Özelleştirmeleri Kaydet</button>
+                    <button class="btn btn-secondary"> Varsayılana Sıfırla</button>
                 </div>
             </div>
         </div>

@@ -222,8 +222,7 @@ class App {
             { path: CONSTANTS.ROUTES.LOGOUT, handler: () => this.renderLogout() },
             { path: '/login', handler: () => this.renderLogin() },
             { path: '/register', handler: () => this.renderRegister() },
-            { path: '/reset-password', handler: () => this.renderResetPassword() },
-        ];
+            { path: '/reset-password', handler: () => this.renderResetPassword() },        ];
 
         routes.forEach(route => {
             this.router.addRoute(route.path, route.handler);
@@ -381,6 +380,7 @@ class App {
         });
     }
 
+
     // Page Renderers
     private async renderHome(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.HOME);
@@ -464,6 +464,67 @@ class App {
         }
     }
 
+   private initProfilePhotoUpload(): void {
+    // Elementi bulana kadar bekle
+    const checkAndInit = () => {
+        const addPhotoBtn = document.getElementById('edit-avatar-btn'); // ← DEĞİŞTİ
+        const photoUpload = document.getElementById('avatar-upload') as HTMLInputElement; // ← DEĞİŞTİ
+        const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement;
+
+        if (!addPhotoBtn || !photoUpload || !profileAvatar) {
+            console.log('Elements not found, retrying...');
+            setTimeout(checkAndInit, 100);
+            return;
+        }
+
+        console.log('Elements found, initializing photo upload');
+
+        addPhotoBtn.addEventListener('click', () => {
+            console.log('Button clicked!');
+            photoUpload.click();
+        });
+
+        photoUpload.addEventListener('change', (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            const file = target.files?.[0];
+            
+            if (!file) return;
+            
+            console.log('File selected:', file.name);
+            
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+            
+            if (!allowedTypes.includes(file.type)) {
+                alert('Lütfen sadece resim dosyası seçin! (PNG, JPG, GIF, WebP)');
+                photoUpload.value = '';
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Dosya boyutu 5MB\'dan küçük olmalıdır!');
+                photoUpload.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async (event: ProgressEvent<FileReader>) => {
+                if (event.target?.result && profileAvatar) {
+                    profileAvatar.src = event.target.result as string;
+                    let response = await Api.uploadFile('/api/users/me/avatar', file, 'avatar');
+                    if (response.success) {
+                        let object = JSON.parse(localStorage.getItem('user') || '{}');
+                        object.avatarUrl = response.data.avatar_url;
+                        localStorage.setItem('user', JSON.stringify(object));
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    checkAndInit();
+}
+
     private async renderProfile(): Promise<void> {
         let user = JSON.parse(localStorage.getItem('user') || '{}');
         this.updateActiveNavLink(CONSTANTS.ROUTES.PROFILE);
@@ -475,7 +536,10 @@ class App {
             
             await this.loadTemplate(CONSTANTS.TEMPLATES.PROFILE, false);
             this.fillProfileData(stats);
-            this.delayedExecution(() => this.setupProfileTabs(), CONSTANTS.TIMEOUTS.DOM_READY);
+            this.delayedExecution(() => {
+            this.setupProfileTabs();
+            this.initProfilePhotoUpload();
+            }, CONSTANTS.TIMEOUTS.DOM_READY);
             
             const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
             const displayNameInput = document.querySelector('input[name="displayName"]') as HTMLInputElement;
@@ -497,115 +561,93 @@ class App {
         }
     }
 
+
+    
     private async fillProfileData(stats: any): Promise<void> {
-        if (!stats.success)
-            return;
-        stats = stats.data;
-        let user = JSON.parse(localStorage.getItem('user') || '{}');
-        let response = await Api.get('/api/stats/recent-matches?limit=10');
-        console.log('API Library Profile Data:', response);
-        if (response.success)
-        {
-            console.log(response.data);
-            
+    if (!stats.success) return;
+    
+    const statsData = stats.data;
+    let user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    // 1. Maç Geçmişini Doldur
+    let response = await Api.get('/api/stats/recent-matches?limit=10');
+    if (response.success) {
+        const tableBody = document.getElementById('game-history-table');
+        if (tableBody) {
+            // Tabloyu her seferinde sıfırlamak istersen: tableBody.innerHTML = '';
             response.data.matches.forEach((item: any) => {
-                /*example data
-                {
-    "id": 17,
-    "player1_id": 4,
-    "player2_id": 8,
-    "player1_score": 11,
-    "player2_score": 6,
-    "winner_id": 4,
-    "game_type": "pong",
-    "tournament_id": null,
-    "duration_seconds": 420,
-    "started_at": "2026-02-03 10:26:03",
-    "ended_at": "2026-02-03 10:33:03",
-    "player1_display_name": "test",
-    "player1_avatar_url": "default-avatar.png",
-    "player2_display_name": "CharlieChamp",
-    "player2_avatar_url": "default-avatar.png",
-    "winner_display_name": "test"
-}
-    */
-                /* example table element
-                <tr class="border-b border-white/10 hover:bg-white/5">
-                                <td class="py-3 px-4">30 Eki 2025</td>
-                                <td class="py-3 px-4">Alex Master</td>
-                                <td class="py-3 px-4">Klasik</td>
-                                <td class="py-3 px-4">21 - 18</td>
-                                <td class="py-3 px-4"><span class="text-green-400 font-bold">GALİBİYET</span></td>
-                                <td class="py-3 px-4">3dk 45s</td>
-                            </tr>
-                            */
-                const tableBody = document.getElementById('game-history-table');
-                if (tableBody) {
-                    const isPlayer1 = item.player1_id === user.id;
-                    const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
-                    const playerScore = isPlayer1 ? item.player1_score : item.player2_score;
-                    const opponentScore = isPlayer1 ? item.player2_score : item.player1_score;
-                    const result = item.winner_id === user.id ?
-                        `<span class="text-green-400 font-bold">GALİBİYET</span>` :
-                        `<span class="text-red-400 font-bold">MAĞLUBİYET</span>`;
-                    const matchDate = new Date(item.ended_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
-                    const durationMinutes = Math.floor(item.duration_seconds / 60);
-                    const durationSeconds = item.duration_seconds % 60;
-                    const durationStr = `${durationMinutes}dk ${durationSeconds}s`;
-                    tableBody.innerHTML += `
-                        <tr class="border-b border-white/10 hover:bg-white/5">
-                            <td class="py-3 px-4">${matchDate}</td>
-                            <td class="py-3 px-4">${opponentName}</td>
-                            <td class="py-3 px-4 capitalize">${item.game_type}</td>
-                            <td class="py-3 px-4">${playerScore} - ${opponentScore}</td>
-                            <td class="py-3 px-4">${result}</td>
-                            <td class="py-3 px-4">${durationStr}</td>
-                        </tr>
-                    `;
-                }
+                const isPlayer1 = item.player1_id === user.id;
+                const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
+                const playerScore = isPlayer1 ? item.player1_score : item.player2_score;
+                const opponentScore = isPlayer1 ? item.player2_score : item.player1_score;
+                
+                const result = item.winner_id === user.id ?
+                    `<span class="text-green-400 font-bold">GALİBİYET</span>` :
+                    `<span class="text-red-400 font-bold">MAĞLUBİYET</span>`;
+                
+                const matchDate = new Date(item.ended_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
+                const durationMinutes = Math.floor(item.duration_seconds / 60);
+                const durationSeconds = item.duration_seconds % 60;
+                const durationStr = `${durationMinutes}dk ${durationSeconds}s`;
+
+                tableBody.innerHTML += `
+                    <tr class="border-b border-white/10 hover:bg-white/5">
+                        <td class="py-3 px-4">${matchDate}</td>
+                        <td class="py-3 px-4">${opponentName}</td>
+                        <td class="py-3 px-4 capitalize">${item.game_type}</td>
+                        <td class="py-3 px-4">${playerScore} - ${opponentScore}</td>
+                        <td class="py-3 px-4">${result}</td>
+                        <td class="py-3 px-4">${durationStr}</td>
+                    </tr>
+                `;
             });
-        }
-        const profileInfoContainer = document.getElementById('profile-info-container');
-        if (profileInfoContainer) {
-            profileInfoContainer.innerHTML = `
-                <div class="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-violet-500 to-purple-600 
-                           rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-xl">
-                    ${user.displayName}
-                </div>
-                <h2 class="text-2xl font-bold text-white mb-2">${user.displayName}</h2>
-            `;
-        }
-        const statsGridContainer = document.getElementById('stats-grid-container');
-        if (statsGridContainer) {
-            statsGridContainer.innerHTML = `
-                <div class="stat-card">
-                    <h4 class="text-sm font-semibold text-white/70 mb-2">Toplam Puan</h4>
-                    <div class="text-2xl font-bold text-yellow-400">${stats.total_points_scored}</div>
-                </div>
-                <div class="stat-card">
-                    <h4 class="text-sm font-semibold text-white/70 mb-2">Oyun Sayısı</h4>
-                    <div class="text-2xl font-bold text-blue-400">${stats.total_matches}</div>
-                </div>
-                <div class="stat-card">
-                    <h4 class="text-sm font-semibold text-white/70 mb-2">Galibiyetler</h4>
-                    <div class="text-2xl font-bold text-green-400">${stats.wins}</div>
-                </div>
-                <div class="stat-card">
-                    <h4 class="text-sm font-semibold text-white/70 mb-2">Mağlubiyetler</h4>
-                    <div class="text-2xl font-bold text-red-400">${stats.losses}</div>
-                </div>
-                <div class="stat-card">
-                    <h4 class="text-sm font-semibold text-white/70 mb-2">Kazanma Oranı</h4>
-                    <div class="text-2xl font-bold text-purple-400">${stats.win_rate}%</div>
-                </div>
-                <div class="stat-card">
-                    <h4 class="text-sm font-semibold text-white/70 mb-2">Beraberlik</h4>
-                    <div class="text-2xl font-bold text-orange-400">${stats.draws}</div>
-                </div>
-            `;
         }
     }
 
+    // 2. Profil Bilgilerini Güncelle (HTML yapısını bozmadan)
+    const usernameEl = document.getElementById('profile-username');
+    const avatarEl = document.getElementById('profile-avatar') as HTMLImageElement;
+    
+    if (usernameEl) {
+        usernameEl.textContent = user.displayName || 'Oyuncu';
+    }
+    
+    if (avatarEl && user.avatarUrl) {
+        avatarEl.src = "http://localhost:3000" + user.avatarUrl; 
+        // Eğer avatarUrl yoksa varsayılan Dicebear linki HTML'de kalacaktır.
+    }
+
+    // 3. İstatistik Kartlarını Güncelle
+    const statsGridContainer = document.getElementById('stats-grid-container');
+    if (statsGridContainer) {
+        statsGridContainer.innerHTML = `
+            <div class="stat-card">
+                <h4 class="text-sm font-semibold text-white/70 mb-2">Toplam Puan</h4>
+                <div class="text-2xl font-bold text-yellow-400">${statsData.total_points_scored}</div>
+            </div>
+            <div class="stat-card">
+                <h4 class="text-sm font-semibold text-white/70 mb-2">Oyun Sayısı</h4>
+                <div class="text-2xl font-bold text-blue-400">${statsData.total_matches}</div>
+            </div>
+            <div class="stat-card">
+                <h4 class="text-sm font-semibold text-white/70 mb-2">Galibiyetler</h4>
+                <div class="text-2xl font-bold text-green-400">${statsData.wins}</div>
+            </div>
+            <div class="stat-card">
+                <h4 class="text-sm font-semibold text-white/70 mb-2">Mağlubiyetler</h4>
+                <div class="text-2xl font-bold text-red-400">${statsData.losses}</div>
+            </div>
+            <div class="stat-card">
+                <h4 class="text-sm font-semibold text-white/70 mb-2">Kazanma Oranı</h4>
+                <div class="text-2xl font-bold text-purple-400">${statsData.win_rate}%</div>
+            </div>
+            <div class="stat-card">
+                <h4 class="text-sm font-semibold text-white/70 mb-2">Beraberlik</h4>
+                <div class="text-2xl font-bold text-orange-400">${statsData.draws}</div>
+            </div>
+        `;
+    }
+    }
     private setupProfileTabs(): void {
         const tabs = document.querySelectorAll('.profile-tab');
         const panels = document.querySelectorAll('.tab-panel');
