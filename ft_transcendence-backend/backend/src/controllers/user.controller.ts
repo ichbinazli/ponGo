@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { userModel } from '../models/user.model.js';
 import { matchHistoryModel } from '../models/match.model.js';
 import { hashPassword, verifyPassword } from '../services/hash.service.js';
-import { saveAvatar, deleteAvatar, UploadError } from '../services/upload.service.js';
+import { saveAvatar, deleteAvatar, getAvatarUrl, UploadError } from '../services/upload.service.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';
 import { updateProfileSchema, changePasswordSchema, paginationSchema } from '../utils/validators.js';
 
@@ -32,7 +32,7 @@ export const getMyProfile = async (
                 id: user.id,
                 email: user.email,
                 display_name: user.display_name,
-                avatar_url: user.avatar_url,
+                avatar_url: getAvatarUrl(user.avatar_url),
                 is_online: user.is_online === 1,
                 two_factor_enabled: user.two_factor_enabled === 1,
                 created_at: user.created_at,

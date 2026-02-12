@@ -1,4 +1,5 @@
 import { getDatabase } from '../config/database.js';
+import { getAvatarUrl } from '../services/upload.service.js';
 
 /**
  * User model interface
@@ -239,7 +240,7 @@ export class UserModel {
         return {
             id: user.id,
             display_name: user.display_name,
-            avatar_url: user.avatar_url,
+            avatar_url: getAvatarUrl(user.avatar_url),
             is_online: user.is_online === 1,
             last_seen_at: user.last_seen_at,
             created_at: user.created_at,

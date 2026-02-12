@@ -412,13 +412,11 @@ export const recordMatchResult = async (
             }
         }
 
-        // Update participant status
-        // SORUN 5 FIX: winnerParticipantId bir participant_id, ama updateParticipantStatus user_id bekliyor
-        // Önce participant'tan user_id alıp onu gönderiyoruz
-        if (winnerParticipant && winnerParticipant.user_id) {
-            tournamentModel.updateParticipantStatus(
-                match.tournament_id,
-                winnerParticipant.user_id,
+        // Update participant statuses using participant ID (works for both registered and guest)
+        // Mark winner as still playing
+        if (winnerParticipant) {
+            tournamentModel.updateParticipantStatusById(
+                winnerParticipantId,
                 'playing'
             );
         }
@@ -429,14 +427,10 @@ export const recordMatchResult = async (
             : match.participant1_id;
 
         if (loserParticipantId) {
-            const loserParticipant = tournamentModel.getParticipant(loserParticipantId);
-            if (loserParticipant && loserParticipant.user_id) {
-                tournamentModel.updateParticipantStatus(
-                    match.tournament_id,
-                    loserParticipant.user_id,
-                    'eliminated'
-                );
-            }
+            tournamentModel.updateParticipantStatusById(
+                loserParticipantId,
+                'eliminated'
+            );
         }
 
         return reply.send(

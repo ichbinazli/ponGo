@@ -334,6 +334,29 @@ export class TournamentModel {
     }
 
     /**
+     * Update participant status by participant ID (works for both registered and guest participants)
+     */
+    updateParticipantStatusById(
+        participantId: number,
+        status: ParticipantStatus,
+        placement?: number
+    ): boolean {
+        let query = 'UPDATE tournament_participants SET status = ?';
+        const params: (string | number)[] = [status];
+
+        if (placement !== undefined) {
+            query += ', placement = ?';
+            params.push(placement);
+        }
+
+        query += ' WHERE id = ?';
+        params.push(participantId);
+
+        const result = this.db.prepare(query).run(...params);
+        return result.changes > 0;
+    }
+
+    /**
      * Remove participant from tournament
      */
     removeParticipant(tournamentId: number, userId: number): boolean {

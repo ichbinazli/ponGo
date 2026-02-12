@@ -54,7 +54,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
     email: emailSchema,
     password: z.string().min(1, 'Password is required'),
-    twoFactorCode: z.string().length(6).optional(),
+    twoFactorCode: z.string().min(6).max(9).optional(),
 });
 
 // Update profile schema

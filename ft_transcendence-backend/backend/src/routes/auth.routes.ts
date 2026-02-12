@@ -39,7 +39,7 @@ export const authRoutes = async (server: FastifyInstance): Promise<void> => {
                 properties: {
                     email: { type: 'string', format: 'email' },
                     password: { type: 'string' },
-                    twoFactorCode: { type: 'string', minLength: 6, maxLength: 6 },
+                    twoFactorCode: { type: 'string', minLength: 6, maxLength: 9 },
                 },
             },
         },

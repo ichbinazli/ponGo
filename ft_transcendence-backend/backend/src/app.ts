@@ -18,6 +18,7 @@ import { statsRoutes } from './routes/stats.routes.js';
 import { matchRoutes } from './routes/match.routes.js';
 import { localTournamentRoutes } from './routes/localTournament.routes.js';
 import { registerSwagger } from './plugins/swagger.js';
+import { sessionModel } from './models/session.model.js';
 
 // Create Fastify instance with HTTPS
 const createServer = (): FastifyInstance => {
@@ -217,9 +218,23 @@ const bootstrap = async (): Promise<void> => {
     registerErrorHandler(server);
     registerNotFoundHandler(server);
 
+    // Session cleanup: remove expired sessions every 30 minutes
+    const SESSION_CLEANUP_INTERVAL = 30 * 60 * 1000; // 30 minutes
+    const cleanupTimer = setInterval(() => {
+        try {
+            const cleaned = sessionModel.cleanupExpired();
+            if (cleaned > 0) {
+                server.log.info(`🧹 Cleaned up ${cleaned} expired sessions`);
+            }
+        } catch (error) {
+            server.log.error({ err: error }, 'Session cleanup failed');
+        }
+    }, SESSION_CLEANUP_INTERVAL);
+
     // Graceful shutdown
     const shutdown = async (signal: string): Promise<void> => {
         server.log.info(`Received ${signal}, shutting down gracefully...`);
+        clearInterval(cleanupTimer);
         closeDatabase();
         await server.close();
         process.exit(0);
