@@ -15,6 +15,7 @@ export interface User {
     two_factor_enabled: number;
     two_factor_backup_codes: string | null;
     is_online: number;
+    is_ai: number;
     last_seen_at: string | null;
     anonymized: number;
     anonymized_at: string | null;
@@ -68,6 +69,30 @@ export interface UpdateUserInput {
  */
 export class UserModel {
     private db = getDatabase();
+
+    /**
+     * AI kullanıcıyı bul veya oluştur.
+     * Migration'da oluşturulan AI kullanıcıyı döndürür.
+     * Eğer yoksa yeniden oluşturur (güvenlik önlemi).
+     */
+    getOrCreateAIUser(): User {
+        let aiUser = this.db
+            .prepare('SELECT * FROM users WHERE is_ai = 1 LIMIT 1')
+            .get() as User | undefined;
+
+        if (!aiUser) {
+            this.db.prepare(`
+                INSERT INTO users (email, display_name, is_ai, password_hash, avatar_url)
+                VALUES ('ai-player@system.local', 'AI Player', 1, '', 'default-avatar.png')
+            `).run();
+
+            aiUser = this.db
+                .prepare('SELECT * FROM users WHERE is_ai = 1 LIMIT 1')
+                .get() as User | undefined;
+        }
+
+        return aiUser!;
+    }
 
     /**
      * Find user by ID
@@ -277,7 +302,7 @@ export class UserModel {
     getOnlineUsers(): PublicUser[] {
         const users = this.db
             .prepare(
-                'SELECT id, display_name, avatar_url, is_online, last_seen_at, created_at FROM users WHERE is_online = 1 AND anonymized = 0'
+                'SELECT id, display_name, avatar_url, is_online, last_seen_at, created_at FROM users WHERE is_online = 1 AND anonymized = 0 AND is_ai = 0'
             )
             .all() as User[];
 
@@ -299,7 +324,7 @@ export class UserModel {
             .prepare(
                 `SELECT id, display_name, avatar_url, is_online, last_seen_at, created_at 
        FROM users 
-       WHERE display_name LIKE ? AND anonymized = 0 
+       WHERE display_name LIKE ? AND anonymized = 0 AND is_ai = 0
        LIMIT ?`
             )
             .all(`%${query}%`, limit) as User[];

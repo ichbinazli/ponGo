@@ -3,7 +3,7 @@ import { getDatabase } from '../config/database.js';
 /**
  * Game type
  */
-export type GameType = 'pong' | 'tournament' | 'other';
+export type GameType = 'pong' | 'tournament' | 'ai' | 'other';
 
 /**
  * Match history model interface
@@ -110,14 +110,14 @@ export class MatchHistoryModel {
             .prepare(
                 `SELECT 
         mh.*,
-        p1.display_name as player1_display_name,
-        p1.avatar_url as player1_avatar_url,
-        p2.display_name as player2_display_name,
-        p2.avatar_url as player2_avatar_url,
+        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
+        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
-      JOIN users p1 ON p1.id = mh.player1_id
-      JOIN users p2 ON p2.id = mh.player2_id
+      LEFT JOIN users p1 ON p1.id = mh.player1_id
+      LEFT JOIN users p2 ON p2.id = mh.player2_id
       LEFT JOIN users w ON w.id = mh.winner_id
       WHERE mh.id = ?`
             )
@@ -136,14 +136,14 @@ export class MatchHistoryModel {
             .prepare(
                 `SELECT 
         mh.*,
-        p1.display_name as player1_display_name,
-        p1.avatar_url as player1_avatar_url,
-        p2.display_name as player2_display_name,
-        p2.avatar_url as player2_avatar_url,
+        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
+        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
-      JOIN users p1 ON p1.id = mh.player1_id
-      JOIN users p2 ON p2.id = mh.player2_id
+      LEFT JOIN users p1 ON p1.id = mh.player1_id
+      LEFT JOIN users p2 ON p2.id = mh.player2_id
       LEFT JOIN users w ON w.id = mh.winner_id
       WHERE mh.player1_id = ? OR mh.player2_id = ?
       ORDER BY mh.ended_at DESC
@@ -164,14 +164,14 @@ export class MatchHistoryModel {
             .prepare(
                 `SELECT 
         mh.*,
-        p1.display_name as player1_display_name,
-        p1.avatar_url as player1_avatar_url,
-        p2.display_name as player2_display_name,
-        p2.avatar_url as player2_avatar_url,
+        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
+        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
-      JOIN users p1 ON p1.id = mh.player1_id
-      JOIN users p2 ON p2.id = mh.player2_id
+      LEFT JOIN users p1 ON p1.id = mh.player1_id
+      LEFT JOIN users p2 ON p2.id = mh.player2_id
       LEFT JOIN users w ON w.id = mh.winner_id
       WHERE (mh.player1_id = ? AND mh.player2_id = ?)
          OR (mh.player1_id = ? AND mh.player2_id = ?)
@@ -220,24 +220,24 @@ export class MatchHistoryModel {
     /**
      * Get recent matches
      */
-    getRecentMatches(limit = 10): MatchWithPlayers[] {
+    getRecentMatches(limit = 10, offset = 0): MatchWithPlayers[] {
         return this.db
             .prepare(
                 `SELECT 
         mh.*,
-        p1.display_name as player1_display_name,
-        p1.avatar_url as player1_avatar_url,
-        p2.display_name as player2_display_name,
-        p2.avatar_url as player2_avatar_url,
+        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
+        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
-      JOIN users p1 ON p1.id = mh.player1_id
-      JOIN users p2 ON p2.id = mh.player2_id
+      LEFT JOIN users p1 ON p1.id = mh.player1_id
+      LEFT JOIN users p2 ON p2.id = mh.player2_id
       LEFT JOIN users w ON w.id = mh.winner_id
       ORDER BY mh.ended_at DESC
-      LIMIT ?`
+      LIMIT ? OFFSET ?`
             )
-            .all(limit) as MatchWithPlayers[];
+            .all(limit, offset) as MatchWithPlayers[];
     }
 
     /**
@@ -287,7 +287,7 @@ export class MatchHistoryModel {
                     SUM(CASE WHEN mh.player1_id = u.id THEN mh.player1_score ELSE mh.player2_score END) as totalScore
                 FROM users u
                 LEFT JOIN match_history mh ON u.id = mh.player1_id OR u.id = mh.player2_id
-                WHERE u.anonymized = 0
+                WHERE u.anonymized = 0 AND u.is_ai = 0
                 GROUP BY u.id
                 HAVING gamesPlayed > 0
                 ORDER BY wins DESC, gamesPlayed ASC, totalScore DESC
@@ -328,7 +328,7 @@ export class MatchHistoryModel {
                     COUNT(mh.id) as gamesPlayed
                 FROM users u
                 LEFT JOIN match_history mh ON u.id = mh.player1_id OR u.id = mh.player2_id
-                WHERE u.anonymized = 0
+                WHERE u.anonymized = 0 AND u.is_ai = 0
                 GROUP BY u.id
                 HAVING gamesPlayed > 0
                 ORDER BY wins DESC, gamesPlayed ASC`
@@ -350,13 +350,13 @@ export class MatchHistoryModel {
     getGlobalStats(): GlobalStats {
         // Total users count
         const usersResult = this.db
-            .prepare('SELECT COUNT(*) as count FROM users WHERE anonymized = 0')
+            .prepare('SELECT COUNT(*) as count FROM users WHERE anonymized = 0 AND is_ai = 0')
             .get() as { count: number };
 
         // Online users (last 5 minutes)
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
         const onlineResult = this.db
-            .prepare('SELECT COUNT(*) as count FROM users WHERE last_seen_at > ? AND anonymized = 0')
+            .prepare('SELECT COUNT(*) as count FROM users WHERE last_seen_at > ? AND anonymized = 0 AND is_ai = 0')
             .get(fiveMinutesAgo) as { count: number };
 
         // Total matches
@@ -386,7 +386,7 @@ export class MatchHistoryModel {
         // Active users (last 24 hours)
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const activeUsersResult = this.db
-            .prepare('SELECT COUNT(*) as count FROM users WHERE last_seen_at > ? AND anonymized = 0')
+            .prepare('SELECT COUNT(*) as count FROM users WHERE last_seen_at > ? AND anonymized = 0 AND is_ai = 0')
             .get(twentyFourHoursAgo) as { count: number };
 
         return {

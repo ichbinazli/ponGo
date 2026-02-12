@@ -413,11 +413,15 @@ export const recordMatchResult = async (
         }
 
         // Update participant status
-        tournamentModel.updateParticipantStatus(
-            match.tournament_id,
-            winnerParticipantId,
-            'playing'
-        );
+        // SORUN 5 FIX: winnerParticipantId bir participant_id, ama updateParticipantStatus user_id bekliyor
+        // Önce participant'tan user_id alıp onu gönderiyoruz
+        if (winnerParticipant && winnerParticipant.user_id) {
+            tournamentModel.updateParticipantStatus(
+                match.tournament_id,
+                winnerParticipant.user_id,
+                'playing'
+            );
+        }
 
         // Mark loser as eliminated
         const loserParticipantId = match.participant1_id === winnerParticipantId
