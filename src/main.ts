@@ -206,7 +206,6 @@ class App {
 
     private async preloadTemplates(): Promise<void> {
         const templates = Object.values(CONSTANTS.TEMPLATES);
-        // also include auth templates
         templates.push('login', 'register', 'reset-password');
         await TemplateLoader.preloadTemplates(templates).catch(console.error);
     }
@@ -299,7 +298,6 @@ class App {
         });
     }
 
-    // Helper Methods
     private renderPage(content: string): void {
         const mainContent = document.getElementById(CONSTANTS.SELECTORS.MAIN_CONTENT);
         if (mainContent) {
@@ -380,8 +378,6 @@ class App {
         });
     }
 
-
-    // Page Renderers
     private async renderHome(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.HOME);
         await this.loadTemplate(CONSTANTS.TEMPLATES.HOME);
@@ -465,10 +461,9 @@ class App {
     }
 
    private initProfilePhotoUpload(): void {
-    // Elementi bulana kadar bekle
     const checkAndInit = () => {
-        const addPhotoBtn = document.getElementById('edit-avatar-btn'); // ← DEĞİŞTİ
-        const photoUpload = document.getElementById('avatar-upload') as HTMLInputElement; // ← DEĞİŞTİ
+        const addPhotoBtn = document.getElementById('edit-avatar-btn');
+        const photoUpload = document.getElementById('avatar-upload') as HTMLInputElement;
         const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement;
 
         if (!addPhotoBtn || !photoUpload || !profileAvatar) {
@@ -569,7 +564,6 @@ class App {
     const statsData = stats.data;
     let user = JSON.parse(localStorage.getItem('user') || '{}');
     
-    // 1. Maç Geçmişini Doldur
     let response = await Api.get('/api/stats/recent-matches?limit=10');
     if (response.success) {
         const tableBody = document.getElementById('game-history-table');
@@ -604,7 +598,6 @@ class App {
         }
     }
 
-    // 2. Profil Bilgilerini Güncelle (HTML yapısını bozmadan)
     const usernameEl = document.getElementById('profile-username');
     const avatarEl = document.getElementById('profile-avatar') as HTMLImageElement;
     
@@ -614,10 +607,8 @@ class App {
     
     if (avatarEl && user.avatarUrl) {
         avatarEl.src = "http://localhost:3000" + user.avatarUrl; 
-        // Eğer avatarUrl yoksa varsayılan Dicebear linki HTML'de kalacaktır.
     }
 
-    // 3. İstatistik Kartlarını Güncelle
     const statsGridContainer = document.getElementById('stats-grid-container');
     if (statsGridContainer) {
         statsGridContainer.innerHTML = `
@@ -693,9 +684,9 @@ class App {
     }
 
     private async renderFriends(): Promise<void> {
-        let friends = await Api.get('/api/friends'); // Just to simulate API call
+        let friends = await Api.get('/api/friends');
         console.log(friends);
-        let pending = await Api.get('/api/friends/requests/pending'); // Just to simulate API call
+        let pending = await Api.get('/api/friends/requests/pending');
         console.log(pending);
         this.updateActiveNavLink(CONSTANTS.ROUTES.FRIENDS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.FRIENDS);

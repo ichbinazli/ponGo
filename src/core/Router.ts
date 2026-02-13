@@ -63,7 +63,6 @@ export class Router {
     }
 
     private handleNotFound(): void {
-        // Redirect to home page for unknown routes
         if (this.currentPath !== '/') {
             this.navigate('/');
         }

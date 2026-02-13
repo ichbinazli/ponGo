@@ -1,4 +1,3 @@
-//api request class create get, post, put, delete methods return values a json response
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 class Api {

@@ -3,7 +3,6 @@ export class TemplateLoader {
     private static readonly TEMPLATE_BASE_PATH = '/frontend';
 
     static async loadTemplate(templateName: string): Promise<string> {
-        // Check cache first
         if (this.cache.has(templateName)) {
             return this.cache.get(templateName)!;
         }
@@ -17,7 +16,6 @@ export class TemplateLoader {
 
             const content = await response.text();
             
-            // Cache the template
             this.cache.set(templateName, content);
             
             return content;

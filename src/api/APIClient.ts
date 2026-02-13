@@ -24,12 +24,10 @@ export interface PlayerProfile {
 
 export class APIClient {
     constructor() {
-        // API client initialization
     }
 
     public async getStats(): Promise<PlayerStats> {
         try {
-            // Simulate API call with mock data
             await this.delay(500);
             return {
                 playersOnline: Math.floor(Math.random() * 100) + 10,
@@ -43,7 +41,6 @@ export class APIClient {
 
     public async getLeaderboard(): Promise<LeaderboardEntry[]> {
         try {
-            // Simulate API call with mock data
             await this.delay(800);
             const mockPlayers = [
                 'AlexMaster', 'PongKing', 'BallWizard', 'PaddlePro', 'GameChamp',
@@ -63,10 +60,9 @@ export class APIClient {
 
     public async getProfile(): Promise<PlayerProfile> {
         try {
-            // Simulate API call with mock data
             await this.delay(600);
             const gamesPlayed = Math.floor(Math.random() * 150) + 50;
-            const wins = Math.floor(gamesPlayed * (Math.random() * 0.4 + 0.4)); // 40-80% win rate
+            const wins = Math.floor(gamesPlayed * (Math.random() * 0.4 + 0.4));
             const losses = gamesPlayed - wins;
             const winRate = Math.floor((wins / gamesPlayed) * 100);
             
