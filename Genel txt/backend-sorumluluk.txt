@@ -1,0 +1,1011 @@
+================================================================================
+                    EKİP SORUMLULUK ALANLARI - ft_transcendence
+================================================================================
+
+
+================================================================================
+V.2 WEB
+================================================================================
+
+Ana modül: Arka ucu oluşturmak için bir çerçeve kullanın.
+--------------------------------------------------------------------------------
+Bu ana modülde, arka uç geliştirme için belirli bir web çerçevesini kullanmanız 
+gerekir: Node.js ile Fastify.
+
+
+Küçük modül: Ön uç oluşturmak için bir çerçeve veya araç seti kullanın.
+--------------------------------------------------------------------------------
+Ön uç geliştirmenizde Type-script'e ek olarak Tailwind CSS kullanmalısınız, 
+başka hiçbir şey kullanmamalısınız.
+
+
+Küçük modül: Arka uç için bir veritabanı kullanın - ve daha fazlası.
+--------------------------------------------------------------------------------
+Projenizdeki tüm DB örnekleri için belirlenmiş veritabanı SQLite'dir. Bu seçim, 
+tüm proje bileşenleri arasında veri tutarlılığını ve uyumluluğunu sağlar ve 
+arka uç Framework modülü gibi diğer modüller için bir ön koşul olabilir.
+
+
+================================================================================
+V.3 KULLANICI YÖNETİMİ
+================================================================================
+
+Ana modül: Standart kullanıcı yönetimi, kimlik doğrulama ve turnuvalar 
+genelinde kullanıcılar.
+--------------------------------------------------------------------------------
+- Kullanıcılar web sitesine güvenli bir şekilde abone olabilirler.
+- Kayıtlı kullanıcılar güvenli bir şekilde oturum açabilir.
+- Kullanıcılar, turnuvalara katılmak için benzersiz bir görüntüleme adı 
+  seçebilirler.
+- Kullanıcılar bilgilerini güncelleyebilir.
+- Kullanıcılar bir avatar yükleyebilirler; avatar sağlanmamışsa varsayılan 
+  seçenek kullanılır.
+- Kullanıcılar başkalarını arkadaş olarak ekleyebilir ve çevrimiçi durumlarını 
+  görüntüleyebilir.
+- Kullanıcı profilleri, galibiyet ve mağlubiyet gibi istatistikleri gösterir.
+- Her kullanıcının, oturum açmış kullanıcıların erişebileceği 1v1 oyunları, 
+  tarihleri ve ilgili ayrıntıları içeren bir Maç Geçmişi vardır.
+
+[!] UYARI: Yinelenen kullanıcı adları/e-postaların yönetimi sizin takdirinize 
+bağlıdır; lütfen mantıklı bir çözüm sağlandığından emin olun.
+
+
+Ana modül: Uzaktan kimlik doğrulamayı uygulayın.
+--------------------------------------------------------------------------------
+Bu ana modülde amaç, OAuth 2.0 kullanarak güvenli bir harici kimlik doğrulama 
+sistemi uygulamaktır.
+
+- OAuth uyumlu herhangi bir sağlayıcıyı (ör. Google, GitHub vb.) seçmekte 
+  özgürsünüz.
+
+Temel özellikler ve hedefler şunlardır:
+- Kimlik doğrulama sistemini entegre ederek kullanıcıların güvenli bir şekilde 
+  oturum açmasını sağlamak.
+- Güvenli oturum açma işlemini mümkün kılmak için yetkililerden gerekli kimlik 
+  bilgilerini ve izinleri almak.
+- En iyi uygulamalara ve güvenlik standartlarına uygun, kullanıcı dostu oturum 
+  açma ve yetkilendirme akışları uygulamak.
+- Web uygulaması ile kimlik doğrulama sağlayıcısı arasında kimlik doğrulama 
+  jetonlarının ve kullanıcı bilgilerinin güvenli bir şekilde alışverişini 
+  sağlamak.
+
+Bu ana modül, uzaktaki kullanıcıların kimlik doğrulamasını sağlamak ve 
+kullanıcılara web uygulamasına güvenli ve kolay bir şekilde erişim imkanı 
+sunmayı amaçlamaktadır.
+
+
+================================================================================
+V.4 OYUN VE KULLANICI DENEYİMİ
+================================================================================
+
+Küçük modül: Oyun özelleştirme seçenekleri.
+--------------------------------------------------------------------------------
+Bu küçük modülde amaç, platformda bulunan tüm oyunlar için özelleştirme 
+seçenekleri sunmaktır. Temel özellikler ve hedefler şunlardır:
+
+- Oyun deneyimini geliştiren güçlendiriciler, saldırılar veya farklı haritalar 
+  gibi özelleştirme özellikleri sunmak.
+- Kullanıcıların daha basit bir deneyim tercih etmeleri durumunda, temel 
+  özelliklere sahip oyunun varsayılan sürümünü seçmelerine izin verin.
+- Özelleştirme seçeneklerinin platformda sunulan tüm oyunlarda mevcut ve 
+  uygulanabilir olmasını sağlayın.
+- Oyun parametrelerini ayarlamak için kullanıcı dostu ayar menüleri veya 
+  arayüzler uygulayın.
+- Tüm oyunlarda özelleştirme özelliklerinde tutarlılığı koruyarak birleşik bir 
+  kullanıcı deneyimi sağlayın.
+
+Bu modül, çeşitli özelleştirme seçenekleri sunarak kullanıcılara mevcut tüm 
+oyunlarda oyun deneyimlerini kişiselleştirme esnekliği sağlarken, aynı zamanda 
+basit bir oyun deneyimi tercih edenler için varsayılan bir sürüm de sunmayı 
+amaçlamaktadır.
+
+
+================================================================================
+V.5 AI-ALGO
+================================================================================
+
+Ana modül: Bir AI rakibi tanıtın.
+--------------------------------------------------------------------------------
+Bu ana modülde amaç, oyuna bir AI oyuncusu eklemektir. Bu görev için A* 
+algoritmasının kullanılmasına izin verilmez. Temel özellikler ve hedefler 
+şunlardır:
+
+- Kullanıcılara zorlu ve ilgi çekici bir oyun deneyimi sunan bir AI rakibi 
+  geliştirmek.
+- AI, insan davranışını taklit etmelidir, yani AI uygulamanızda klavye girişini 
+  simüle etmelisiniz. Buradaki kısıtlama, AI'nın oyun görünümünü saniyede 
+  yalnızca bir kez yenileyebilmesidir, bu da zıplamaları ve diğer eylemleri 
+  önceden tahmin etmesini gerektirir.
+- AI oyuncunun akıllı ve stratejik hamleler yapmasını sağlayan AI mantığı ve 
+  karar verme süreçlerini uygulayın.
+- A*'ya bağlı kalmadan etkili bir AI oyuncusu oluşturmak için alternatif 
+  algoritmalar ve teknikler keşfedin.
+- AI'nın farklı oyun senaryolarına ve kullanıcı etkileşimlerine uyum 
+  sağladığından emin olun.
+
+[i] BİLGİ: AI, Oyun özelleştirme seçenekleri modülünü uygulamayı seçtiyseniz, 
+AI güçlendiricileri kullanmalıdır.
+
+[!] UYARI: Değerlendirme sırasında AI'nızın nasıl çalıştığını ayrıntılı olarak 
+açıklamanız gerekecektir. Hiçbir şey yapmayan bir AI oluşturmak kesinlikle 
+yasaktır; AI'nın ara sıra kazanma yeteneği olmalıdır.
+
+Bu ana modül, A* algoritmasına dayanmadan heyecan ve rekabetçilik katan bir AI 
+rakibi sunarak oyunu geliştirmeyi amaçlamaktadır.
+
+
+Küçük modül: Kullanıcı ve Oyun İstatistikleri Panoları.
+--------------------------------------------------------------------------------
+Bu küçük modülde amaç, bireysel kullanıcılar ve oyun oturumları için 
+istatistikleri gösteren panolar sunmaktır. Temel özellikler ve hedefler 
+şunlardır:
+
+- Kullanıcılara oyun istatistikleri hakkında bilgi sağlayan, kullanıcı dostu 
+  panolar oluşturmak.
+- Oyun oturumları için ayrı bir gösterge paneli geliştirin ve her maçın 
+  ayrıntılı istatistiklerini, sonuçlarını ve geçmiş verilerini gösterin.
+- Dashboard'ların verileri izlemek ve analiz etmek için sezgisel ve 
+  bilgilendirici bir kullanıcı arayüzü sunduğundan emin olun.
+- İstatistikleri açık ve görsel olarak çekici bir şekilde sunmak için çizelge 
+  ve grafik gibi veri görselleştirme tekniklerini uygulayın.
+- Kullanıcıların kendi oyun geçmişlerine ve performans ölçütlerine kolayca 
+  erişip bunları keşfetmelerine olanak tanıyın.
+- Yararlı olduğunu düşündüğünüz herhangi bir metriği eklemekten çekinmeyin.
+
+Bu küçük modül, kullanıcılara oyun istatistiklerini ve oyun oturumu 
+ayrıntılarını kullanıcı dostu gösterge panelleri aracılığıyla izleme olanağı 
+sunarak oyun deneyimlerine kapsamlı bir bakış açısı kazandırmayı 
+amaçlamaktadır.
+
+
+================================================================================
+V.6 SİBER GÜVENLİK
+================================================================================
+
+Küçük modül: Kullanıcı anonimleştirme, yerel veri yönetimi ve hesap silme ile 
+GDPR uyumluluk seçenekleri.
+--------------------------------------------------------------------------------
+Bu küçük modülün amacı, kullanıcıların veri gizliliği haklarını kullanmalarına 
+olanak tanıyan GDPR uyumluluk seçeneklerini sunmaktır. Temel özellikler ve 
+hedefler şunlardır:
+
+- Kullanıcıların kişisel verilerinin anonimleştirilmesini talep etmelerini 
+  sağlayan GDPR uyumlu özellikleri uygulamak, böylece kimliklerinin ve hassas 
+  bilgilerinin korunmasını sağlamak.
+- Kullanıcıların sistemde depolanan kişisel bilgilerini görüntüleme, düzenleme 
+  veya silme yeteneği dahil olmak üzere yerel verilerini yönetmeleri için 
+  araçlar sağlamak.
+- Kullanıcıların, tüm ilişkili veriler dahil olmak üzere hesaplarının kalıcı 
+  olarak silinmesini talep etmeleri için veri koruma düzenlemelerine uygunluğu 
+  sağlayan basitleştirilmiş bir süreç sunmak.
+- Kullanıcıların veri gizliliği hakları konusunda açık ve şeffaf bir iletişim 
+  sürdürmek ve bu hakları kullanmak için kolay erişilebilir seçenekler sunmak.
+
+Bu küçük modül, kullanıcıların kişisel bilgilerini kontrol etmelerini ve sistem 
+içinde veri gizliliği haklarını kullanmalarını sağlayan GDPR uyumluluk 
+seçenekleri sunarak kullanıcı gizliliğini ve veri korumasını geliştirmeyi 
+amaçlamaktadır.
+
+[i] BİLGİ: GDPR hakkında bilgi sahibi değilseniz, lütfen bu projeye devam 
+etmeden önce sağlanan bağlantıyı ziyaret ederek yönetmelik hakkında bilgi 
+edinin.
+
+
+Ana modül: İki Faktörlü Kimlik Doğrulama (2FA) ve JWT'yi uygulayın.
+--------------------------------------------------------------------------------
+Bu ana modülün amacı, İki Faktörlü Kimlik Doğrulama (2FA) özelliğini tanıtarak 
+ve JSON Web Token'ları (JWT) kullanarak güvenliği ve kullanıcı kimlik 
+doğrulamasını geliştirmektir. Temel özellikler ve hedefler şunlardır:
+
+- Kullanıcı hesapları için ek bir güvenlik katmanı olarak İki Faktörlü Kimlik 
+  Doğrulama (2FA) uygulayın ve kullanıcıların şifrelerine ek olarak tek 
+  kullanımlık kod gibi ikincil bir doğrulama yöntemi sağlamalarını zorunlu 
+  kılın.
+- JSON Web Token'ları (JWT) kimlik doğrulama ve yetkilendirme için güvenli bir 
+  yöntem olarak kullanmak, kullanıcı oturumlarının ve kaynaklara erişimin 
+  güvenli bir şekilde yönetilmesini sağlamak.
+- SMS kodları, kimlik doğrulama uygulamaları veya e-posta tabanlı doğrulama 
+  seçenekleriyle 2FA'yı etkinleştirmek için kullanıcı dostu bir kurulum süreci 
+  sağlamak.
+- Kullanıcı hesaplarına ve hassas verilere yetkisiz erişimi önlemek için JWT 
+  belirteçlerinin güvenli bir şekilde verilmesi ve doğrulanmasını sağlayın.
+
+Bu ana modül, İki Faktörlü Kimlik Doğrulama (2FA) sunarak ve JSON Web 
+Token'ları (JWT) kullanarak kimlik doğrulama ve yetkilendirmeyi geliştirerek 
+kullanıcı hesabı güvenliğini güçlendirmeyi amaçlamaktadır.
+
+
+================================================================================
+V.7 DEVOPS
+================================================================================
+
+Ana modül: Günlük Yönetimi için ELK (Elasticsearch, Logstash, Kibana) ile 
+Altyapı Kurulumu.
+--------------------------------------------------------------------------------
+Bu ana modülün amacı, ELK yığını (Elasticsearch, Logstash, Kibana) kullanarak 
+günlük yönetimi ve analizi için sağlam bir altyapı kurmaktır. Temel özellikler 
+ve hedefler şunlardır:
+
+- Günlük verilerini verimli bir şekilde depolamak ve indekslemek için 
+  Elasticsearch'ü dağıtarak, verilerin kolayca aranabilir ve erişilebilir 
+  olmasını sağlamak.
+- Logstash'ı, çeşitli kaynaklardan günlük verilerini toplamak, işlemek ve 
+  dönüştürmek ve Elasticsearch'e göndermek için yapılandırmak.
+- Günlük verilerini görselleştirmek, gösterge panelleri oluşturmak ve günlük 
+  olaylarından içgörüler elde etmek için Kibana'yı kurun.
+- Günlük verilerinin depolanmasını etkin bir şekilde yönetmek için veri saklama 
+  ve arşivleme politikalarını tanımlayın.
+- Günlük verilerini ve ELK yığını bileşenlerine erişimi korumak için güvenlik 
+  önlemleri uygulayın.
+
+Bu ana modül, ELK yığını kullanarak güçlü bir günlük yönetimi ve analiz sistemi 
+kurmayı amaçlamaktadır. Bu sistem, etkin sorun giderme, izleme ve sistemin 
+çalışması ve performansı hakkında içgörüler elde etmeyi sağlar.
+
+
+Küçük modül: İzleme sistemi.
+--------------------------------------------------------------------------------
+Bu küçük modülün amacı, Prometheus ve Grafana kullanarak kapsamlı bir izleme 
+sistemi kurmaktır. Temel özellikler ve hedefler şunlardır:
+
+- Metrikleri toplamak ve çeşitli sistem bileşenlerinin durumunu ve performansını 
+  izlemek için izleme ve uyarı araç seti olarak Prometheus'u dağıtın.
+- Farklı hizmetlerden, veritabanlarından ve altyapı bileşenlerinden metrikleri 
+  yakalamak için veri aktarıcılarını ve entegrasyonları yapılandırmak.
+- Grafana kullanarak özel gösterge panelleri ve görselleştirmeler oluşturarak 
+  sistem metrikleri ve performansı hakkında gerçek zamanlı bilgiler sağlamak.
+- Prometheus'ta uyarı kuralları oluşturarak kritik sorunları ve anomalileri 
+  proaktif olarak tespit edin ve bunlara yanıt verin.
+- Geçmiş metrik verileri için uygun veri saklama ve depolama stratejileri 
+  uygulayın.
+- Hassas izleme verilerini korumak için Grafana için güvenli kimlik doğrulama 
+  ve erişim kontrol mekanizmaları uygulayın.
+
+Bu küçük modül, Prometheus ve Grafana kullanarak sağlam bir izleme altyapısı 
+kurmayı amaçlamaktadır. Bu altyapı, sistem metriklerine gerçek zamanlı 
+görünürlük ve proaktif sorun tespiti sağlayarak sistem performansını ve 
+güvenilirliğini artırır.
+
+
+Ana modül: Arka Ucu Mikro Hizmetler Olarak Tasarlamak.
+--------------------------------------------------------------------------------
+Bu ana modülün amacı, mikro hizmetler yaklaşımını kullanarak sistemin arka 
+ucunu tasarlamaktır. Temel özellikler ve hedefler şunlardır:
+
+- Arka ucu, her biri belirli işlevlerden veya özelliklerden sorumlu olan daha 
+  küçük, gevşek bağlı mikro hizmetlere bölmek.
+- Bağımsız geliştirme, dağıtım ve ölçeklendirme sağlamak için mikro hizmetler 
+  arasında net sınırlar ve arayüzler tanımlamak.
+- Veri alışverişini ve koordinasyonu kolaylaştırmak için REST-ful API'ler veya 
+  mesaj kuyrukları gibi mikro hizmetler arasında iletişim mekanizmaları 
+  uygulayın.
+- Her mikro hizmetin tek bir, iyi tanımlanmış görev veya iş yeteneğinden 
+  sorumlu olmasını sağlayarak, sürdürülebilirliği ve ölçeklenebilirliği 
+  teşvik edin.
+
+Bu ana modül, mikro hizmetler tasarım yaklaşımını benimseyerek sistem 
+mimarisini geliştirmek, arka uç bileşenlerinin esnekliğini, ölçeklenebilirliğini 
+ve bakım kolaylığını artırmak amacıyla tasarlanmıştır.
+
+
+================================================================================
+V.8 GRAFİK
+================================================================================
+
+Ana modül: Gelişmiş 3D Tekniklerinin Uygulanması
+--------------------------------------------------------------------------------
+Bu ana modül, "Grafikler", Pong oyununun görsel yönlerini geliştirmeye 
+odaklanmaktadır. Daha sürükleyici bir oyun deneyimi yaratmak için gelişmiş 3D 
+tekniklerinin kullanımını tanıtmaktadır. Özellikle, Pong oyunu istenen görsel 
+efektleri elde etmek için Babylon.js kullanılarak geliştirilecektir.
+
+- Gelişmiş 3D Grafikler: Bu modülün temel amacı, Pong oyununun görsel 
+  kalitesini yükseltmek için gelişmiş 3D grafik tekniklerini uygulamaktır. 
+  Babylon.js kullanılarak, oyuncuları oyun ortamına çeken çarpıcı görsel 
+  efektler yaratmak hedeflenmektedir.
+
+- Sürükleyici Oyun Deneyimi: Gelişmiş 3D tekniklerinin kullanılması, 
+  kullanıcılara görsel olarak çekici ve büyüleyici bir Pong oyunu sunarak 
+  genel oyun deneyimini geliştirir.
+
+- Teknoloji Entegrasyonu: Bu modül için seçilen teknoloji Babylon.js'dir. Bu 
+  araçlar, uyumluluk ve optimum performans sağlayarak 3D grafikleri oluşturmak 
+  için kullanılacaktır.
+
+Bu ana modül, gelişmiş 3D tekniklerini kullanarak Pong oyununun görsel 
+öğelerinde devrim yaratmayı amaçlamaktadır. Babylon.js kullanarak oyunculara 
+sürükleyici ve görsel olarak çarpıcı bir oyun deneyimi sunmayı hedefliyoruz.
+
+
+================================================================================
+V.9 ERİŞİLEBİLİRLİK
+================================================================================
+
+Küçük modül: Tarayıcı Uyumluluğunu Genişletme.
+--------------------------------------------------------------------------------
+Bu küçük modülde amaç, ek bir web tarayıcısı desteği ekleyerek web 
+uygulamasının uyumluluğunu artırmaktır. Temel özellikler ve hedefler şunlardır:
+
+- Tarayıcı desteğini ek bir web tarayıcısını da içerecek şekilde genişleterek, 
+  kullanıcıların uygulamaya sorunsuz bir şekilde erişip kullanabilmelerini 
+  sağlamak.
+- Web uygulamasının yeni desteklenen tarayıcıda doğru şekilde çalıştığından ve 
+  doğru şekilde görüntülendiğinden emin olmak için kapsamlı testler ve 
+  optimizasyonlar yapmak.
+- Eklenen web tarayıcısında ortaya çıkabilecek uyumluluk sorunlarını veya 
+  görüntüleme farklılıklarını gidermek.
+- Kullanılabilirlik ve işlevselliği koruyarak, desteklenen tüm tarayıcılarda 
+  tutarlı bir kullanıcı deneyimi sağlamak.
+
+Bu küçük modül, ek bir web tarayıcısını destekleyerek web uygulamasının 
+erişilebilirliğini genişletmeyi ve kullanıcılara tarama deneyimleri için daha 
+fazla seçenek sunmayı amaçlamaktadır.
+
+
+Küçük modül: Çoklu dil desteği.
+--------------------------------------------------------------------------------
+Bu küçük modülde amaç, web sitenizin farklı kullanıcı gruplarına hitap 
+edebilmesi için birden fazla dili desteklemesini sağlamaktır. Temel özellikler 
+ve hedefler şunlardır:
+
+- Geniş bir kitleye hitap etmek için web sitesinde en az üç dil desteği 
+  uygulamak.
+- Kullanıcıların tercihlerine göre web sitesinin dilini kolayca 
+  değiştirebilmelerini sağlayan bir dil değiştirici veya seçici sağlayın.
+- Navigasyon menüleri, başlıklar ve önemli bilgiler gibi temel web sitesi 
+  içeriğini desteklenen dillere çevirin.
+- Kullanıcıların, seçtikleri dilden bağımsız olarak web sitesinde sorunsuz bir 
+  şekilde gezinip etkileşim kurabilmelerini sağlayın.
+- Çeviri sürecini basitleştirmek ve farklı diller arasında tutarlılığı korumak 
+  için dil paketleri veya yerelleştirme kitaplıkları kullanmayı düşünün.
+- Kullanıcıların tercih ettikleri dili sonraki ziyaretler için varsayılan 
+  olarak ayarlamalarına izin verin.
+
+Bu küçük modül, içeriği birden fazla dilde sunarak web sitenizin 
+erişilebilirliğini ve kapsayıcılığını artırmayı ve farklı uluslararası kitleler 
+için daha kullanıcı dostu hale getirmeyi amaçlamaktadır.
+
+
+================================================================================
+                              ÖZET - SEÇİLEN MODÜLLER
+================================================================================
+
++------------------+--------+------------------------------------------------+
+| KATEGORİ         | TİP    | MODÜL ADI                                      |
++------------------+--------+------------------------------------------------+
+| Web              | Ana    | Arka uç Framework (Node.js + Fastify)          |
+| Web              | Küçük  | Ön uç Framework (Tailwind CSS)                 |
+| Web              | Küçük  | Veritabanı (SQLite)                            |
+| Kullanıcı Yön.   | Ana    | Standart kullanıcı yönetimi, kimlik doğrulama  |
+| Kullanıcı Yön.   | Ana    | Uzaktan kimlik doğrulama (OAuth 2.0)           |
+| Oyun/UX          | Küçük  | Oyun özelleştirme seçenekleri                  |
+| AI-Algo          | Ana    | AI rakibi                                      |
+| AI-Algo          | Küçük  | Kullanıcı ve Oyun İstatistikleri Panoları      |
+| Siber Güvenlik   | Küçük  | GDPR uyumluluk seçenekleri                     |
+| Siber Güvenlik   | Ana    | 2FA ve JWT                                     |
+| Devops           | Ana    | ELK Altyapı Kurulumu                           |
+| Devops           | Küçük  | İzleme sistemi (Prometheus + Grafana)          |
+| Devops           | Ana    | Mikro Hizmetler Mimarisi                       |
+| Grafik           | Ana    | Gelişmiş 3D Teknikler (Babylon.js)             |
+| Erişilebilirlik  | Küçük  | Tarayıcı Uyumluluğunu Genişletme               |
+| Erişilebilirlik  | Küçük  | Çoklu dil desteği                              |
++------------------+--------+------------------------------------------------+
+
+TOPLAM: 8 Ana Modül + 8 Küçük Modül = 8 + 4 = 12 Ana Modül eşdeğeri
+
+(2 Küçük Modül = 1 Ana Modül)
+(Proje tamamlamak için minimum 7 Ana Modül gerekli)
+
+
+================================================================================
+                         BENİM GÖREVLERİM (BACKEND)
+================================================================================
+
++------+--------+------------------------------------------------+-------------+
+| No   | TİP    | MODÜL ADI                                      | DURUM       |
++------+--------+------------------------------------------------+-------------+
+| 1    | Ana    | Arka uç Framework (Node.js + Fastify)          | [✓] %95     |
+| 2    | Küçük  | Veritabanı (SQLite)                            | [✓] %95     |
+| 3    | Ana    | Standart kullanıcı yönetimi, kimlik doğrulama  | [✓] %95     |
+| 4    | Ana    | Uzaktan kimlik doğrulama (OAuth 2.0)           | [✓] %90     |
+| 5    | Küçük  | GDPR uyumluluk seçenekleri                     | [✓] %95     |
+| 6    | Ana    | İki Faktörlü Kimlik Doğrulama (2FA) ve JWT     | [✓] %95     |
+| 7    | Küçük  | Kullanıcı ve Oyun İstatistikleri Panoları      | [✓] %95     |
++------+--------+------------------------------------------------+-------------+
+
+TOPLAM: 4 Ana Modül + 3 Küçük Modül = 4 + 1.5 = 5.5 Ana Modül eşdeğeri
+GENEL İLERLEME: ~%95
+
+
+================================================================================
+                         DETAYLI ANALİZ RAPORU
+================================================================================
+
+[1] ARKA UÇ FRAMEWORK (Node.js + Fastify) - ANA MODÜL [%95 TAMAMLANDI]
+--------------------------------------------------------------------------------
+    ✅ YAPILMIŞ:
+       - Fastify sunucu kurulumu (app.ts)
+       - HTTPS desteği
+       - CORS yapılandırması (@fastify/cors)
+       - Helmet güvenlik başlıkları (@fastify/helmet)
+       - Rate limiting (@fastify/rate-limit)
+       - Static dosya servisi (@fastify/static)
+       - API route yapısı (/api/auth, /api/users, /api/friends, /api/oauth, 
+         /api/2fa, /api/gdpr)
+       - Swagger dokümantasyonu
+       - Error handler
+       - Health check endpoint
+       - Environment yapılandırması
+       - Pino logger entegrasyonu
+       
+    ⚠️ EKSİK/GÖZDEN GEÇİRİLMELİ:
+       - WebSocket desteği (oyun için gerekebilir)
+       - Production build test edilmeli
+
+
+[2] VERİTABANI (SQLite) - KÜÇÜK MODÜL [%95 TAMAMLANDI]
+--------------------------------------------------------------------------------
+    ✅ YAPILMIŞ:
+       - better-sqlite3 entegrasyonu
+       - Migration sistemi (6 migration dosyası)
+       - users tablosu (tüm alanlar mevcut)
+       - sessions tablosu
+       - friendships tablosu
+       - match_history tablosu
+       - tournaments tablosu
+       - backup_codes desteği
+       - Index'ler ve trigger'lar
+       - Model sınıfları (UserModel, MatchHistoryModel, FriendshipModel, 
+         SessionModel)
+       - Seed data (test kullanıcıları ve örnek veriler) ✓
+       
+    ⚠️ EKSİK/GÖZDEN GEÇİRİLMELİ:
+       - Tournament tablosu kullanımı (Game ekibi bekleniyor)
+
+
+[3] STANDART KULLANICI YÖNETİMİ - ANA MODÜL [%95 TAMAMLANDI]
+--------------------------------------------------------------------------------
+    ✅ YAPILMIŞ:
+       - Kullanıcı kaydı (register) ✓
+       - Güvenli giriş (login) ✓
+       - Şifre hashleme (bcrypt) ✓
+       - Benzersiz email kontrolü ✓
+       - Benzersiz display_name kontrolü ✓
+       - Profil güncelleme (updateProfile) ✓
+       - Şifre değiştirme (changePassword) ✓
+       - Avatar yükleme (upload.service.ts) ✓
+       - Varsayılan avatar (default-avatar.png) ✓
+       - Arkadaş ekleme/çıkarma (friend.controller.ts) ✓
+       - Arkadaş isteği gönderme/kabul/reddetme ✓
+       - Kullanıcı engelleme ✓
+       - Çevrimiçi durum (is_online) ✓
+       - last_seen_at otomatik güncelleme (auth middleware) ✓
+       - Galibiyet/mağlubiyet istatistikleri (UserStats) ✓
+       - Maç Geçmişi (match_history) ✓
+       - Logout ve token invalidation ✓
+       - Session yönetimi ✓
+       - Kullanıcı arama endpoint'i (/api/users/search) ✓
+       
+    ⚠️ EKSİK/GÖZDEN GEÇİRİLMELİ:
+       - Çevrimiçi durum gerçek zamanlı güncelleme (WebSocket - opsiyonel)
+
+
+[4] UZAKTAN KİMLİK DOĞRULAMA (OAuth 2.0) - ANA MODÜL [%90 TAMAMLANDI]
+--------------------------------------------------------------------------------
+    ✅ YAPILMIŞ:
+       - OAuth service (oauth.service.ts) ✓
+       - Google OAuth desteği ✓
+       - GitHub OAuth desteği ✓
+       - 42 OAuth desteği ✓
+       - State CSRF koruması ✓
+       - Token alışverişi ✓
+       - Kullanıcı profili alma ✓
+       - Mevcut hesaba OAuth bağlama ✓
+       - OAuth hesabı ayırma (unlink) ✓
+       - Provider listesi endpoint'i ✓
+       
+    ⚠️ EKSİK/GÖZDEN GEÇİRİLMELİ:
+       - OAuth state için Redis (şu an Map kullanılıyor)
+       - Refresh token yenileme OAuth için
+
+
+[5] GDPR UYUMLULUK - KÜÇÜK MODÜL [%95 TAMAMLANDI]
+--------------------------------------------------------------------------------
+    ✅ YAPILMIŞ:
+       - Veri dışa aktarma (exportUserData) ✓
+       - JSON formatında tam veri paketi ✓
+       - Hesap anonimleştirme (anonymizeAccount) ✓
+       - Hesap kalıcı silme ✓
+       - Şifre doğrulama ile güvenlik ✓
+       - "ANONYMIZE MY ACCOUNT" onay mekanizması ✓
+       - Tüm ilişkili verilerin temizlenmesi ✓
+       - Avatar silme ✓
+       - Session invalidation ✓
+       
+    ⚠️ EKSİK/GÖZDEN GEÇİRİLMELİ:
+       - Gizlilik politikası endpoint'i
+       - Veri işleme onayı kaydı
+
+
+[6] İKİ FAKTÖRLÜ KİMLİK DOĞRULAMA (2FA) ve JWT - ANA MODÜL [%95 TAMAMLANDI]
+--------------------------------------------------------------------------------
+    ✅ YAPILMIŞ:
+       - JWT token oluşturma (@fastify/jwt) ✓
+       - Access token ✓
+       - Refresh token ✓
+       - Token doğrulama ✓
+       - Token yenileme ✓
+       - TOTP 2FA (otplib) ✓
+       - QR kod oluşturma (qrcode) ✓
+       - 2FA kurulum süreci ✓
+       - 2FA doğrulama ✓
+       - 2FA devre dışı bırakma ✓
+       - Backup kodları oluşturma ✓
+       - Backup kodu kullanma ✓
+       - Backup kodları yenileme ✓
+       - Login sırasında 2FA kontrolü ✓
+       
+    ⚠️ EKSİK/GÖZDEN GEÇİRİLMELİ:
+       - SMS/E-posta 2FA (opsiyonel, TOTP yeterli)
+       - Pending setups için Redis (şu an Map kullanılıyor)
+
+
+[7] KULLANICI VE OYUN İSTATİSTİKLERİ PANOLARİ - KÜÇÜK MODÜL [%95 TAMAMLANDI]
+--------------------------------------------------------------------------------
+    ✅ YAPILMIŞ:
+       - getUserStats() fonksiyonu ✓
+       - total_matches, wins, losses, draws ✓
+       - win_rate hesaplama ✓
+       - total_points_scored/against ✓
+       - average_game_duration ✓
+       - Maç geçmişi listesi ✓
+       - İki kullanıcı arası maçlar ✓
+       - Leaderboard endpoint'i (GET /api/stats/leaderboard) ✓
+       - Global istatistikler endpoint'i (GET /api/stats/global) ✓
+       - Kullanıcı rank endpoint'i (GET /api/users/:id/rank) ✓
+       - Son maçlar endpoint'i (GET /api/stats/recent-matches) ✓
+       
+    ⚠️ EKSİK/GÖZDEN GEÇİRİLMELİ:
+       - Zaman bazlı istatistikler (günlük/haftalık/aylık) - opsiyonel
+
+
+================================================================================
+                         GENEL DEĞERLENDİRME
+================================================================================
+
+GÜÇLÜ YANLAR:
+✅ Kod kalitesi yüksek, TypeScript kullanımı iyi
+✅ Güvenlik önlemleri alınmış (helmet, rate-limit, CORS, bcrypt)
+✅ JWT ve 2FA implementasyonu profesyonel seviyede
+✅ GDPR uyumluluğu kapsamlı
+✅ OAuth 3 farklı provider destekliyor
+✅ Arkadaşlık sistemi tam fonksiyonel
+✅ Veritabanı şeması düzgün tasarlanmış
+
+DİKKAT EDİLMESİ GEREKENLER:
+⚠️ Map kullanılan yerler production'da Redis'e taşınmalı
+⚠️ WebSocket desteği eklenmeli (gerçek zamanlı özellikler için)
+⚠️ İstatistik endpoint'leri genişletilmeli
+⚠️ Test coverage artırılmalı
+⚠️ Swagger dokümantasyonu tamamlanmalı
+
+ÖNCELİKLİ YAPILACAKLAR:
+1. İstatistik API endpoint'lerini oluştur (/api/stats)
+2. Leaderboard endpoint'i ekle
+3. Eksik testleri yaz
+
+
+================================================================================
+                    %100 İÇİN YAPILMASI GEREKENLER (DETAYLI)
+================================================================================
+
+NOT: Aşağıdakiler tamamlandığında tüm backend modüllerin %100 olacak.
+"Bekleniyor" olanlar diğer ekiplerden gelecek entegrasyonlar.
+
+--------------------------------------------------------------------------------
+[1] ARKA UÇ FRAMEWORK (Fastify) - %95 → %100
+--------------------------------------------------------------------------------
+
+    EKSİKLER:
+    
+    [ ] 1.1 Production build test et
+        - npm run build çalıştır
+        - dist/ klasörü oluştuğunu doğrula
+        - npm start ile production'da test et
+        
+    [ ] 1.2 Environment değişkenlerini dokümante et
+        - .env.example dosyasını güncelle (varsa kontrol et)
+        - Tüm değişkenlerin açıklamasını yaz
+
+
+--------------------------------------------------------------------------------
+[2] VERİTABANI (SQLite) - %95 → %100
+--------------------------------------------------------------------------------
+
+    EKSİKLER:
+    
+    [✓] 2.1 Seed data oluştur (opsiyonel ama faydalı)
+        - src/database/seed.ts dosyası MEVCUT ✓
+        - Test kullanıcıları (Alice, Bob, Charlie, Diana, Eve) ✓
+        - Örnek maç geçmişi (6 maç) ✓
+        - Örnek arkadaşlıklar ✓
+        
+    [ ] 2.2 Tournament tablosunu kullanıma hazırla
+        - Tournament model oluştur (tournament.model.ts)
+        - CRUD operasyonları ekle
+        
+        ⚠️ BEKLENİYOR: Game ekibi turnuva sistemini tasarlayınca 
+           gereksinimleri netleşecek
+
+
+--------------------------------------------------------------------------------
+[3] STANDART KULLANICI YÖNETİMİ - %95 → %100
+--------------------------------------------------------------------------------
+
+    EKSİKLER:
+    
+    [✓] 3.1 Kullanıcı arama endpoint'i
+        - /api/users/search MEVCUT ✓
+        
+    [✓] 3.2 last_seen_at otomatik güncelleme
+        Dosya: src/middleware/auth.middleware.ts
+        - Her authenticated request'te last_seen_at güncelleniyor ✓
+        
+    [✓] 3.3 Çevrimiçi durum mantığını iyileştir
+        - last_seen_at bazlı hesaplama yapılıyor ✓
+        - "Son 5 dakikada aktif = online" mantığı ✓
+
+    [✓] 3.4 Maç geçmişi pagination
+        - /api/users/:id/matches?page=1&limit=20 MEVCUT ✓
+
+
+--------------------------------------------------------------------------------
+[4] UZAKTAN KİMLİK DOĞRULAMA (OAuth 2.0) - %90 → %100
+--------------------------------------------------------------------------------
+
+    EKSİKLER:
+    
+    [ ] 4.1 OAuth state için in-memory Map yeterli (dev için)
+        - Production'da Redis opsiyonel
+        - Mevcut Map implementasyonu kabul edilebilir
+        - NOT: Bu %100 için zorunlu değil
+        
+    [~] 4.2 OAuth provider test et
+        Aşağıdaki provider'ları test et:
+        [ ] Google OAuth çalışıyor mu?
+        [ ] GitHub OAuth çalışıyor mu?
+        [ ] 42 OAuth çalışıyor mu?
+        
+        ⚠️ BEKLENİYOR: .env dosyasında OAuth credentials gerekli
+           GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+           GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+           FORTYTWO_CLIENT_ID, FORTYTWO_CLIENT_SECRET
+
+
+--------------------------------------------------------------------------------
+[5] GDPR UYUMLULUK - %95 → %100
+--------------------------------------------------------------------------------
+
+    EKSİKLER:
+    
+    [ ] 5.1 Gizlilik politikası endpoint'i (opsiyonel)
+        Dosya: src/routes/gdpr.routes.ts
+        
+        GET /api/gdpr/privacy-policy
+        - Basit JSON döndürebilir veya
+        - Frontend'de static sayfa olarak da yapılabilir
+        
+        ⚠️ BU OPSİYONEL - Frontend ekibi yapabilir
+
+    ✓ Mevcut GDPR özellikleri yeterli:
+        - /api/gdpr/export ✓
+        - /api/gdpr/anonymize ✓
+        - /api/gdpr/delete ✓
+
+
+--------------------------------------------------------------------------------
+[6] 2FA ve JWT - %95 → %100
+--------------------------------------------------------------------------------
+
+    EKSİKLER:
+    
+    [~] 6.1 Pending 2FA setups için Map yeterli (dev için)
+        - Production'da Redis opsiyonel
+        - 10 dakika timeout var, kabul edilebilir
+        
+    [ ] 6.2 2FA akışını test et
+        [ ] Setup başlat (QR kod oluştur)
+        [ ] Google Authenticator ile doğrula
+        [ ] Backup kod kullanımını test et
+        [ ] 2FA'yı devre dışı bırak
+
+    ✓ Mevcut 2FA özellikleri tam:
+        - TOTP desteği ✓
+        - QR kod oluşturma ✓
+        - Backup kodları ✓
+        - Login sırasında 2FA kontrolü ✓
+
+
+--------------------------------------------------------------------------------
+[7] KULLANICI VE OYUN İSTATİSTİKLERİ PANOLARİ - %95 → %100
+--------------------------------------------------------------------------------
+
+    ✅ TAMAMLANDI
+
+    [✓] 7.1 Temel istatistikler
+        - getUserStats() MEVCUT ✓
+        - wins, losses, draws, win_rate ✓
+        
+    [✓] 7.2 Leaderboard endpoint'i oluşturuldu
+        
+        Oluşturulan dosyalar:
+        - src/routes/stats.routes.ts ✓
+        - src/controllers/stats.controller.ts ✓
+        - src/models/match.model.ts (getLeaderboard fonksiyonu) ✓
+        
+        API Endpoint: GET /api/stats/leaderboard?limit=10 ✓
+        
+    [✓] 7.3 Global istatistikler endpoint'i oluşturuldu
+        
+        API Endpoint: GET /api/stats/global ✓
+        
+        Döndürülen veriler:
+        - totalUsers: Toplam kullanıcı sayısı
+        - playersOnline: Çevrimiçi kullanıcı sayısı
+        - totalMatches: Toplam maç sayısı
+        - gamesToday: Bugün oynanan maç sayısı
+        - bestScore: En yüksek skor
+        - activeUsers24h: Son 24 saatte aktif kullanıcı
+        
+    [✓] 7.4 Kullanıcı sıralama pozisyonu oluşturuldu
+        
+        API Endpoint: GET /api/users/:id/rank ✓
+        
+        Döndürülen veriler:
+        - rank: Kullanıcının sırası
+        - totalPlayers: Toplam oyuncu sayısı
+        
+    [ ] 7.5 Zaman bazlı istatistikler (opsiyonel)
+        GET /api/users/:id/stats?period=week
+        
+        - daily, weekly, monthly, all-time
+        - Grafik için veri formatı
+        
+        ⚠️ OPSİYONEL - Zaman kalırsa yapılabilir
+
+
+================================================================================
+                         HIZLI KONTROL LİSTESİ
+================================================================================
+
+ZORUNLU (mutlaka yap):
+[✓] Stats route ve controller oluştur (stats.routes.ts, stats.controller.ts)
+[✓] Stats route'u app.ts'e kaydet
+[✓] last_seen_at güncelleme middleware'i
+[✓] Leaderboard endpoint'i (GET /api/stats/leaderboard)
+[✓] Global istatistikler endpoint'i (GET /api/stats/global)
+[✓] Kullanıcı rank endpoint'i (GET /api/users/:id/rank)
+[ ] OAuth provider'ları test et
+[ ] 2FA akışını test et
+[ ] Production build test et
+
+OPSİYONEL (zaman kalırsa):
+[✓] Seed data (MEVCUT)
+[ ] Tournament model
+[ ] Zaman bazlı istatistikler
+[ ] Redis entegrasyonu
+[ ] Gizlilik politikası endpoint'i
+
+
+================================================================================
+                         BEKLENİYOR (DİĞER EKİPLERDEN)
+================================================================================
+
+1. GAME EKİBİNDEN:
+   - Maç sonuçlarını kaydetmek için API çağrısı yapılacak
+   - match_history tablosuna veri gelecek
+   - Turnuva sistemi gereksinimleri
+   
+2. FRONTEND EKİBİNDEN:
+   - OAuth callback URL'leri
+   - Avatar upload UI
+   - 2FA setup UI
+   - Dashboard tasarımı (hangi istatistikler gösterilecek)
+
+3. DEVOPS EKİBİNDEN:
+   - Docker container ayarları
+   - Environment variables (production)
+   - SSL sertifikaları
+
+
+================================================================================
+                 FRONTEND İÇİN HAZIR API ENDPOİNT'LERİ
+================================================================================
+
+Aşağıdaki API endpoint'leri Frontend ekibinin kullanımına hazırdır:
+
+--------------------------------------------------------------------------------
+[1] İSTATİSTİK API'LARİ (/api/stats)
+--------------------------------------------------------------------------------
+
+    GET /api/stats/leaderboard?limit=10
+    ─────────────────────────────────────
+    Açıklama: Skor tablosu - en iyi oyuncuları listeler
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "leaderboard": [
+                {
+                    "id": 1,
+                    "name": "Alice",
+                    "avatar_url": "default-avatar.png",
+                    "score": 1100,
+                    "gamesPlayed": 5,
+                    "wins": 3,
+                    "losses": 2,
+                    "winRate": 60
+                }
+            ],
+            "total": 10
+        }
+    }
+
+
+    GET /api/stats/global
+    ─────────────────────────────────────
+    Açıklama: Genel platform istatistikleri
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "totalUsers": 150,
+            "playersOnline": 23,
+            "totalMatches": 1250,
+            "gamesToday": 45,
+            "bestScore": 11,
+            "activeUsers24h": 67
+        }
+    }
+
+
+    GET /api/stats/recent-matches?limit=10
+    ─────────────────────────────────────
+    Açıklama: Son oynanan maçları listeler
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "matches": [...],
+            "total": 10
+        }
+    }
+
+
+--------------------------------------------------------------------------------
+[2] KULLANICI İSTATİSTİK API'LARİ (/api/users)
+--------------------------------------------------------------------------------
+
+    GET /api/users/:id/rank
+    ─────────────────────────────────────
+    Açıklama: Kullanıcının sıralama pozisyonu
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "rank": 5,
+            "totalPlayers": 150
+        }
+    }
+
+
+    GET /api/users/:id/stats
+    ─────────────────────────────────────
+    Açıklama: Kullanıcının oyun istatistikleri
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "total_matches": 25,
+            "wins": 15,
+            "losses": 8,
+            "draws": 2,
+            "win_rate": 60,
+            "total_points_scored": 187,
+            "total_points_against": 142,
+            "average_game_duration": 180
+        }
+    }
+
+
+    GET /api/users/:id/matches?page=1&limit=20
+    ─────────────────────────────────────
+    Açıklama: Kullanıcının maç geçmişi (pagination destekli)
+    Auth: Gerekli değil (public)
+
+
+--------------------------------------------------------------------------------
+[3] MEVCUT DİĞER API'LAR
+--------------------------------------------------------------------------------
+
+    AUTH:
+    - POST /api/auth/register
+    - POST /api/auth/login
+    - POST /api/auth/logout
+    - POST /api/auth/refresh
+
+    USERS:
+    - GET /api/users/me (auth required)
+    - PATCH /api/users/me (auth required)
+    - PUT /api/users/me/password (auth required)
+    - POST /api/users/me/avatar (auth required)
+    - DELETE /api/users/me/avatar (auth required)
+    - GET /api/users/search?q=query
+    - GET /api/users/online
+    - GET /api/users/:id
+
+    FRIENDS:
+    - GET /api/friends (auth required)
+    - POST /api/friends/request/:userId (auth required)
+    - POST /api/friends/accept/:userId (auth required)
+    - POST /api/friends/reject/:userId (auth required)
+    - DELETE /api/friends/:userId (auth required)
+    - POST /api/friends/block/:userId (auth required)
+    - DELETE /api/friends/block/:userId (auth required)
+
+    OAUTH:
+    - GET /api/oauth/providers
+    - GET /api/oauth/:provider/url
+    - POST /api/oauth/:provider/callback
+
+    2FA:
+    - POST /api/2fa/setup (auth required)
+    - POST /api/2fa/verify (auth required)
+    - POST /api/2fa/disable (auth required)
+    - POST /api/2fa/backup-codes (auth required)
+    - POST /api/2fa/verify-backup
+
+    GDPR:
+    - GET /api/gdpr/export (auth required)
+    - POST /api/gdpr/anonymize (auth required)
+    - DELETE /api/gdpr/delete (auth required)
+
+
+================================================================================
+                 GAME EKİBİ İÇİN MAÇ KAYDETME API'Sİ
+================================================================================
+
+Game ekibi maç sonuçlarını kaydetmek için aşağıdaki API'yı kullanabilir:
+
+    POST /api/matches (YENİ OLUŞTURULMALI veya Game ekibi kendi servisinde)
+    ─────────────────────────────────────
+    NOT: Şu an match_history tablosuna direkt model üzerinden yazılabiliyor.
+    Game ekibi kendi backend servisini oluşturacaksa, aşağıdaki formatta
+    veri gönderebilir:
+    
+    Body:
+    {
+        "player1_id": 1,
+        "player2_id": 2,
+        "player1_score": 11,
+        "player2_score": 7,
+        "winner_id": 1,
+        "game_type": "pong",
+        "duration_seconds": 180,
+        "started_at": "2026-01-06T10:00:00.000Z"
+    }
+
+    ⚠️ BEKLENİYOR: Game ekibi bu API'yı nasıl kullanacağını belirleyecek.
+    İsterseniz bir POST /api/matches endpoint'i ekleyebilirim.
+
+================================================================================
