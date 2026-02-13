@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { CreateMatchInput } from '../models/match.model.js';
 import { matchController } from '../controllers/match.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 
@@ -27,7 +28,7 @@ export async function matchRoutes(fastify: FastifyInstance) {
      *   "started_at": "..."       // Optional, ISO 8601 format
      * }
      */
-    fastify.post(
+    fastify.post<{ Body: CreateMatchInput }>(
         '/',
         { preHandler: [authenticate] },
         matchController.createMatch.bind(matchController)
@@ -48,7 +49,7 @@ export async function matchRoutes(fastify: FastifyInstance) {
      *   "duration_seconds": 120    // Optional
      * }
      */
-    fastify.post(
+    fastify.post<{ Body: { player_id: number; player_score: number; ai_score: number; duration_seconds?: number } }>(
         '/ai',
         { preHandler: [authenticate] },
         matchController.createAIMatch.bind(matchController)
