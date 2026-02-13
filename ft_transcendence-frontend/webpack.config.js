@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -83,6 +84,13 @@ module.exports = (env, argv) => {
       historyApiFallback: true,
       open: false,
       host: '0.0.0.0',
+      server: {
+        type: 'https',
+        options: {
+          key: fs.readFileSync(path.join(__dirname, 'certs/key.pem')),
+          cert: fs.readFileSync(path.join(__dirname, 'certs/cert.pem')),
+        },
+      },
     },
     devtool: isProduction ? 'source-map' : 'eval-source-map',
   };

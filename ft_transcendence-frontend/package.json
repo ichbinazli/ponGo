@@ -9,7 +9,7 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "start": "npm run build && npm run serve",
-    "serve": "http-server dist -p 5173"
+    "serve": "http-server dist -p 5173 --ssl --cert certs/cert.pem --key certs/key.pem -P https://localhost:5173?"
   },
   "keywords": [
     "transcendence",
