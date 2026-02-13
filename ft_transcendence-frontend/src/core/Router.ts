@@ -44,7 +44,7 @@ export class Router {
     public handleRouteChange(): void {
         const path = window.location.pathname;
         this.currentPath = path;
-        
+
         const handler = this.routes.get(path);
         if (handler) {
             try {

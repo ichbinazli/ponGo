@@ -1,3 +1,4 @@
+import { AxiosProgressEvent } from 'axios';
 declare class Api {
     private axiosInstance;
     private baseURL;
@@ -8,6 +9,7 @@ declare class Api {
     put(endpoint: string, data: any): Promise<any>;
     delete(endpoint: string): Promise<any>;
     patch(endpoint: string, data: any): Promise<any>;
+    uploadFile(endpoint: string, file: File | Blob, fieldName?: string, additionalData?: Record<string, any>, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void): Promise<any>;
     request(method: 'get' | 'post' | 'put' | 'delete' | 'patch', endpoint: string, data?: any): Promise<any>;
 }
 declare const _default: Api;

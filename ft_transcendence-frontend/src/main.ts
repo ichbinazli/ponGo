@@ -32,7 +32,7 @@ export class ThemeManager {
         } else {
             this.setupTheme();
         }
-       let isRefreshing = false; // Çakışmaları önlemek için kilit
+        let isRefreshing = false; // Çakışmaları önlemek için kilit
 
         setInterval(async () => {
             const expiresAt = localStorage.getItem('expiresAt');
@@ -222,7 +222,7 @@ class App {
             { path: CONSTANTS.ROUTES.LOGOUT, handler: () => this.renderLogout() },
             { path: '/login', handler: () => this.renderLogin() },
             { path: '/register', handler: () => this.renderRegister() },
-            { path: '/reset-password', handler: () => this.renderResetPassword() },        ];
+            { path: '/reset-password', handler: () => this.renderResetPassword() },];
 
         routes.forEach(route => {
             this.router.addRoute(route.path, route.handler);
@@ -267,7 +267,7 @@ class App {
     private setupMobileMenu(): void {
         const mobileMenuBtn = document.getElementById(CONSTANTS.SELECTORS.MOBILE_MENU_BTN);
         const mobileMenu = document.getElementById(CONSTANTS.SELECTORS.MOBILE_MENU);
-        
+
         if (!mobileMenuBtn || !mobileMenu) return;
 
         this.setupMobileMenuToggle(mobileMenuBtn, mobileMenu);
@@ -310,8 +310,8 @@ class App {
     private async loadTemplate(templateName: string, wrapInContainer: boolean = true): Promise<void> {
         try {
             const content = await TemplateLoader.loadTemplate(templateName);
-            const finalContent = wrapInContainer 
-                ? this.createResponsiveContainer(content) 
+            const finalContent = wrapInContainer
+                ? this.createResponsiveContainer(content)
                 : content;
             this.renderPage(finalContent);
         } catch (error) {
@@ -352,7 +352,7 @@ class App {
         const medals = ['🥇', '🥈', '🥉'];
         const gradients = ['from-yellow-400 to-yellow-600', 'from-gray-300 to-gray-500', 'from-orange-400 to-orange-600'];
         const positions = ['Birinci', 'İkinci', 'Üçüncü'];
-        
+
         return `
             <div class="podium-card bg-gradient-to-br ${gradients[index]} p-4 sm:p-6 rounded-xl text-center transform hover:scale-105 transition-all duration-300">
                 <div class="text-4xl sm:text-6xl mb-2 sm:mb-4">${medals[index]}</div>
@@ -406,24 +406,24 @@ class App {
 
     private async renderLeaderboard(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.LEADERBOARD);
-        
+
         this.renderPage(this.createResponsiveContainer(this.createLoadingSpinner()));
 
-        try {            
+        try {
             const response = await Api.get('/api/stats/leaderboard?limit=10');
             const leaderboard: LeaderboardEntry[] = response.data.leaderboard;
-        
+
             await this.loadTemplate(CONSTANTS.TEMPLATES.LEADERBOARD);
-            
+
             const podiumContainer = document.getElementById('podium-container');
             if (podiumContainer) {
                 podiumContainer.innerHTML = leaderboard
                     .slice(0, 3)
-                    .map((player: LeaderboardEntry, index: number) => 
+                    .map((player: LeaderboardEntry, index: number) =>
                         this.createPodiumCard(player, index)
                     ).join('');
             }
-            
+
             const tableBody = document.getElementById('leaderboard-table');
             if (tableBody) {
                 tableBody.innerHTML = leaderboard.map((player: LeaderboardEntry, index: number) => `
@@ -443,9 +443,9 @@ class App {
                         <td class="py-2 sm:py-3 px-2 sm:px-4 hidden md:table-cell">${player.gamesPlayed}</td>
                         <td class="py-2 sm:py-3 px-2 sm:px-4">
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                                ${player.winRate >= 70 ? 'bg-emerald-900 text-emerald-300' : 
-                                  player.winRate >= 50 ? 'bg-amber-900 text-amber-300' : 
-                                  'bg-rose-900 text-rose-300'}">
+                                ${player.winRate >= 70 ? 'bg-emerald-900 text-emerald-300' :
+                        player.winRate >= 50 ? 'bg-amber-900 text-amber-300' :
+                            'bg-rose-900 text-rose-300'}">
                                 ${player.winRate}%
                             </span>
                         </td>
@@ -457,73 +457,73 @@ class App {
                     </tr>
                 `).join('');
             }
-            
+
         } catch (error) {
             console.error('Error loading leaderboard:', error);
             this.showError(CONSTANTS.ERROR_MESSAGES.LEADERBOARD_LOAD);
         }
     }
 
-   private initProfilePhotoUpload(): void {
-    // Elementi bulana kadar bekle
-    const checkAndInit = () => {
-        const addPhotoBtn = document.getElementById('edit-avatar-btn'); // ← DEĞİŞTİ
-        const photoUpload = document.getElementById('avatar-upload') as HTMLInputElement; // ← DEĞİŞTİ
-        const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement;
+    private initProfilePhotoUpload(): void {
+        // Elementi bulana kadar bekle
+        const checkAndInit = () => {
+            const addPhotoBtn = document.getElementById('edit-avatar-btn'); // ← DEĞİŞTİ
+            const photoUpload = document.getElementById('avatar-upload') as HTMLInputElement; // ← DEĞİŞTİ
+            const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement;
 
-        if (!addPhotoBtn || !photoUpload || !profileAvatar) {
-            console.log('Elements not found, retrying...');
-            setTimeout(checkAndInit, 100);
-            return;
-        }
-
-        console.log('Elements found, initializing photo upload');
-
-        addPhotoBtn.addEventListener('click', () => {
-            console.log('Button clicked!');
-            photoUpload.click();
-        });
-
-        photoUpload.addEventListener('change', (e: Event) => {
-            const target = e.target as HTMLInputElement;
-            const file = target.files?.[0];
-            
-            if (!file) return;
-            
-            console.log('File selected:', file.name);
-            
-            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
-            
-            if (!allowedTypes.includes(file.type)) {
-                alert('Lütfen sadece resim dosyası seçin! (PNG, JPG, GIF, WebP)');
-                photoUpload.value = '';
+            if (!addPhotoBtn || !photoUpload || !profileAvatar) {
+                console.log('Elements not found, retrying...');
+                setTimeout(checkAndInit, 100);
                 return;
             }
-            
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Dosya boyutu 5MB\'dan küçük olmalıdır!');
-                photoUpload.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = async (event: ProgressEvent<FileReader>) => {
-                if (event.target?.result && profileAvatar) {
-                    profileAvatar.src = event.target.result as string;
-                    let response = await Api.uploadFile('/api/users/me/avatar', file, 'avatar');
-                    if (response.success) {
-                        let object = JSON.parse(localStorage.getItem('user') || '{}');
-                        object.avatarUrl = response.data.avatar_url;
-                        localStorage.setItem('user', JSON.stringify(object));
-                    }
+
+            console.log('Elements found, initializing photo upload');
+
+            addPhotoBtn.addEventListener('click', () => {
+                console.log('Button clicked!');
+                photoUpload.click();
+            });
+
+            photoUpload.addEventListener('change', (e: Event) => {
+                const target = e.target as HTMLInputElement;
+                const file = target.files?.[0];
+
+                if (!file) return;
+
+                console.log('File selected:', file.name);
+
+                const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Lütfen sadece resim dosyası seçin! (PNG, JPG, GIF, WebP)');
+                    photoUpload.value = '';
+                    return;
                 }
-            };
-            reader.readAsDataURL(file);
-        });
-    };
 
-    checkAndInit();
-}
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Dosya boyutu 5MB\'dan küçük olmalıdır!');
+                    photoUpload.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = async (event: ProgressEvent<FileReader>) => {
+                    if (event.target?.result && profileAvatar) {
+                        profileAvatar.src = event.target.result as string;
+                        let response = await Api.uploadFile('/api/users/me/avatar', file, 'avatar');
+                        if (response.success) {
+                            let object = JSON.parse(localStorage.getItem('user') || '{}');
+                            object.avatarUrl = response.data.avatar_url;
+                            localStorage.setItem('user', JSON.stringify(object));
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        checkAndInit();
+    }
 
     private async renderProfile(): Promise<void> {
         let user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -533,17 +533,17 @@ class App {
         try {
             let userId = JSON.parse(localStorage.getItem('user') || '{}').id;
             const stats = await Api.get(`/api/users/${userId}/stats`);
-            
+
             await this.loadTemplate(CONSTANTS.TEMPLATES.PROFILE, false);
             this.fillProfileData(stats);
             this.delayedExecution(() => {
-            this.setupProfileTabs();
-            this.initProfilePhotoUpload();
+                this.setupProfileTabs();
+                this.initProfilePhotoUpload();
             }, CONSTANTS.TIMEOUTS.DOM_READY);
-            
+
             const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
             const displayNameInput = document.querySelector('input[name="displayName"]') as HTMLInputElement;
-            
+
             emailInput.value = user.email;
             displayNameInput.value = user.displayName;
             document.getElementById('update-account-info')?.addEventListener('click', async () => {
@@ -562,35 +562,35 @@ class App {
     }
 
 
-    
-    private async fillProfileData(stats: any): Promise<void> {
-    if (!stats.success) return;
-    
-    const statsData = stats.data;
-    let user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    // 1. Maç Geçmişini Doldur
-    let response = await Api.get('/api/stats/recent-matches?limit=10');
-    if (response.success) {
-        const tableBody = document.getElementById('game-history-table');
-        if (tableBody) {
-            // Tabloyu her seferinde sıfırlamak istersen: tableBody.innerHTML = '';
-            response.data.matches.forEach((item: any) => {
-                const isPlayer1 = item.player1_id === user.id;
-                const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
-                const playerScore = isPlayer1 ? item.player1_score : item.player2_score;
-                const opponentScore = isPlayer1 ? item.player2_score : item.player1_score;
-                
-                const result = item.winner_id === user.id ?
-                    `<span class="text-green-400 font-bold">GALİBİYET</span>` :
-                    `<span class="text-red-400 font-bold">MAĞLUBİYET</span>`;
-                
-                const matchDate = new Date(item.ended_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
-                const durationMinutes = Math.floor(item.duration_seconds / 60);
-                const durationSeconds = item.duration_seconds % 60;
-                const durationStr = `${durationMinutes}dk ${durationSeconds}s`;
 
-                tableBody.innerHTML += `
+    private async fillProfileData(stats: any): Promise<void> {
+        if (!stats.success) return;
+
+        const statsData = stats.data;
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // 1. Maç Geçmişini Doldur
+        let response = await Api.get('/api/stats/recent-matches?limit=10');
+        if (response.success) {
+            const tableBody = document.getElementById('game-history-table');
+            if (tableBody) {
+                // Tabloyu her seferinde sıfırlamak istersen: tableBody.innerHTML = '';
+                response.data.matches.forEach((item: any) => {
+                    const isPlayer1 = item.player1_id === user.id;
+                    const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
+                    const playerScore = isPlayer1 ? item.player1_score : item.player2_score;
+                    const opponentScore = isPlayer1 ? item.player2_score : item.player1_score;
+
+                    const result = item.winner_id === user.id ?
+                        `<span class="text-green-400 font-bold">GALİBİYET</span>` :
+                        `<span class="text-red-400 font-bold">MAĞLUBİYET</span>`;
+
+                    const matchDate = new Date(item.ended_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const durationMinutes = Math.floor(item.duration_seconds / 60);
+                    const durationSeconds = item.duration_seconds % 60;
+                    const durationStr = `${durationMinutes}dk ${durationSeconds}s`;
+
+                    tableBody.innerHTML += `
                     <tr class="border-b border-white/10 hover:bg-white/5">
                         <td class="py-3 px-4">${matchDate}</td>
                         <td class="py-3 px-4">${opponentName}</td>
@@ -600,27 +600,27 @@ class App {
                         <td class="py-3 px-4">${durationStr}</td>
                     </tr>
                 `;
-            });
+                });
+            }
         }
-    }
 
-    // 2. Profil Bilgilerini Güncelle (HTML yapısını bozmadan)
-    const usernameEl = document.getElementById('profile-username');
-    const avatarEl = document.getElementById('profile-avatar') as HTMLImageElement;
-    
-    if (usernameEl) {
-        usernameEl.textContent = user.displayName || 'Oyuncu';
-    }
-    
-    if (avatarEl && user.avatarUrl) {
-        avatarEl.src = "http://localhost:3000" + user.avatarUrl; 
-        // Eğer avatarUrl yoksa varsayılan Dicebear linki HTML'de kalacaktır.
-    }
+        // 2. Profil Bilgilerini Güncelle (HTML yapısını bozmadan)
+        const usernameEl = document.getElementById('profile-username');
+        const avatarEl = document.getElementById('profile-avatar') as HTMLImageElement;
 
-    // 3. İstatistik Kartlarını Güncelle
-    const statsGridContainer = document.getElementById('stats-grid-container');
-    if (statsGridContainer) {
-        statsGridContainer.innerHTML = `
+        if (usernameEl) {
+            usernameEl.textContent = user.displayName || 'Oyuncu';
+        }
+
+        if (avatarEl && user.avatarUrl) {
+            avatarEl.src = "https://localhost:3000" + user.avatarUrl;
+            // Eğer avatarUrl yoksa varsayılan Dicebear linki HTML'de kalacaktır.
+        }
+
+        // 3. İstatistik Kartlarını Güncelle
+        const statsGridContainer = document.getElementById('stats-grid-container');
+        if (statsGridContainer) {
+            statsGridContainer.innerHTML = `
             <div class="stat-card">
                 <h4 class="text-sm font-semibold text-white/70 mb-2">Toplam Puan</h4>
                 <div class="text-2xl font-bold text-yellow-400">${statsData.total_points_scored}</div>
@@ -646,7 +646,7 @@ class App {
                 <div class="text-2xl font-bold text-orange-400">${statsData.draws}</div>
             </div>
         `;
-    }
+        }
     }
     private setupProfileTabs(): void {
         const tabs = document.querySelectorAll('.profile-tab');
@@ -674,7 +674,7 @@ class App {
     private async renderLogout(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.LOGOUT);
         await this.loadTemplate(CONSTANTS.TEMPLATES.LOGOUT, false);
-        
+
         this.delayedExecution(() => {
             const logoutBtn = document.getElementById('logout-confirm');
             if (logoutBtn) {
