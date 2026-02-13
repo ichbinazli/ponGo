@@ -1,0 +1,831 @@
+================================================================================
+          FRONTEND VE GAME EKİBİ İÇİN BACKEND API BİLGİLERİ
+================================================================================
+
+Hazırlayan: Backend Ekibi
+Tarih: 6 Ocak 2026
+Durum: Tüm API'lar hazır ve kullanılabilir
+
+
+================================================================================
+                     FRONTEND EKİBİ İÇİN API'LAR
+================================================================================
+
+Aşağıdaki API endpoint'leri Frontend ekibinin kullanımına hazırdır.
+Base URL: https://localhost:3000 (veya env'den)
+
+
+--------------------------------------------------------------------------------
+[1] İSTATİSTİK API'LARI (/api/stats)
+--------------------------------------------------------------------------------
+
+    GET /api/stats/leaderboard?limit=10
+    ─────────────────────────────────────
+    Açıklama: Skor tablosu - en iyi oyuncuları listeler
+    Auth: Gerekli değil (public)
+    
+    Query Parameters:
+    - limit (optional): Kaç oyuncu döndürülsün (max 100, default 10)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "leaderboard": [
+                {
+                    "id": 1,
+                    "name": "Alice",
+                    "avatar_url": "default-avatar.png",
+                    "score": 1100,
+                    "gamesPlayed": 5,
+                    "wins": 3,
+                    "losses": 2,
+                    "winRate": 60
+                },
+                ...
+            ],
+            "total": 10
+        }
+    }
+    
+    Frontend'de kullanım örneği:
+    - Leaderboard sayfası
+    - Ana sayfa skor tablosu widget'ı
+
+
+    GET /api/stats/global
+    ─────────────────────────────────────
+    Açıklama: Genel platform istatistikleri
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "totalUsers": 150,
+            "playersOnline": 23,
+            "totalMatches": 1250,
+            "gamesToday": 45,
+            "bestScore": 11,
+            "activeUsers24h": 67
+        }
+    }
+    
+    Frontend'de kullanım örneği:
+    - Ana sayfa istatistik kartları
+    - Dashboard genel bakış
+
+
+    GET /api/stats/recent-matches?limit=10
+    ─────────────────────────────────────
+    Açıklama: Son oynanan maçları listeler
+    Auth: Gerekli değil (public)
+    
+    Query Parameters:
+    - limit (optional): Kaç maç döndürülsün (max 50, default 10)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "matches": [
+                {
+                    "id": 1,
+                    "player1_id": 1,
+                    "player2_id": 2,
+                    "player1_score": 11,
+                    "player2_score": 7,
+                    "winner_id": 1,
+                    "game_type": "pong",
+                    "duration_seconds": 180,
+                    "ended_at": "2026-01-06T10:30:00.000Z",
+                    "player1_display_name": "Alice",
+                    "player1_avatar_url": "default-avatar.png",
+                    "player2_display_name": "Bob",
+                    "player2_avatar_url": "default-avatar.png",
+                    "winner_display_name": "Alice"
+                },
+                ...
+            ],
+            "total": 10
+        }
+    }
+
+
+--------------------------------------------------------------------------------
+[2] KULLANICI İSTATİSTİK API'LARI (/api/users)
+--------------------------------------------------------------------------------
+
+    GET /api/users/:id/rank
+    ─────────────────────────────────────
+    Açıklama: Kullanıcının leaderboard'daki sıralama pozisyonu
+    Auth: Gerekli değil (public)
+    
+    Path Parameters:
+    - id: Kullanıcı ID'si
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "rank": 5,
+            "totalPlayers": 150
+        }
+    }
+    
+    Frontend'de kullanım örneği:
+    - Profil sayfasında "150 oyuncu arasında 5. sırada" gösterimi
+
+
+    GET /api/users/:id/stats
+    ─────────────────────────────────────
+    Açıklama: Kullanıcının oyun istatistikleri
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "total_matches": 25,
+            "wins": 15,
+            "losses": 8,
+            "draws": 2,
+            "win_rate": 60,
+            "total_points_scored": 187,
+            "total_points_against": 142,
+            "average_game_duration": 180
+        }
+    }
+
+
+    GET /api/users/:id/matches?page=1&limit=20
+    ─────────────────────────────────────
+    Açıklama: Kullanıcının maç geçmişi (pagination destekli)
+    Auth: Gerekli değil (public)
+    
+    Query Parameters:
+    - page (optional): Sayfa numarası (default 1)
+    - limit (optional): Sayfa başına maç sayısı (default 20)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "matches": [...],
+            "pagination": {
+                "page": 1,
+                "limit": 20,
+                "total": 45,
+                "totalPages": 3
+            }
+        }
+    }
+
+
+    GET /api/users/:id
+    ─────────────────────────────────────
+    Açıklama: Kullanıcının public profil bilgileri
+    Auth: Gerekli değil (public)
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "id": 1,
+            "display_name": "Alice",
+            "avatar_url": "default-avatar.png",
+            "is_online": true,
+            "last_seen_at": "2026-01-06T10:30:00.000Z",
+            "created_at": "2025-12-01T00:00:00.000Z",
+            "stats": {
+                "total_matches": 25,
+                "wins": 15,
+                "losses": 8,
+                "draws": 2,
+                "win_rate": 60,
+                ...
+            }
+        }
+    }
+
+
+    GET /api/users/search?q=query&limit=20
+    ─────────────────────────────────────
+    Açıklama: Kullanıcı arama
+    Auth: Gerekli değil (public)
+    
+    Query Parameters:
+    - q (required): Arama terimi (min 2 karakter)
+    - limit (optional): Sonuç limiti (default 20)
+
+
+    GET /api/users/online
+    ─────────────────────────────────────
+    Açıklama: Çevrimiçi kullanıcıları listeler
+    Auth: Gerekli değil (public)
+
+
+--------------------------------------------------------------------------------
+[3] KİMLİK DOĞRULAMA API'LARI (/api/auth)
+--------------------------------------------------------------------------------
+
+    POST /api/auth/register
+    ─────────────────────────────────────
+    Body:
+    {
+        "email": "user@example.com",
+        "password": "MinimumSekizKarakter",
+        "displayName": "KullaniciAdi"
+    }
+    
+    Response (success):
+    {
+        "success": true,
+        "data": {
+            "user": { ... },
+            "accessToken": "jwt...",
+            "refreshToken": "jwt..."
+        }
+    }
+
+
+    POST /api/auth/login
+    ─────────────────────────────────────
+    Body:
+    {
+        "email": "user@example.com",
+        "password": "sifre"
+    }
+    
+    Response (2FA aktif değilse):
+    {
+        "success": true,
+        "data": {
+            "user": { ... },
+            "accessToken": "jwt...",
+            "refreshToken": "jwt..."
+        }
+    }
+    
+    Response (2FA aktifse):
+    {
+        "success": true,
+        "data": {
+            "requires2FA": true,
+            "tempToken": "temp-jwt..."
+        },
+        "message": "2FA verification required"
+    }
+
+
+    POST /api/auth/logout
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    
+    Response:
+    {
+        "success": true,
+        "message": "Logged out successfully"
+    }
+
+
+    POST /api/auth/refresh
+    ─────────────────────────────────────
+    Body:
+    {
+        "refreshToken": "jwt..."
+    }
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "accessToken": "new-jwt...",
+            "refreshToken": "new-jwt..."
+        }
+    }
+
+
+--------------------------------------------------------------------------------
+[4] PROFİL YÖNETİMİ API'LARI (/api/users/me)
+--------------------------------------------------------------------------------
+
+    GET /api/users/me
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Giriş yapmış kullanıcının tam profili
+
+
+    PATCH /api/users/me
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    
+    Body:
+    {
+        "displayName": "YeniIsim",
+        "email": "yeni@email.com"
+    }
+
+
+    PUT /api/users/me/password
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    
+    Body:
+    {
+        "currentPassword": "eskisifre",
+        "newPassword": "yenisifre123"
+    }
+
+
+    POST /api/users/me/avatar
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Content-Type: multipart/form-data
+    
+    Form field: avatar (file, max 5MB, jpg/png/gif/webp)
+
+
+    DELETE /api/users/me/avatar
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Avatarı varsayılana sıfırlar
+
+
+--------------------------------------------------------------------------------
+[5] ARKADAŞLIK API'LARI (/api/friends)
+--------------------------------------------------------------------------------
+
+    GET /api/friends
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Arkadaş listesi, bekleyen istekler, engellenenler
+
+
+    POST /api/friends/request/:userId
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Arkadaşlık isteği gönder
+
+
+    POST /api/friends/accept/:userId
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Arkadaşlık isteğini kabul et
+
+
+    POST /api/friends/reject/:userId
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Arkadaşlık isteğini reddet
+
+
+    DELETE /api/friends/:userId
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Arkadaşı sil
+
+
+    POST /api/friends/block/:userId
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Kullanıcıyı engelle
+
+
+    DELETE /api/friends/block/:userId
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Engeli kaldır
+
+
+--------------------------------------------------------------------------------
+[6] OAUTH API'LARI (/api/oauth)
+--------------------------------------------------------------------------------
+
+    GET /api/oauth/providers
+    ─────────────────────────────────────
+    Açıklama: Desteklenen OAuth provider'ları listeler
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "providers": ["google", "github", "42"]
+        }
+    }
+
+
+    GET /api/oauth/:provider/url
+    ─────────────────────────────────────
+    Açıklama: OAuth login URL'i döndürür
+    
+    Path Parameters:
+    - provider: "google" | "github" | "42"
+
+
+    POST /api/oauth/:provider/callback
+    ─────────────────────────────────────
+    Açıklama: OAuth callback işlemi
+    
+    Body:
+    {
+        "code": "oauth-code-from-provider"
+    }
+
+
+--------------------------------------------------------------------------------
+[7] 2FA API'LARI (/api/2fa)
+--------------------------------------------------------------------------------
+
+    POST /api/2fa/setup
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: 2FA kurulumunu başlatır, QR kod döndürür
+    
+    Response:
+    {
+        "success": true,
+        "data": {
+            "qrCode": "data:image/png;base64,...",
+            "secret": "JBSWY3DPEHPK3PXP"
+        }
+    }
+
+
+    POST /api/2fa/verify
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: 2FA'yı doğrular ve aktifleştirir
+    
+    Body:
+    {
+        "code": "123456"
+    }
+
+
+    POST /api/2fa/disable
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    
+    Body:
+    {
+        "code": "123456",
+        "password": "kullanici-sifresi"
+    }
+
+
+    POST /api/2fa/backup-codes
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Yeni backup kodları oluşturur
+
+
+    POST /api/2fa/verify-backup
+    ─────────────────────────────────────
+    Açıklama: Backup kodu ile giriş yapar
+    
+    Body:
+    {
+        "tempToken": "temp-jwt...",
+        "backupCode": "ABCD-1234-EFGH"
+    }
+
+
+--------------------------------------------------------------------------------
+[8] GDPR API'LARI (/api/gdpr)
+--------------------------------------------------------------------------------
+
+    GET /api/gdpr/export
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Kullanıcının tüm verilerini JSON olarak dışa aktarır
+
+
+    POST /api/gdpr/anonymize
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Hesabı anonimleştirir (geri alınamaz)
+    
+    Body:
+    {
+        "password": "kullanici-sifresi",
+        "confirmation": "ANONYMIZE MY ACCOUNT"
+    }
+
+
+    DELETE /api/gdpr/delete
+    ─────────────────────────────────────
+    Auth: Bearer Token gerekli
+    Açıklama: Hesabı kalıcı olarak siler
+    
+    Body:
+    {
+        "password": "kullanici-sifresi"
+    }
+
+
+================================================================================
+                       GAME EKİBİ İÇİN API'LAR
+================================================================================
+
+--------------------------------------------------------------------------------
+[1] MAÇ KAYDETME
+--------------------------------------------------------------------------------
+
+Game ekibi maç sonuçlarını backend'e kaydetmek için aşağıdaki formatı
+kullanmalıdır.
+
+    SEÇENEK A: Direkt Model Kullanımı (Aynı Backend İçinde)
+    ─────────────────────────────────────────────────────────
+    
+    Eğer game backend ile aynı projede çalışıyorsa:
+    
+    ```typescript
+    import { matchHistoryModel } from '../models/match.model.js';
+    
+    // Maç sonucunu kaydet
+    const match = matchHistoryModel.create({
+        player1_id: 1,
+        player2_id: 2,
+        player1_score: 11,
+        player2_score: 7,
+        winner_id: 1,              // Berabere ise null
+        game_type: 'pong',         // 'pong' | 'tournament' | 'other'
+        tournament_id: null,       // Turnuva maçı değilse null
+        duration_seconds: 180,     // Maç süresi (saniye)
+        started_at: '2026-01-06T10:00:00.000Z'  // Maç başlangıç zamanı
+    });
+    
+    console.log('Maç kaydedildi:', match.id);
+    ```
+
+
+    SEÇENEK B: API Endpoint Kullanımı (Ayrı Servis)
+    ─────────────────────────────────────────────────────────
+    
+    Eğer game ayrı bir servis olarak çalışıyorsa, bir API endpoint
+    oluşturabilirim. Bana haber verin.
+    
+    Beklenen endpoint: POST /api/matches
+    
+    Body:
+    {
+        "player1_id": 1,
+        "player2_id": 2,
+        "player1_score": 11,
+        "player2_score": 7,
+        "winner_id": 1,
+        "game_type": "pong",
+        "tournament_id": null,
+        "duration_seconds": 180,
+        "started_at": "2026-01-06T10:00:00.000Z"
+    }
+
+
+--------------------------------------------------------------------------------
+[2] MAÇ VERİ FORMATI
+--------------------------------------------------------------------------------
+
+    match_history tablosu yapısı:
+    
+    | Alan              | Tip      | Açıklama                           |
+    |-------------------|----------|------------------------------------|
+    | id                | INTEGER  | Otomatik (PK)                      |
+    | player1_id        | INTEGER  | İlk oyuncu ID'si (FK users)        |
+    | player2_id        | INTEGER  | İkinci oyuncu ID'si (FK users)     |
+    | player1_score     | INTEGER  | İlk oyuncunun skoru                |
+    | player2_score     | INTEGER  | İkinci oyuncunun skoru             |
+    | winner_id         | INTEGER  | Kazanan ID (berabere ise NULL)     |
+    | game_type         | TEXT     | 'pong', 'tournament', 'other'      |
+    | tournament_id     | INTEGER  | Turnuva ID'si (opsiyonel)          |
+    | duration_seconds  | INTEGER  | Maç süresi saniye cinsinden        |
+    | started_at        | TEXT     | Maç başlangıç zamanı (ISO 8601)    |
+    | ended_at          | TEXT     | Otomatik (NOW)                     |
+
+
+--------------------------------------------------------------------------------
+[3] TURNUVA SİSTEMİ (BEKLENİYOR)
+--------------------------------------------------------------------------------
+
+    ⚠️ Turnuva sistemi için Game ekibinden gereksinimler bekleniyor:
+    
+    - Turnuva formatı (eleme, lig, vb.)
+    - Turnuva bracket yapısı
+    - Katılımcı limitleri
+    - Turnuva ödülleri/puanları
+    
+    tournaments tablosu hazır, model oluşturulabilir.
+    
+    Mevcut tablo yapısı:
+    | Alan              | Tip      | Açıklama                      |
+    |-------------------|----------|-------------------------------|
+    | id                | INTEGER  | PK                            |
+    | name              | TEXT     | Turnuva adı                   |
+    | status            | TEXT     | pending/active/completed      |
+    | max_participants  | INTEGER  | Maks katılımcı                |
+    | created_by        | INTEGER  | Oluşturan kullanıcı           |
+    | started_at        | TEXT     | Başlangıç zamanı              |
+    | ended_at          | TEXT     | Bitiş zamanı                  |
+
+
+--------------------------------------------------------------------------------
+[4] KULLANICI BİLGİSİ ALMA
+--------------------------------------------------------------------------------
+
+    Game ekibi oyuncu bilgilerini almak için:
+    
+    GET /api/users/:id
+    
+    Response:
+    {
+        "id": 1,
+        "display_name": "Alice",
+        "avatar_url": "uploads/avatar-1.png",
+        "is_online": true
+    }
+
+
+================================================================================
+                          ÖNEMLİ NOTLAR
+================================================================================
+
+1. TÜM API'LAR JSON DÖNDÜRÜR
+   Content-Type: application/json
+
+2. AUTH GEREKTİREN ENDPOINT'LER
+   Header'a ekleyin: Authorization: Bearer <accessToken>
+
+3. HATA RESPONSE FORMATI
+   {
+       "success": false,
+       "error": {
+           "code": "ERROR_CODE",
+           "message": "Hata açıklaması"
+       }
+   }
+
+4. PAGINATION
+   Sayfalama destekleyen endpoint'ler:
+   - ?page=1&limit=20 parametreleri alır
+   - Response'da pagination objesi döner
+
+5. ÇEVRİMİÇİ DURUM
+   - Kullanıcılar her API çağrısında last_seen_at güncellenir
+   - Son 5 dakikada aktif olan kullanıcılar "online" sayılır
+
+6. AVATAR URL'LERİ
+   - Varsayılan: "default-avatar.png"
+   - Yüklenen: "uploads/avatar-{userId}-{timestamp}.{ext}"
+   - Tam URL: {BASE_URL}/uploads/{filename}
+
+
+================================================================================
+                          İLETİŞİM
+================================================================================
+
+Backend ile ilgili sorular için:
+- Yeni endpoint gereksinimi
+- Veri formatı değişikliği
+- Bug bildirimi
+
+Backend ekibine ulaşın.
+
+
+================================================================================
+              BACKEND'İN DİĞER EKİPLERDEN BEKLEDİKLERİ
+================================================================================
+
+--------------------------------------------------------------------------------
+[1] FRONTEND EKİBİNDEN BEKLENİYOR
+--------------------------------------------------------------------------------
+
+    [ ] OAuth Callback URL'leri
+        ─────────────────────────────────────
+        OAuth provider'lar için callback URL'leri belirlenmeli:
+        - Google için: /oauth/google/callback
+        - GitHub için: /oauth/github/callback
+        - 42 için: /oauth/42/callback
+        
+        Frontend bu URL'lere yönlendirme yapmalı ve "code" parametresini
+        backend'e POST etmeli.
+        
+    
+    [ ] Avatar Upload UI
+        ─────────────────────────────────────
+        - POST /api/users/me/avatar endpoint'i hazır
+        - multipart/form-data formatında "avatar" field'ı bekleniyor
+        - Max 5MB, desteklenen formatlar: jpg, png, gif, webp
+        
+    
+    [ ] 2FA Setup UI
+        ─────────────────────────────────────
+        - QR kod gösterimi (base64 image döndürülüyor)
+        - 6 haneli kod girişi
+        - Backup kodları gösterme/kaydetme ekranı
+        
+    
+    [ ] Dashboard Tasarımı Bilgisi
+        ─────────────────────────────────────
+        - Hangi istatistikler gösterilecek?
+        - Grafik türleri (bar, line, pie)?
+        - Zaman bazlı filtreleme gerekiyor mu? (günlük/haftalık/aylık)
+        
+        ⚠️ Eğer farklı format veya ek veri gerekiyorsa bildirin,
+           endpoint'leri güncelleyelim.
+
+
+--------------------------------------------------------------------------------
+[2] GAME EKİBİNDEN BEKLENİYOR
+--------------------------------------------------------------------------------
+
+    [ ] Maç Sonuçları Entegrasyonu
+        ─────────────────────────────────────
+        - Maç bittiğinde sonuçlar backend'e nasıl gönderilecek?
+        - Direkt model kullanımı mı, API call mı?
+        - Eğer API gerekiyorsa POST /api/matches endpoint'i eklenecek
+        
+    
+    [ ] Turnuva Sistemi Gereksinimleri
+        ─────────────────────────────────────
+        tournaments tablosu hazır ama kullanılmıyor.
+        Aşağıdaki bilgiler gerekli:
+        
+        - Turnuva formatı nedir? (tek eleme, çift eleme, lig?)
+        - Bracket yapısı nasıl olacak?
+        - Kaç kişilik turnuvalar olacak?
+        - Turnuva ödül/puan sistemi var mı?
+        - Turnuva maçları otomatik mi eşleştirilecek?
+        
+    
+    [ ] Oyun Tipi Bilgisi
+        ─────────────────────────────────────
+        - Sadece Pong mu olacak?
+        - Farklı oyun modları var mı? (classic, power-ups, etc.)
+        - game_type alanına hangi değerler yazılacak?
+        
+    
+    [ ] AI Maçları
+        ─────────────────────────────────────
+        - AI ile oynanan maçlar kaydedilecek mi?
+        - AI için özel bir user ID mi olacak, yoksa ayrı mı tutulacak?
+
+
+--------------------------------------------------------------------------------
+[3] DEVOPS EKİBİNDEN BEKLENİYOR
+--------------------------------------------------------------------------------
+
+    [ ] Docker Container Ayarları
+        ─────────────────────────────────────
+        - Backend Dockerfile hazır
+        - docker-compose.yml mevcut
+        - Production için docker-compose.prod.yml mevcut
+        
+    
+    [ ] Environment Variables (Production)
+        ─────────────────────────────────────
+        Aşağıdaki env değişkenleri production'da set edilmeli:
+        
+        # Database
+        DATABASE_PATH=/app/data/transcendence.db
+        
+        # JWT
+        JWT_SECRET=<güçlü-random-secret>
+        JWT_ACCESS_EXPIRES=15m
+        JWT_REFRESH_EXPIRES=7d
+        
+        # OAuth (Provider'dan alınacak)
+        GOOGLE_CLIENT_ID=
+        GOOGLE_CLIENT_SECRET=
+        GITHUB_CLIENT_ID=
+        GITHUB_CLIENT_SECRET=
+        FORTYTWO_CLIENT_ID=
+        FORTYTWO_CLIENT_SECRET=
+        
+        # SSL
+        SSL_KEY_PATH=/app/certs/key.pem
+        SSL_CERT_PATH=/app/certs/cert.pem
+        
+    
+    [ ] SSL Sertifikaları
+        ─────────────────────────────────────
+        - Development için self-signed cert script'i var (scripts/generate-certs.sh)
+        - Production için gerçek SSL sertifikası gerekli
+
+
+================================================================================
+                     ACİL İLETİŞİM GEREKTİREN KONULAR
+================================================================================
+
+🔴 GAME EKİBİ:
+   Maç sonuçlarını kaydetme yöntemi netleşmeli.
+   POST /api/matches endpoint'i eklensin mi?
+
+🟡 FRONTEND EKİBİ:
+   OAuth callback akışı test edilmeli.
+   .env dosyasında OAuth credentials gerekli.
+
+🟢 DEVOPS EKİBİ:
+   Production environment variables belirlenmeli.
+
+================================================================================
+

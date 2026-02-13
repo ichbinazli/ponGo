@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: ${NODE_ENV:-development}
+    container_name: ft_transcendence_backend
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=3000
+      - HOST=0.0.0.0
+      - DATABASE_PATH=/app/database/transcendence.db
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_EXPIRY=${JWT_ACCESS_EXPIRY:-15m}
+      - JWT_REFRESH_EXPIRY=${JWT_REFRESH_EXPIRY:-7d}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_CALLBACK_URL=${GITHUB_CALLBACK_URL}
+      - TWO_FACTOR_APP_NAME=${TWO_FACTOR_APP_NAME:-ft_transcendence}
+      - SSL_KEY_PATH=/app/certs/key.pem
+      - SSL_CERT_PATH=/app/certs/cert.pem
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://localhost:5173}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
+    volumes:
+      # Development: mount source code for hot reload
+      - ./backend/src:/app/src:ro
+      # Persist database
+      - backend_data:/app/database
+      # SSL certificates
+      - ./backend/certs:/app/certs:ro
+      # Avatar uploads
+      - backend_uploads:/app/uploads
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  backend_data:
+    driver: local
+  backend_uploads:
+    driver: local
+
+networks:
+  transcendence_network:
+    driver: bridge

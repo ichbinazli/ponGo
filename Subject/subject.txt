@@ -1,0 +1,877 @@
+ft_transcendence
+Sürpriz.
+Özet:
+Bu proje, daha önce hiç yapmadığınız görevleri üstlenmeyi içerir.
+Bilgisayar bilimine adım attığınız ilk günleri hatırlayın.
+Şimdi kendinize bir bakın; parlama zamanı geldi!
+Sürüm: 18.0
+
+İçindekiler
+I Önsöz 2
+II Amaç 3
+III AI Talimatları 4
+IV Zorunlu bölüm 6
+IV.1 Genel Bakış . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+IV.2 Minimum teknik gereksinimler . . . . . . . . . . . . . . . . . . . . . . 7
+IV.3 Oyun . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+IV.4 Güvenlik endişeleri ....................................................................................................10
+V Modüller 11
+V.1 Genel bakış.................................................................................................................12
+V.2 Web ............................................................................................................................14
+V.3 Kullanıcı Yönetimi ................................................................................................... 15
+V.4 Oyun ve kullanıcı deneyimi .......................................................................................18
+V.5 AI-Algo ......................................................................................................................20
+V.6 Siber güvenlik.............................................................................................................22
+V.7 Devops .......................................................................................................................24
+V.8 Grafik .........................................................................................................................26
+V.9 Erişilebilirlik...............................................................................................................27
+V.10 Sunucu Tarafında Pong ..............................................................................................29
+VI Bonus bölüm 31
+VII Gönderim ve akran değerlendirmesi 32
+1
+Bölüm I Önsöz
+2
+Bölüm II
+Hedefler
+Bu proje bir sürpriz.
+Ortak Çekirdek programının sonuna yaklaşırken, güçlü uyum ve problem çözme
+becerileri geliştirdiniz. Bu proje sizi kasıtlı olarak -belki de- bilinmeyen teknolojilerle karşı
+karşıya bırakacaktır. Bir kez daha, beklenen yazılımı oluşturmak için uyum sağlamanız,
+keşfetmeniz, araştırmanız ve denemeniz gerekecektir.
+Proje, zorunlu bir bölüm ve çeşitli konularda bir dizi modül içermektedir. Bu konular
+aşağıda ayrıntılı olarak açıklanmıştır. Geniş bir listeden istediğiniz modülleri
+seçebileceksiniz, ancak her modül ve zorunlu unsur, atlayamayacağınız teknik kısıtlamalar
+içermektedir. Yani, istediğiniz konuları seçebilirsiniz, ancak istediğiniz teknolojileri
+seçemezsiniz. Bu, kasıtlı bir pedagojik tercihtir.
+Bu proje, yaklaşan bir staj veya diğer mesleki deneyimler için bir portföy oluşturmak
+amacıyla tasarlanmamıştır. Amacı, tanıdık olmayan bir teknolojiyi kullanarak karmaşık bir
+görevi öğrenme ve tamamlama becerinizi ortaya çıkarmaktır. Kariyeriniz boyunca
+kaçınılmaz olarak bu tür durumlarla karşılaşacaksınız ve biz de bu tür durumlarda
+özgüveninizi geliştirmeyi amaçlıyoruz.
+Özellikle bu büyük ve uzun projede, kodlamaya başlamadan önce tüm konuyu dikkatlice
+okumanızı, birkaç olası stratejiyi değerlendirmenizi ve tasarımınızı düşünmenizi öneririz! Bazı
+modüller diğerlerine bağlı olabilir, bazı modüller diğerleriyle çakışabilir. Ft_transcendence birçok
+şüpheye yol açacak ve birçok zor karar gerektirecektir! Akıllıca davranın :-)
+Ayrıca, bu proje kesinlikle uzun vadeli bir projedir ve yanlış bir yol sizi büyük bir zaman
+kaybına sürükleyecektir. Proje yönetimi ve ekip yönetimi seçimleriniz, zaman çizelgenizi ve
+sonuçlarınızı büyük ölçüde etkileyecektir. Bu konularda size destek olacak birçok yaklaşım
+ve araç mevcuttur.
+İyi şanslar ve Pong oynarken eğlenin!
+3
+Bölüm III
+AI Talimatları
+● Bağlam
+Öğrenme yolculuğunuz boyunca, AI birçok farklı görevde size yardımcı olabilir. AI
+araçlarının çeşitli yeteneklerini ve çalışmalarınızı nasıl destekleyebileceklerini keşfetmek
+için zaman ayırın. Ancak, her zaman dikkatli olun ve sonuçları eleştirel bir gözle
+değerlendirin. İster kod, ister dokümantasyon, ister fikirler veya teknik açıklamalar olsun,
+sorunuzun doğru bir şekilde formüle edildiğinden veya üretilen içeriğin doğru olduğundan
+asla tam olarak emin olamazsınız. Meslektaşlarınız, hataları ve kör noktaları önlemenize
+yardımcı olacak değerli bir kaynaktır.
+● Ana mesaj
+☛ Tekrarlayan veya sıkıcı görevleri azaltmak için AI kullanın.
+☛ Gelecekteki kariyerinize fayda sağlayacak, kodlama ve kodlama dışı prompting
+becerilerini geliştirin.
+☛ Yaygın riskleri, önyargıları ve etik sorunları daha iyi öngörmek ve önlemek için AI
+sistemlerinin nasıl çalıştığını öğrenin.
+☛ Meslektaşlarınızla birlikte çalışarak hem teknik hem de güç becerilerinizi geliştirmeye devam
+edin.
+☛ Yalnızca tam olarak anladığınız ve sorumluluğunu üstlenebileceğiniz AI tarafından
+üretilen içeriği kullanın.
+● Öğrenci kuralları:
+• AI araçlarını keşfetmek ve nasıl çalıştıklarını anlamak için zaman ayırmalısınız,
+böylece bunları etik bir şekilde kullanabilir ve olası önyargıları azaltabilirsiniz.
+• Komut vermeden önce sorununuzu düşünmelisiniz — bu, doğru kelimeler kullanarak
+daha net, daha ayrıntılı ve daha alakalı komutlar yazmanıza yardımcı olur.
+• AI tarafından üretilen her şeyi sistematik olarak kontrol etme, inceleme, sorgulama ve
+test etme alışkanlığı geliştirmelisiniz.
+• Her zaman akran değerlendirmesine başvurmalısınız — yalnızca kendi doğrulamanıza
+güvenmeyin.
+4
+ft_transcendence Sürpriz.
+● Aşama sonuçları:
+• Hem genel amaçlı hem de alana özgü yönlendirme becerilerini geliştirin.
+• AI araçlarını etkili bir şekilde kullanarak üretkenliğinizi artırın.
+• Hesaplamalı düşünme, problem çözme, uyum sağlama ve işbirliği becerilerini
+güçlendirmeye devam edin.
+● Yorumlar ve örnekler:
+• Sınavlar, değerlendirmeler ve daha fazlası gibi gerçek anlayışı göstermeniz gereken
+durumlarla düzenli olarak karşılaşacaksınız. Hazırlıklı olun, hem teknik hem de
+kişilerarası becerilerinizi geliştirmeye devam edin.
+• Akranlarınızla düşüncelerinizi açıklayarak ve tartışarak, anlayışınızdaki eksiklikleri
+sıklıkla ortaya çıkarabilirsiniz. Akran öğrenimini bir öncelik haline getirin.
+• AI araçları genellikle sizin özel bağlamınızı anlamaz ve genel cevaplar verme
+eğilimindedir. Sizinle aynı ortamı paylaşan meslektaşlarınız daha alakalı ve doğru
+bilgiler sunabilir.
+• AI en olası cevabı üretme eğilimindeyken, meslektaşlarınız alternatif bakış açıları ve
+değerli nüanslar sağlayabilir. Onları kalite kontrol noktası olarak kullanın.
+✓ İyi uygulama:
+✗ Kötü uygulama:
+✓ İyi uygulama:
+✗ Kötü uygulama:
+5
+AI'ya soruyorum: "Sıralama işlevini nasıl test edebilirim?" Bana birkaç fikir veriyor.
+Bunları deniyorum ve sonuçları bir meslektaşımla gözden geçiriyorum. Yaklaşımı birlikte
+iyileştiriyoruz.
+AI'dan tüm fonksiyonu yazmasını isterim, bunu kopyalayıp projemde yapıştırırım. Akran
+değerlendirmesi sırasında, bunun ne işe yaradığını veya nedenini açıklayamam.
+Güvenilirliğimi kaybederim ve projem başarısız olur.
+AI'yı bir ayrıştırıcı tasarlamak için kullanıyorum. Sonra bir meslektaşımla mantığı birlikte
+inceliyoruz. İki hata buluyoruz ve birlikte yeniden yazıyoruz — daha iyi, daha temiz ve
+tamamen anlaşılır hale getiriyoruz.
+Copilot'un projemin önemli bir kısmı için kodumu oluşturmasına izin veriyorum. Kod
+derleniyor, ancak boruları nasıl işlediğini açıklayamıyorum. Değerlendirme sırasında
+bunu gerekçelendiremiyorum ve projemden kalıyorum.
+• Tüm bir özellik veya modül için anında ve eksiksiz bir çözüm
+sunan kütüphanelerin veya araçların kullanımı yasaktır.
+• Üçüncü taraf kütüphanelerin veya araçların kullanımıyla ilgili
+doğrudan talimatlar (yapılabilir, yapılmalıdır, yapılamaz)
+mutlaka uygulanmalıdır.
+• Daha büyük bir özelliğin veya modülün alt bileşenini temsil eden
+basit, benzersiz bir görevi çözen küçük bir kütüphane veya aracın
+kullanılmasına izin verilir.
+• Değerlendirme sırasında ekip, proje kılavuzlarında açıkça
+onaylanmamış ve projenin kısıtlamalarıyla çelişmeyen kütüphane
+veya araç kullanımını gerekçelendirecektir.
+• Değerlendirme sırasında, değerlendirici, belirli bir kütüphane
+veya aracın kullanımının meşru (ve izin verilen) olup olmadığını
+veya esasen tüm bir özelliği veya modülü çözüp çözmediğini (ve
+bu nedenle yasak olup olmadığını) belirleme sorumluluğunu
+üstlenecektir.
+Bölüm IV
+Zorunlu bölüm
+Bu proje, muhteşem Pong yarışması için bir web sitesi oluşturmakla ilgili!
+IV.1 Genel
+Yazılımınız, tüm arkadaşlarınızla Pong oynamanıza olanak tanıyan hoş bir kullanıcı arayüzü ve
+gerçek zamanlı çok oyunculu özellikler sunacak!
+• İlk olarak, projeniz asgari gereklilik olarak zorunlu yönergelere uymalıdır (sonraki
+bölüme bakınız), bu da nihai notun sadece küçük bir bölümünü oluşturacaktır.
+• Bu dersin ikinci bölümünde, zorunlu kısmı değiştirebilecek veya tamamlayabilecek ek
+modüller sunulacaktır.
+Bu derste, yeşil renkle vurgulanmış kelimelerle karşılaşacaksınız. Bunlar, zamanla
+gelişecek teknoloji seçimlerini temsil eder. Dersin sürümüne özellikle dikkat edin.
+6
+Bu kısıtlamaların bazıları, belirli modüllerin seçilmesiyle aşılabilir.
+Birkaç konteyner teknolojisi mevcuttur: Docker, containerd, podman vb.
+Kampüsünüzdeki bilgisayarlarda, güvenlik nedenleriyle konteyner
+yazılımına rootless modunda erişebilirsiniz. Bu, aşağıdaki ek kısıtlamalara
+yol açabilir:
+• Çalışma zamanınız /goinfre veya /sgoinfre konumunda olmalıdır.
+• Konteynerde root olmayan UID'ler kullanılıyorsa, ana bilgisayar
+ve konteyner arasında "bağlama birimleri" kullanamazsınız.
+Konunun mevcut gereksinimlerine (yukarıda yeşil renkle vurgulanmıştır) ve
+kümelerdeki yerel yapılandırmaya bağlı olarak, farklı stratejiler
+benimsemeniz gerekebilir, örneğin: sanal makinede konteyner çözümü,
+değişikliklerinizden sonra konteynerinizi yeniden oluşturma, benzersiz
+UID olarak root ile kendi görüntünüzü oluşturma.
+ft_transcendence Sürpriz.
+IV.2 Minimum teknik gereksinim
+Projeniz aşağıdaki kurallara uymalıdır:
+• Arka uç olsun ya da olmasın, siteyi özgürce geliştirebilirsiniz.
+◦ Arka uç eklemeyi seçerseniz, arka uç çerçeve olmadan saf PHP ile yazılmalıdır.
+Ancak, bu gereklilik Framework modülü ile geçersiz kılınabilir.
+◦ Arka uç veya çerçeve bir veritabanı kullanıyorsa, Veritabanı modülünün
+kısıtlamalarına uymalısınız.
+• Ön uç, temel kod olarak Typescript kullanılarak geliştirilmelidir. Ancak, bu gereksinim
+FrontEnd modülü aracılığıyla değiştirilebilir.
+• Web siteniz tek sayfalık bir uygulama olmalıdır. Kullanıcı, tarayıcının
+Geri ve İleri düğmelerini kullanabilmelidir.
+• Web siteniz,
+Mozilla Firefox 'un en son kararlı ve güncel sürümüyle uyumlu olmalıdır. Elbette, diğer web
+tarayıcılarıyla da uyumlu olabilir!
+• Kullanıcı, web sitesini gezerken herhangi bir işlenmemiş hata veya uyarı ile
+karşılaşmamalıdır.
+• Web sitenizi çalıştırmak için Docker kullanmalısınız. Otonom bir konteyner
+çalıştırmak için her şey tek bir komut satırı ile başlatılmalıdır.
+7
+ft_transcendence Sürpriz.
+IV.3 Oyun
+Bu web sitesinin ana amacı, diğer oyuncularla Pong oynamaktır.
+• Kullanıcılar, web sitesinde doğrudan başka bir oyuncuya karşı canlı Pong oyununa
+katılabilmelidir. Her iki oyuncu da aynı klavyeyi kullanacaktır. Uzaktan oyuncular
+modülü, uzaktan oyuncularla bu işlevselliği geliştirebilir.
+• Bir oyuncu başka bir oyuncuya karşı oynayabilmeli ve bir turnuva sistemi de mevcut
+olmalıdır. Bu turnuva, sırayla birbirlerine karşı oynayabilecek birden fazla oyuncudan
+oluşacaktır. Turnuvayı nasıl uygulayacağınız konusunda esnekliğe sahipsiniz, ancak
+kimin kime karşı oynadığını ve oyun sırasını açıkça göstermelidir.
+• Bir kayıt sistemi gereklidir: turnuva başlangıcında, her oyuncu takma adını
+girmelidir. Takma adlar, yeni bir turnuva başladığında sıfırlanacaktır. Ancak, bu
+gereklilik Standart Kullanıcı Yönetimi modülü kullanılarak değiştirilebilir. Not:
+Bu, kullanıcı hesabı oluşturulması anlamına gelmez.
+Varsayılan (zorunlu) versiyonda, kullanıcılar sadece bir takma adı manuel olarak girerler.
+• Eşleştirme sistemi olmalıdır: turnuva sistemi, katılımcıların eşleştirilmesini
+organize etmeli ve bir sonraki maçı duyurmalıdır.
+• Tüm oyuncular, aynı raket hızına sahip olmak da dahil olmak üzere aynı kurallara
+uymalıdır. Bu gereklilik, AI kullanıldığında da geçerlidir; AI, normal bir oyuncu ile
+aynı hızda olmalıdır.
+• Oyun, varsayılan ön uç kısıtlamalarına (yukarıda belirtildiği gibi) uymalıdır veya
+FrontEnd modülünü kullanmayı seçebilir veya Graphics modülü ile geçersiz
+kılabilirsiniz. Görsel estetik değişebilir, ancak oyun yine de orijinal Pong (1972)
+oyununun özünü yansıtmalıdır.
+8
+ft_transcendence Sürpriz.
+• Tüm bir özellik veya modül için anında ve eksiksiz bir
+çözüm sağlayan kütüphanelerin veya araçların kullanımı
+yasaktır.
+• Üçüncü taraf kütüphanelerin veya araçların kullanımıyla ilgili
+doğrudan talimatlar (yapılabilir, yapılmalıdır, yapılamaz)
+mutlaka uygulanmalıdır.
+• Daha büyük bir özelliğin veya modülün alt bileşenini temsil
+eden, basit ve benzersiz bir görevi çözen küçük bir kütüphane
+veya aracın kullanılmasına izin verilir.
+• Değerlendirme sırasında ekip, proje kılavuzlarında açıkça
+onaylanmamış ve projenin kısıtlamalarıyla çelişmeyen herhangi
+bir kütüphane veya aracın kullanımını gerekçelendirecektir.
+• Değerlendirme sırasında, değerlendirici belirli bir kütüphane
+veya aracın kullanımının meşru (ve izin verilen) olup olmadığını
+veya esasen tüm bir özelliği veya modülü çözüp çözmediğini (ve bu
+nedenle yasak olup olmadığını) belirleyecektir.
+• Turnuva sistemi, kullanıcı kaydı olsun veya olmasın
+çalışmalıdır.
+◦ Standart Kullanıcı Yönetimi modülü olmadan:
+kullanıcılar takma adı manuel olarak girer.
+◦ Modül ile: takma adlar kayıtlı hesaplara bağlanır,
+böylece kalıcı istatistikler ve arkadaş listeleri
+oluşturulabilir.
+Modül, turnuva mantığını genişletir; onun yerini almaz.
+9
+Güçlü bir şifre karma algoritması kullandığınızdan emin olun
+Bariz güvenlik nedenleriyle, tüm kimlik bilgileri, API anahtarları,
+ortam değişkenleri vb. yerel olarak bir .env dosyasında kaydedilmeli ve
+git tarafından yok sayılmalıdır
+. Halka açık olarak saklanan kimlik bilgileri projenizin başarısız olmasına
+neden olur.
+ft_transcendence Sürpriz.
+IV.4 Güvenlik endişeleri
+İşlevsel bir web sitesi oluşturmak için ele almanız gereken birkaç güvenlik endişesi vardır:
+• Veritabanınızda depolanan tüm şifreler, varsa, karma hale getirilmelidir.
+• Web siteniz SQL enjeksiyonları/XSS saldırılarına karşı korunmalıdır.
+• Arka uç veya başka özellikleriniz varsa, tüm yönler için HTTPS bağlantısını
+etkinleştirmek zorunludur (örneğin, ws yerine wss kullanın).
+• Formlar ve kullanıcı girdileri için doğrulama mekanizmaları uygulamalısınız; arka uç
+kullanılmıyorsa temel sayfada, arka uç kullanılıyorsa sunucu tarafında.
+• JWT Güvenlik modülünü 2FA ile uygulamayı seçip seçmemenizden bağımsız olarak,
+web sitenizin güvenliğini öncelikli hale getirmek çok önemlidir. Örneğin, bir API
+oluşturmayı seçerseniz, rotalarınızın korunduğundan emin olun. JWT tokenlerini
+kullanmamaya karar verseniz bile, sitenin güvenliğini sağlamak yine de çok önemlidir.
+10
+• Tüm bir özellik veya modül için anında ve eksiksiz bir
+çözüm sunan kütüphanelerin veya araçların kullanılması
+yasaktır.
+• Üçüncü taraf kütüphanesi veya aracının kullanımıyla ilgili
+doğrudan talimatlar (yapılabilir, yapılmalıdır, yapılamaz)
+mutlaka uygulanmalıdır.
+• Daha büyük bir özelliğin veya modülün alt bileşenini temsil
+eden, basit ve benzersiz bir görevi çözen küçük bir kütüphane
+veya aracın kullanılmasına izin verilir.
+• Değerlendirme sırasında ekip, konu tarafından açıkça onaylanmayan
+ve konunun kısıtlamalarıyla çelişmeyen kütüphane veya araç
+kullanımını gerekçelendirecektir.
+• Değerlendirme sırasında, değerlendirici belirli bir kütüphane veya
+aracın kullanımının meşru (ve izin verilen) olup olmadığını veya
+esasen tüm bir özelliği veya modülü çözüp çözmediğini (ve bu
+nedenle yasak olup olmadığını) belirleyecektir.
+İki Küçük Modül, bir Büyük Modül olarak sayılır.
+Bölüm V
+Modüller
+Projenin %25'ini tamamladınız, tebrikler!
+İşlevsel bir temel web sitesi hazır olduğuna göre, bir sonraki adım daha fazla iyileştirme için
+modülleri seçmektir.
+Projenin %100'ünü tamamlamak için en az 7 ana modül gereklidir. Her modülü dikkatlice
+incelemek çok önemlidir, çünkü temel web sitenizde değişiklikler yapmanız gerekebilir. Bu
+nedenle, bu konuyu baştan sona dikkatlice okumanızı şiddetle tavsiye ederiz.
+11
+ft_transcendence Sürpriz.
+V.1 Genel
+• Web
+◦ Ana modül: Arka ucu oluşturmak için bir çerçeve kullanın.
+◦ Küçük modül: Ön uç oluşturmak için bir çerçeve veya araç seti kullanın.
+◦ Küçük modül: Arka uç için bir veritabanı kullanın.
+◦ Ana modül: Turnuva puanlarını Blockchain'de saklayın.
+• Kullanıcı Yönetimi
+◦ Ana modül: Standart kullanıcı yönetimi, kimlik doğrulama, turnuvalar arası
+kullanıcılar.
+◦ Ana modül: Uzaktan kimlik doğrulama uygulayın.
+Oyun ve kullanıcı deneyimi
+◦ Ana modül: Uzaktaki oyuncular
+◦ Ana modül: Çok oyunculu (aynı oyunda 2'den fazla oyuncu).
+◦ Ana modül: Kullanıcı geçmişi ve eşleştirme özelliği ile başka bir oyun ekleyin.
+◦ Küçük modül: Oyun özelleştirme seçenekleri.
+◦ Ana modül: Canlı sohbet.
+• AI-Algo
+◦ Ana modül: AI rakibi eklemek.
+◦ Küçük modül: Kullanıcı ve oyun istatistikleri panoları
+• Siber güvenlik
+◦ Ana modül: Güçlendirilmiş bir yapılandırma ile WAF/ModSecurity ve gizli bilgi
+yönetimi için HashiCorp Vault uygulayın.
+◦ Yan modül: Kullanıcı anonimleştirme, yerel veri yönetimi ve Hesap Silme ile
+GDPR uyumluluk seçenekleri.
+◦ Ana modül: İki Faktörlü Kimlik Doğrulama (2FA) ve JWT'yi uygulayın.
+• Devops
+◦ Ana modül: Günlük yönetimi için altyapı kurulumu.
+◦ Yan modül: İzleme sistemi.
+◦ Ana modül: Arka uç mikro hizmetler olarak tasarlama.
+12
+ft_transcendence Sürpriz.
+• Grafik
+◦ Ana modül: Gelişmiş 3D teknikleri kullanma.
+• Erişilebilirlik
+◦ Küçük modül: Tüm cihazlarda destek.
+◦ Yan modül: Tarayıcı uyumluluğunu genişletme.
+◦ Yan modül: Birden fazla dili destekler.
+◦ Yan modül: Görme engelli kullanıcılar için erişilebilirlik özellikleri ekleyin.
+◦ Küçük modül: Sunucu Tarafı İşleme (SSR) entegrasyonu.
+• Sunucu Tarafı Pong
+◦ Ana modül: Temel Pong'u sunucu tarafı Pong ile değiştirin ve bir API uygulayın.
+◦ Ana modül: API entegrasyonu ile web kullanıcılarına CLI üzerinden Pong oyunu
+oynama imkanı sağlama.
+13
+Solidity
+Solidity
+Varsayılan arka uç dilini (yukarıda zorunlu kısımda belirtildiği gibi)
+kullanarak bu modülün kısıtlamalarını kullanmadan arka ucu
+oluşturabilirsiniz. Ancak, bu modül yalnızca gereksinimlerini yerine
+getirirseniz geçerli olacaktır.
+Varsayılan ön uç yönergelerini (yukarıda zorunlu kısımda belirtildiği
+gibi) kullanarak bu modülün kısıtlamalarını kullanmadan bir ön uç
+oluşturabilirsiniz. Ancak, bu modül yalnızca gereksinimlerini yerine
+getirirseniz geçerli olacaktır.
+ft_transcendence Sürpriz.
+V.2 Web
+Bu modüller, Pong oyununuza gelişmiş web özelliklerinin entegrasyonunu sağlar.
+• Ana modül: Arka ucu oluşturmak için bir çerçeve kullanın.
+Bu ana modülde, arka uç geliştirme için belirli bir web çerçevesini kullanmanız gerekir:
+Node.js ile Fastify .
+• Küçük modül: Ön uç oluşturmak için bir çerçeve veya araç seti kullanın.
+Ön uç geliştirmenizde Type-script'e ek olarak Tailwind CSS kullanmalısınız, başka
+hiçbir şey kullanmamalısınız.
+• Küçük modül: Arka uç için bir veritabanı kullanın - ve daha fazlası.
+Projenizdeki tüm DB örnekleri için belirlenmiş veritabanı SQLite'dir. Bu seçim, tüm
+proje bileşenleri arasında veri tutarlılığını ve uyumluluğunu sağlar ve arka uç
+Framework modülü gibi diğer modüller için bir ön koşul olabilir.
+• Ana modül: Turnuva puanlarını Blockchain'de saklayın.
+Bu Ana modül, Pong web sitesinde turnuva puanlarını blok zincirinde güvenli bir
+şekilde saklamak için bir özellik uygulamaya odaklanmaktadır. Geliştirme ve test
+amaçları için bir test blok zinciri ortamı kullanacağımızı belirtmek önemlidir. Bu
+uygulama için seçilen blok zinciri Avalanche'dır ve akıllı sözleşme geliştirme için
+Solidity programlama dili kullanılacaktır.
+◦ Blockchain Entegrasyonu: Bu modülün temel amacı, blockchain teknolojisini,
+özellikle Avalache 'yi Pong web sitesine sorunsuz bir şekilde entegre etmektir.
+Bu entegrasyon, turnuva puanlarının güvenli ve değiştirilemez bir şekilde
+saklanmasını sağlayarak oyunculara oyun başarılarının şeffaf ve tahrif edilemez
+bir kaydını sunar.
+◦ Akıllı Sözleşmeler: Blockchain ile etkileşim kurmak için akıllı
+sözleşmeler geliştireceğiz. Bu sözleşmeler, kayıt,
+yönetme ve turnuva puanlarını alma işlemlerinden sorumlu olacaktır.
+◦ Test Blok Zinciri: Daha önce de belirtildiği gibi, geliştirme ve test amaçları için
+bir test blok zinciri kullanılacaktır. Bu, blok zinciri ile ilgili tüm
+14
+Yinelenen kullanıcı adları/e-postaların yönetimi sizin takdirinize
+bağlıdır; lütfen mantıklı bir çözüm sağlandığından emin olun.
+ft_transcendence Sürpriz.
+işlevselliklerin, canlı blok zinciri ile ilişkili herhangi bir risk olmaksızın kapsamlı
+bir şekilde doğrulanmasını sağlar.
+◦ Birlikte çalışabilirlik: Bu modül, diğer modüllere, özellikle Backend Framework
+modülüne bağımlı olabilir. Blockchain işlevselliğini entegre etmek, blockchain
+ile etkileşimleri barındırmak için arka uçta ayarlamalar gerektirebilir.
+Bu modülü uygulayarak, blok zinciri tabanlı bir puan depolama sistemi getirerek Pong
+web sitesini geliştirmeyi amaçlıyoruz. Kullanıcılar, oyun puanlarının bütünlüğünü
+sağlayan ek güvenlik ve şeffaflık katmanından yararlanacaklar. Modül, blok zinciri
+geliştirmeyle ilişkili riskleri en aza indirmek için test blok zinciri ortamının kullanımını
+vurgulamaktadır.
+V.3 Kullanıcı Yönetimi
+Bu modül, Pong platformu içindeki kullanıcı etkileşimleri ve erişim kontrolünün temel
+yönlerini ele alarak Kullanıcı Yönetimi alanını derinlemesine inceler. Modül, kullanıcı
+yönetimi ve kimlik doğrulamanın temel unsurlarına odaklanan iki ana bileşeni kapsar: birden
+fazla turnuvada kullanıcı katılımı ve uzaktan kimlik doğrulamanın uygulanması.
+• Ana modül: Standart kullanıcı yönetimi, kimlik doğrulama ve turnuvalar genelinde
+kullanıcılar.
+◦ Kullanıcılar web sitesine güvenli bir şekilde abone olabilirler.
+◦ Kayıtlı kullanıcılar güvenli bir şekilde oturum açabilir.
+◦ Kullanıcılar, turnuvalara katılmak için benzersiz bir görüntüleme adı seçebilirler.
+◦ Kullanıcılar bilgilerini güncelleyebilir.
+◦ Kullanıcılar bir avatar yükleyebilirler; avatar sağlanmamışsa varsayılan seçenek
+kullanılır.
+◦ Kullanıcılar başkalarını arkadaş olarak ekleyebilir ve çevrimiçi durumlarını
+görüntüleyebilir.
+◦ Kullanıcı profilleri, galibiyet ve mağlubiyet gibi istatistikleri gösterir.
+◦ Her kullanıcının, oturum açmış kullanıcıların erişebileceği 1v1 oyunları, tarihleri
+ve ilgili ayrıntıları içeren bir Maç Geçmişi vardır.
+• Ana modül: Uzaktan kimlik doğrulamayı uygulayın.
+Bu ana modülde amaç, OAuth 2.0 kullanarak güvenli bir harici kimlik doğrulama
+sistemi uygulamaktır.
+15
+ft_transcendence Sürpriz.
+• OAuth uyumlu herhangi bir sağlayıcıyı (ör. Google, GitHub vb.) seçmekte
+özgürsünüz.
+16
+ft_transcendence Sürpriz.
+Temel özellikler ve hedefler şunlardır:
+◦ Kimlik doğrulama sistemini entegre ederek kullanıcıların güvenli bir şekilde oturum
+açmasını sağlamak.
+◦ Güvenli oturum açma işlemini mümkün kılmak için yetkililerden gerekli kimlik
+bilgilerini ve izinleri almak.
+◦ En iyi uygulamalara ve güvenlik standartlarına uygun, kullanıcı dostu oturum
+açma ve yetkilendirme akışları uygulamak.
+◦ Web uygulaması ile kimlik doğrulama sağlayıcısı arasında kimlik doğrulama
+jetonlarının ve kullanıcı bilgilerinin güvenli bir şekilde alışverişini sağlamak.
+Bu ana modül, uzaktaki kullanıcıların kimlik doğrulamasını sağlamak ve kullanıcılara
+web uygulamasına güvenli ve kolay bir şekilde erişim imkanı sunmayı amaçlamaktadır.
+17
+Beklenmedik bağlantı kesintileri veya gecikmeler gibi ağ sorunlarını göz
+önünde bulundurun. Mümkün olan en iyi kullanıcı deneyimini sunmalısınız.
+ft_transcendence Sürpriz.
+V.4 Oyun ve kullanıcı deneyimi
+Bu modüller, projenin genel oyun deneyimini geliştirmek için tasarlanmıştır.
+• Ana modül: Uzaktaki oyuncular
+İki oyuncunun uzaktan oynaması mümkün olmalıdır. Her oyuncu ayrı bir bilgisayarda
+bulunur, aynı web sitesine erişir ve aynı Pong oyununu oynar.
+• Ana modül: Çoklu oyuncular
+İki oyuncudan fazla oyuncu olması mümkün olmalıdır. Her oyuncunun canlı kontrolü
+olmalıdır (bu nedenle "uzak oyuncular" modülü şiddetle tavsiye edilir). Oyunun 3, 4,
+5, 6 veya daha fazla oyuncuyla nasıl oynanacağına karar vermek size kalmıştır.
+Normal 2 oyunculu oyunun yanı sıra, bu çok oyunculu modül için 2'den fazla belirli bir
+oyuncu sayısı tanımlayabilirsiniz. Örneğin: 4 oyuncu kare bir tahtada oynayabilir ve
+her oyuncu karenin bir kenarını kontrol edebilir.
+• Ana modül: Kullanıcı geçmişi ve eşleştirme özelliği ile başka bir oyun ekleyin.
+Bu ana modülün amacı, Pong'dan farklı yeni bir oyun sunmak ve kullanıcı geçmişi
+izleme ve eşleştirme gibi özellikleri dahil etmektir. Temel özellikler ve hedefler
+şunlardır:
+◦ Platformun sunduğu hizmetleri çeşitlendirmek ve kullanıcıları eğlendirmek için
+yeni ve ilgi çekici bir oyun geliştirin.
+◦ Bireysel kullanıcıların oyun istatistiklerini kaydetmek ve görüntülemek için
+kullanıcı geçmişi izleme özelliğini uygulamak.
+◦ Kullanıcıların rakiplerini bulmalarını ve adil ve dengeli maçlara katılmalarını
+sağlayan bir eşleştirme sistemi oluşturmak.
+◦ Kullanıcı oyun geçmişi ve eşleştirme verilerinin güvenli bir şekilde
+saklandığından ve güncel kaldığından emin olun.
+◦ Keyifli bir kullanıcı deneyimi sunmak için yeni oyunun performansını ve tepki
+hızını optimize edin. Hataları düzeltmek, yeni özellikler eklemek ve oyun
+deneyimini geliştirmek için oyunu düzenli olarak güncelleyin ve bakımını yapın.
+Bu ana modül, yeni bir oyun sunarak, oyun geçmişi ile kullanıcı etkileşimini
+geliştirerek ve keyifli bir oyun deneyimi için eşleştirmeyi kolaylaştırarak
+platformunuzu genişletmeyi amaçlamaktadır.
+• Küçük modül: Oyun özelleştirme seçenekleri.
+Bu küçük modülde amaç, platformda bulunan tüm oyunlar için özelleştirme
+seçenekleri sunmaktır. Temel özellikler ve hedefler şunlardır:
+18
+ft_transcendence Sürpriz.
+◦ Oyun deneyimini geliştiren güçlendiriciler, saldırılar veya farklı haritalar gibi
+özelleştirme özellikleri sunmak.
+◦ Kullanıcıların daha basit bir deneyim tercih etmeleri durumunda, temel özelliklere
+sahip oyunun varsayılan sürümünü seçmelerine izin verin.
+◦ Özelleştirme seçeneklerinin platformda sunulan tüm oyunlarda mevcut ve
+uygulanabilir olmasını sağlayın.
+◦ Oyun parametrelerini ayarlamak için kullanıcı dostu ayar menüleri veya arayüzler
+uygulayın.
+◦ Tüm oyunlarda özelleştirme özelliklerinde tutarlılığı koruyarak birleşik bir
+kullanıcı deneyimi sağlayın.
+Bu modül, çeşitli özelleştirme seçenekleri sunarak kullanıcılara mevcut tüm oyunlarda
+oyun deneyimlerini kişiselleştirme esnekliği sağlarken, aynı zamanda basit bir oyun
+deneyimi tercih edenler için varsayılan bir sürüm de sunmayı amaçlamaktadır.
+• Ana modül: Canlı Sohbet.
+Bu modülde, kullanıcılar için bir sohbet özelliği oluşturmanız gerekir:
+◦ Kullanıcılar diğer kullanıcılara doğrudan mesaj gönderebilmelidir.
+◦ Kullanıcı, diğer kullanıcıları engelleyebilmeli ve engellediği hesabın mesajlarını
+görmesini engelleyebilmelidir.
+◦ Kullanıcı, sohbet arayüzü üzerinden diğer kullanıcıları Pong oyunu oynamaya
+davet edebilmelidir.
+◦ Turnuva sistemi, kullanıcılara bir sonraki maç hakkında bilgi verebilmelidir.
+◦ Kullanıcı, sohbet arayüzü üzerinden diğer oyuncuların profillerine erişebilmelidir.
+19
+AI,
+Oyun özelleştirme seçenekleri modülünü uygulamayı seçtiyseniz, AI
+güçlendiricileri kullanmalıdır.
+Değerlendirme sırasında AI'nızın nasıl çalıştığını ayrıntılı olarak açıklamanız
+gerekecektir. Hiçbir şey yapmayan bir AI oluşturmak kesinlikle yasaktır;
+AI'nın ara sıra kazanma yeteneği olmalıdır.
+ft_transcendence Sürpriz.
+V.5 AI-Algo
+Bu modüller, projeye veri odaklı unsurlar eklemek için kullanılır. Ana modül, oyun
+deneyimini geliştirmek için bir AI rakibi eklerken, yan modül kullanıcı ve oyun istatistikleri
+panellerine odaklanarak kullanıcılara oyun deneyimlerine minimalist ancak anlamlı bir bakış
+sunar.
+• Ana modül: Bir AI rakibi tanıtın.
+Bu ana modülde amaç, oyuna bir AI oyuncusu eklemektir. Bu görev için A*
+algoritmasının kullanılmasına izin verilmez. Temel özellikler ve hedefler şunlardır:
+◦ Kullanıcılara zorlu ve ilgi çekici bir oyun deneyimi sunan bir AI rakibi geliştirmek.
+◦ AI, insan davranışını taklit etmelidir, yani AI uygulamanızda klavye girişini
+simüle etmelisiniz. Buradaki kısıtlama, AI'nın oyun görünümünü saniyede
+yalnızca bir kez yenileyebilmesidir, bu da zıplamaları ve diğer eylemleri
+önceden tahmin etmesini gerektirir.
+◦ AI oyuncunun akıllı ve stratejik hamleler yapmasını sağlayan AI mantığı ve karar
+verme süreçlerini uygulayın.
+◦ A*'ya bağlı kalmadan etkili bir AI oyuncusu oluşturmak için alternatif
+algoritmalar ve teknikler keşfedin.
+◦ AI'nın farklı oyun senaryolarına ve kullanıcı etkileşimlerine uyum sağladığından
+emin olun.
+Bu ana modül, A* algoritmasına dayanmadan heyecan ve rekabetçilik katan bir AI rakibi
+sunarak oyunu geliştirmeyi amaçlamaktadır.
+• Küçük modül: Kullanıcı ve Oyun İstatistikleri Panoları.
+Bu küçük modülde amaç, bireysel kullanıcılar ve oyun oturumları için istatistikleri
+gösteren panolar sunmaktır. Temel özellikler ve hedefler şunlardır:
+◦ Kullanıcılara oyun istatistikleri hakkında bilgi sağlayan, kullanıcı dostu panolar
+oluşturmak.
+20
+ft_transcendence Sürpriz.
+◦ Oyun oturumları için ayrı bir gösterge paneli geliştirin ve her maçın ayrıntılı
+istatistiklerini, sonuçlarını ve geçmiş verilerini gösterin.
+◦ Dashboard'ların verileri izlemek ve analiz etmek için sezgisel ve bilgilendirici bir
+kullanıcı arayüzü sunduğundan emin olun.
+◦ İstatistikleri açık ve görsel olarak çekici bir şekilde sunmak için çizelge ve grafik
+gibi veri görselleştirme tekniklerini uygulayın.
+◦ Kullanıcıların kendi oyun geçmişlerine ve performans ölçütlerine kolayca erişip
+bunları keşfetmelerine olanak tanıyın.
+◦ Yararlı olduğunu düşündüğünüz herhangi bir metriği eklemekten çekinmeyin.
+Bu küçük modül, kullanıcılara oyun istatistiklerini ve oyun oturumu ayrıntılarını
+kullanıcı dostu gösterge panelleri aracılığıyla izleme olanağı sunarak oyun
+deneyimlerine kapsamlı bir bakış açısı kazandırmayı amaçlamaktadır.
+21
+ft_transcendence Sürpriz.
+V.6 Siber güvenlik
+Bu siber güvenlik modülleri, projenin güvenlik durumunu iyileştirmek için tasarlanmıştır.
+Ana modül, Web Uygulama Güvenlik Duvarı (WAF) ve ModSecurity yapılandırmaları ile
+güvenli gizli bilgi yönetimi için HashiCorp Vault aracılığıyla sağlam koruma sağlamaya
+odaklanmaktadır. Küçük modüller, GDPR uyumluluğu, kullanıcı verilerinin
+anonimleştirilmesi, hesap silme, İki Faktörlü Kimlik Doğrulama (2FA) ve JSON Web
+Tokenleri (JWT) için özellikler ekleyerek bu çabayı tamamlar ve toplu olarak projenin veri
+koruma, gizlilik ve kimlik doğrulama güvenliğine olan bağlılığını garanti eder.
+• Ana modül: Güçlendirilmiş Yapılandırma ve Gizli Bilgiler Yönetimi için HashiCorp
+Vault ile WAF/ModSecurity'yi uygulayın.
+Bu ana modülün amacı, birkaç temel bileşeni uygulayarak projenin güvenlik
+altyapısını geliştirmektir. Temel özellikler ve hedefler şunlardır:
+◦ Web tabanlı saldırılara karşı koruma sağlamak için sıkı ve güvenli bir
+yapılandırma ile Web Uygulama Güvenlik Duvarı (WAF) ve ModSecurity'yi
+yapılandırın ve dağıtın.
+◦ HashiCorp Vault'u entegre ederek API anahtarları, kimlik bilgileri ve ortam
+değişkenleri gibi hassas bilgileri güvenli bir şekilde yönetip depolayın ve bu gizli
+bilgilerin uygun şekilde şifrelenip izole edilmesini sağlayın.
+Bu ana modül, web uygulaması koruması için WAF/ModSecurity ve güvenli bir ortam
+sağlamak için gizli bilgiler yönetimi için HashiCorp Vault dahil olmak üzere sağlam
+güvenlik önlemleri uygulayarak projenin güvenlik altyapısını güçlendirmeyi
+amaçlamaktadır.
+• Küçük modül: Kullanıcı anonimleştirme, yerel veri yönetimi ve hesap silme ile
+GDPR uyumluluk seçenekleri.
+Bu küçük modülün amacı, kullanıcıların veri gizliliği haklarını kullanmalarına olanak
+tanıyan GDPR uyumluluk seçeneklerini sunmaktır. Temel özellikler ve hedefler
+şunlardır:
+◦ Kullanıcıların kişisel verilerinin anonimleştirilmesini talep etmelerini sağlayan
+GDPR uyumlu özellikleri uygulamak, böylece kimliklerinin ve hassas bilgilerinin
+korunmasını sağlamak.
+◦ Kullanıcıların sistemde depolanan kişisel bilgilerini görüntüleme, düzenleme
+veya silme yeteneği dahil olmak üzere yerel verilerini yönetmeleri için araçlar
+sağlamak.
+◦ Kullanıcıların, tüm ilişkili veriler dahil olmak üzere hesaplarının kalıcı olarak
+silinmesini talep etmeleri için veri koruma düzenlemelerine uygunluğu sağlayan
+basitleştirilmiş bir süreç sunmak.
+◦ Kullanıcıların veri gizliliği hakları konusunda açık ve şeffaf bir iletişim
+sürdürmek ve bu hakları kullanmak için kolay erişilebilir seçenekler sunmak.
+Bu küçük modül, kullanıcıların kişisel bilgilerini kontrol etmelerini ve sistem içinde
+veri gizliliği haklarını kullanmalarını sağlayan GDPR uyumluluk seçenekleri sunarak
+kullanıcı gizliliğini ve veri korumasını geliştirmeyi amaçlamaktadır.
+Genel Veri Koruma Yönetmeliği (GDPR) hakkında bilgi sahibi değilseniz, bu
+22
+ft_transcendence Sürpriz.
+özellikle kullanıcı veri yönetimi ve gizliliği ile ilgili ilkelerini ve etkilerini anlamak
+çok önemlidir. GDPR, Avrupa Birliği (AB) ve Avrupa Ekonomik Alanı (AEA)
+içindeki bireylerin kişisel verilerini ve gizliliğini korumayı amaçlayan bir
+yönetmeliktir. Kuruluşlara kişisel verileri nasıl ele almaları ve işlemeleri gerektiği
+konusunda katı kurallar ve yönergeler belirler.
+GDPR ve gerekliliklerini daha iyi anlamak için, Avrupa Komisyonu'nun veri koruma
+ile ilgili resmi web sitesini1ziyaret etmenizi şiddetle tavsiye ederiz. Bu web sitesi,
+GDPR ile ilgili ilkeler, hedefler ve kullanıcı hakları dahil olmak üzere kapsamlı
+bilgiler sunar. Ayrıca, konuyu daha derinlemesine incelemek ve yönetmeliğe uyumu
+sağlamak için ek kaynaklar da sunar.
+GDPR hakkında bilgi sahibi değilseniz, lütfen bu projeye devam etmeden önce
+sağlanan bağlantıyı ziyaret ederek yönetmelik hakkında bilgi edinin.
+• Ana modül: İki Faktörlü Kimlik Doğrulama (2FA) ve JWT'yi uygulayın.
+Bu ana modülün amacı, İki Faktörlü Kimlik Doğrulama (2FA) özelliğini tanıtarak ve
+JSON Web Token'ları (JWT) kullanarak güvenliği ve kullanıcı kimlik
+doğrulamasını geliştirmektir. Temel özellikler ve hedefler şunlardır:
+◦ Kullanıcı hesapları için ek bir güvenlik katmanı olarak İki Faktörlü Kimlik
+Doğrulama (2FA) uygulayın ve kullanıcıların şifrelerine ek olarak tek kullanımlık
+kod gibi ikincil bir doğrulama yöntemi sağlamalarını zorunlu kılın.
+◦ JSON Web Token'ları (JWT) kimlik doğrulama ve yetkilendirme için güvenli bir
+yöntem olarak kullanmak, kullanıcı oturumlarının ve kaynaklara erişimin güvenli
+bir şekilde yönetilmesini sağlamak.
+◦ SMS kodları, kimlik doğrulama uygulamaları veya e-posta tabanlı doğrulama
+seçenekleriyle 2FA'yı etkinleştirmek için kullanıcı dostu bir kurulum süreci
+sağlamak.
+◦ Kullanıcı hesaplarına ve hassas verilere yetkisiz erişimi önlemek için JWT
+belirteçlerinin güvenli bir şekilde verilmesi ve doğrulanmasını sağlayın.
+Bu ana modül, İki Faktörlü Kimlik Doğrulama (2FA) sunarak ve JSON Web
+Token'ları (JWT) kullanarak kimlik doğrulama ve yetkilendirmeyi geliştirerek
+kullanıcı hesabı güvenliğini güçlendirmeyi amaçlamaktadır.
+1 https://commission.europa.eu/law/law-topic/data-protection/data-protection-eu_en
+23
+ft_transcendence Sürpriz.
+V.7 Devops
+Bu modüller, projenin altyapısını ve mimarisini geliştirmeye odaklanmaktadır. Ana
+modüller, ELK (Elasticsearch, Logstash, Kibana) kullanarak verimli günlük yönetimi için
+altyapı kurulumunu, esneklik ve ölçeklenebilirlik için arka ucu mikro hizmetler olarak
+tasarlamayı ve kapsamlı sistem izleme için Prometheus/Grafana'yı uygulamayı ele
+almaktadır.
+• Ana modül: Günlük Yönetimi için ELK (Elasticsearch, Logstash, Kibana) ile Altyapı
+Kurulumu.
+Bu ana modülün amacı, ELK yığını (Elasticsearch, Logstash, Kibana) kullanarak
+günlük yönetimi ve analizi için sağlam bir altyapı kurmaktır. Temel özellikler ve
+hedefler şunlardır:
+◦ Günlük verilerini verimli bir şekilde depolamak ve indekslemek için
+Elasticsearch'ü dağıtarak, verilerin kolayca aranabilir ve erişilebilir olmasını
+sağlamak.
+◦ Logstash'ı, çeşitli kaynaklardan günlük verilerini toplamak, işlemek ve
+dönüştürmek ve Elasticsearch'e göndermek için yapılandırmak.
+◦ Günlük verilerini görselleştirmek, gösterge panelleri oluşturmak ve günlük
+olaylarından içgörüler elde etmek için Kibana'yı kurun.
+◦ Günlük verilerinin depolanmasını etkin bir şekilde yönetmek için veri saklama ve
+arşivleme politikalarını tanımlayın.
+◦ Günlük verilerini ve ELK yığını bileşenlerine erişimi korumak için güvenlik
+önlemleri uygulayın.
+Bu ana modül, ELK yığını kullanarak güçlü bir günlük yönetimi ve analiz sistemi
+kurmayı amaçlamaktadır. Bu sistem, etkin sorun giderme, izleme ve sistemin çalışması
+ve performansı hakkında içgörüler elde etmeyi sağlar.
+• Küçük modül: İzleme sistemi.
+Bu küçük modülün amacı, Prometheus ve Grafana kullanarak kapsamlı bir izleme sistemi
+kurmaktır.
+Prometheus ve Grafana kullanarak kapsamlı bir izleme sistemi kurmaktır. Temel özellikler ve
+hedefler şunlardır:
+◦ Metrikleri toplamak ve çeşitli sistem bileşenlerinin durumunu ve performansını
+izlemek için izleme ve uyarı araç seti olarak Prometheus'u dağıtın.
+◦ Farklı hizmetlerden, veritabanlarından ve altyapı bileşenlerinden metrikleri
+yakalamak için veri aktarıcılarını ve entegrasyonları yapılandırmak.
+◦ Grafana kullanarak özel gösterge panelleri ve görselleştirmeler oluşturarak sistem
+metrikleri ve performansı hakkında gerçek zamanlı bilgiler sağlamak.
+◦ Prometheus'ta uyarı kuralları oluşturarak kritik sorunları ve anomalileri proaktif
+olarak tespit edin ve bunlara yanıt verin.
+◦ Geçmiş metrik verileri için uygun veri saklama ve depolama stratejileri uygulayın.
+◦ Hassas izleme verilerini korumak için Grafana için güvenli kimlik doğrulama ve
+erişim kontrol mekanizmaları uygulayın.
+24
+ft_transcendence Sürpriz.
+Bu küçük modül,
+Prometheus ve Grafana kullanarak sağlam bir izleme altyapısı kurmayı
+amaçlamaktadır. Bu altyapı, sistem metriklerine gerçek zamanlı görünürlük ve proaktif
+sorun tespiti sağlayarak sistem performansını ve güvenilirliğini artırır.
+• Ana modül: Arka Ucu Mikro Hizmetler Olarak Tasarlamak.
+Bu ana modülün amacı, mikro hizmetler yaklaşımını kullanarak sistemin arka ucunu
+tasarlamaktır. Temel özellikler ve hedefler şunlardır:
+◦ Arka ucu, her biri belirli işlevlerden veya özelliklerden sorumlu olan daha küçük,
+gevşek bağlı mikro hizmetlere bölmek.
+◦ Bağımsız geliştirme, dağıtım ve ölçeklendirme sağlamak için mikro hizmetler
+arasında net sınırlar ve arayüzler tanımlamak.
+◦ Veri alışverişini ve koordinasyonu kolaylaştırmak için REST-ful API'ler veya
+mesaj kuyrukları gibi mikro hizmetler arasında iletişim mekanizmaları uygulayın.
+◦ Her mikro hizmetin tek bir, iyi tanımlanmış görev veya iş yeteneğinden sorumlu
+olmasını sağlayarak, sürdürülebilirliği ve ölçeklenebilirliği teşvik edin.
+Bu ana modül, mikro hizmetler tasarım yaklaşımını benimseyerek sistem mimarisini
+geliştirmek, arka uç bileşenlerinin esnekliğini, ölçeklenebilirliğini ve bakım kolaylığını
+artırmak amacıyla tasarlanmıştır.
+25
+ft_transcendence Sürpriz.
+V.8 Grafik
+• Ana modül: Gelişmiş 3D Tekniklerinin Uygulanması
+Bu ana modül, "Grafikler", Pong oyununun görsel yönlerini geliştirmeye
+odaklanmaktadır. Daha sürükleyici bir oyun deneyimi yaratmak için gelişmiş 3D
+tekniklerinin kullanımını tanıtmaktadır. Özellikle, Pong oyunu istenen görsel efektleri
+elde etmek için Babylon.js kullanılarak geliştirilecektir.
+◦ Gelişmiş 3D Grafikler: Bu modülün temel amacı, Pong oyununun görsel
+kalitesini yükseltmek için gelişmiş 3D grafik tekniklerini uygulamaktır.
+Babylon.js kullanılarak, oyuncuları oyun ortamına çeken çarpıcı görsel efektler
+yaratmak hedeflenmektedir.
+◦ Sürükleyici Oyun Deneyimi: Gelişmiş 3D tekniklerinin kullanılması,
+kullanıcılara görsel olarak çekici ve büyüleyici bir Pong oyunu sunarak genel
+oyun deneyimini geliştirir.
+◦ Teknoloji Entegrasyonu: Bu modül için seçilen teknoloji Babylon.js'dir. Bu
+araçlar, uyumluluk ve optimum performans sağlayarak 3D grafikleri oluşturmak
+için kullanılacaktır.
+Bu ana modül, gelişmiş 3D tekniklerini kullanarak Pong oyununun görsel öğelerinde
+devrim yaratmayı amaçlamaktadır. Babylon.js kullanarak oyunculara sürükleyici ve
+görsel olarak çarpıcı bir oyun deneyimi sunmayı hedefliyoruz.
+26
+ft_transcendence Sürpriz.
+V.9 Erişilebilirlik
+Bu modüller, web uygulamamızın erişilebilirliğini artırmak için tasarlanmıştır. Tüm
+cihazlarda uyumluluğu sağlamak, tarayıcı desteğini genişletmek, çoklu dil özelliği sunmak,
+görme engelli kullanıcılar için erişilebilirlik özellikleri sağlamak ve daha iyi performans ve
+kullanıcı deneyimi için Sunucu Tarafı İşleme (SSR) entegre etmek odak noktasıdır.
+• Küçük modül: Tüm cihazlarda destek.
+Bu modülde ana odak noktası, web sitenizin tüm cihaz türlerinde sorunsuz çalışmasını
+sağlamaktır. Temel özellikler ve hedefler şunlardır:
+◦ Web sitesinin duyarlı olmasını, farklı ekran boyutlarına ve yönelimlerine uyum
+sağlamasını, masaüstü bilgisayarlar, dizüstü bilgisayarlar, tabletler ve akıllı
+telefonlarda tutarlı bir kullanıcı deneyimi sunmasını sağlamak.
+◦ Kullanıcıların, kullandıkları cihaza bağlı olarak dokunmatik ekranlar, klavyeler
+ve fareler gibi farklı giriş yöntemlerini kullanarak web sitesinde kolayca
+gezinebilmelerini ve etkileşim kurabilmelerini sağlayın.
+Bu modül, tüm cihazlarda tutarlı ve kullanıcı dostu bir deneyim sunarak erişilebilirliği
+ve kullanıcı memnuniyetini en üst düzeye çıkarmayı amaçlamaktadır.
+• Küçük modül: Tarayıcı Uyumluluğunu Genişletme.
+Bu küçük modülde amaç, ek bir web tarayıcısı desteği ekleyerek web uygulamasının
+uyumluluğunu artırmaktır. Temel özellikler ve hedefler şunlardır:
+◦ Tarayıcı desteğini ek bir web tarayıcısını da içerecek şekilde genişleterek,
+kullanıcıların uygulamaya sorunsuz bir şekilde erişip kullanabilmelerini
+sağlamak.
+◦ Web uygulamasının yeni desteklenen tarayıcıda doğru şekilde çalıştığından ve
+doğru şekilde görüntülendiğinden emin olmak için kapsamlı testler ve
+optimizasyonlar yapmak.
+◦ Eklenen web tarayıcısında ortaya çıkabilecek uyumluluk sorunlarını veya
+görüntüleme farklılıklarını gidermek.
+◦ Kullanılabilirlik ve işlevselliği koruyarak, desteklenen tüm tarayıcılarda tutarlı bir
+kullanıcı deneyimi sağlamak.
+Bu küçük modül, ek bir web tarayıcısını destekleyerek web uygulamasının
+erişilebilirliğini genişletmeyi ve kullanıcılara tarama deneyimleri için daha fazla
+seçenek sunmayı amaçlamaktadır.
+• Küçük modül: Çoklu dil desteği.
+Bu küçük modülde amaç, web sitenizin farklı kullanıcı gruplarına hitap edebilmesi için
+birden fazla dili desteklemesini sağlamaktır. Temel özellikler ve hedefler şunlardır:
+◦ Geniş bir kitleye hitap etmek için web sitesinde en az üç dil desteği uygulamak.
+27
+ft_transcendence Sürpriz.
+◦ Kullanıcıların tercihlerine göre web sitesinin dilini kolayca değiştirebilmelerini
+sağlayan bir dil değiştirici veya seçici sağlayın.
+◦ Navigasyon menüleri, başlıklar ve önemli bilgiler gibi temel web sitesi içeriğini
+desteklenen dillere çevirin.
+◦ Kullanıcıların, seçtikleri dilden bağımsız olarak web sitesinde sorunsuz bir şekilde
+gezinip etkileşim kurabilmelerini sağlayın.
+◦ Çeviri sürecini basitleştirmek ve farklı diller arasında tutarlılığı korumak için dil
+paketleri veya yerelleştirme kitaplıkları kullanmayı düşünün.
+◦ Kullanıcıların tercih ettikleri dili sonraki ziyaretler için varsayılan olarak ayarlamalarına
+izin verin.
+Bu küçük modül, içeriği birden fazla dilde sunarak web sitenizin erişilebilirliğini ve
+kapsayıcılığını artırmayı ve farklı uluslararası kitleler için daha kullanıcı dostu hale
+getirmeyi amaçlamaktadır.
+• Küçük modül: Görme engelli kullanıcılar için erişilebilirlik ekleyin.
+Bu küçük modülde amaç, web sitenizi görme engelli kullanıcılar için daha erişilebilir
+hale getirmektir. Temel özellikler şunlardır:
+◦ Ekran okuyucular ve yardımcı teknolojiler için destek.
+◦ Görüntüler için açık ve açıklayıcı alternatif metin.
+◦ Okunabilirlik için yüksek kontrastlı renk şeması.
+◦ Klavye ile gezinme ve odak yönetimi.
+◦ Metin boyutunu ayarlama seçenekleri.
+◦ Erişilebilirlik standartlarını karşılamak için düzenli güncellemeler.
+Bu modül, görme engelli bireyler için web sitesinin kullanılabilirliğini iyileştirmeyi ve
+erişilebilirlik standartlarına uyumu sağlamayı amaçlamaktadır.
+• Küçük modül: Sunucu Tarafı İşleme (SSR) Entegrasyonu.
+Bu küçük modülde, web sitenizin performansını ve kullanıcı deneyimini iyileştirmek
+için Sunucu Tarafı İşleme (SSR) entegrasyonuna odaklanılmaktadır. Temel hedefler
+şunlardır:
+◦ Web sitesinin yükleme hızını ve genel performansını iyileştirmek için SSR'yi
+uygulayın.
+◦ İçeriğin sunucuda önceden işlenmesini ve kullanıcıların tarayıcılarına daha hızlı
+ilk sayfa yüklemesi için teslim edilmesini sağlamak.
+◦ Arama motorlarına önceden işlenmiş HTML içeriği sağlayarak SEO'yu optimize etmek.
+◦ SSR'nin avantajlarından yararlanırken tutarlı bir kullanıcı deneyimi sağlamak.
+Bu modül, daha hızlı sayfa yükleme ve iyileştirilmiş kullanıcı deneyimi için Sunucu
+Tarafı İşlemeyi entegre ederek web sitesi performansını ve SEO'yu artırmayı
+amaçlamaktadır.
+28
+ft_transcendence Sürpriz.
+V.10 Sunucu Tarafı Pong
+• Ana modül: Temel Pong'u Sunucu Tarafı Pong ile değiştirme ve API uygulama.
+Bu ana modülde amaç, temel Pong oyununu sunucu tarafı Pong oyunuyla değiştirmek
+ve bir API uygulamaktır. Temel özellikler ve hedefler şunlardır:
+◦ Pong oyununun oynanışını, top hareketlerini, puanlamayı ve oyuncu
+etkileşimlerini yönetmek için sunucu tarafı mantığı geliştirmek.
+◦ Pong oyunu ile etkileşim kurmak için gerekli kaynakları ve uç noktaları ortaya
+çıkaran bir API oluşturmak, böylece oyunun Komut Satırı Arayüzü (CLI) ve web
+arayüzü üzerinden kısmi olarak kullanılabilmesini sağlamak.
+◦ Oyunun başlatılması, oyuncu kontrolleri ve oyun durumu güncellemelerini
+desteklemek için API uç noktalarını tasarlamak ve uygulamak.
+◦ Sunucu tarafındaki Pong oyununun duyarlı olmasını sağlayarak, ilgi çekici ve keyifli
+bir oyun deneyimi sunun.
+◦ Sunucu tarafındaki Pong oyununu web uygulamasına entegre ederek,
+kullanıcıların oyunu doğrudan web sitesinde oynamasına olanak tanıyın.
+Bu ana modül, Pong oyununu sunucu tarafına taşıyarak, hem web arayüzü hem de CLI
+aracılığıyla etkileşimi mümkün kılarken, oyun kaynaklarına ve özelliklerine kolay
+erişim için bir API sunarak oyunu geliştirmeyi amaçlamaktadır.
+• Ana modül: API entegrasyonu ile web kullanıcılarına karşı CLI üzerinden Pong
+oyununu etkinleştirme.
+Bu ana modülde amaç, kullanıcıların oyunun web sürümünü kullanan oyunculara karşı
+Pong oynamasına olanak tanıyan bir Komut Satırı Arayüzü (CLI) geliştirmektir. CLI,
+web uygulamasına sorunsuz bir şekilde bağlanmalı ve CLI kullanıcılarının web
+oyuncularına katılıp onlarla etkileşime girmesine olanak sağlamalıdır. Temel özellikler
+ve hedefler şunlardır:
+◦ Web sitesinde bulunan Pong oyun deneyimini kopyalayan, CLI kullanıcılarına
+Pong maçları başlatma ve bunlara katılma olanağı sağlayan sağlam bir CLI
+uygulaması oluşturmak.
+◦ API'yi kullanarak CLI ile web uygulaması arasında iletişim kurun ve CLI
+kullanıcılarının siteye bağlanıp web oyuncularıyla etkileşime girmesini sağlayın.
+◦ CLI içinde bir kullanıcı kimlik doğrulama mekanizması geliştirmek ve CLI
+kullanıcılarının web uygulamasına güvenli bir şekilde giriş yapabilmelerini
+sağlamak.
+◦ CLI ve web kullanıcıları arasında gerçek zamanlı senkronizasyon uygulayarak
+oyun etkileşimlerinin sorunsuz ve tutarlı olmasını sağlamak.
+◦ CLI kullanıcılarının web oyuncularıyla Pong maçlarına katılmasını ve maçlar
+oluşturmasını sağlayarak platformlar arası oyun oynanmasını kolaylaştırın.
+29
+Bu modülü tamamlamak istiyorsanız, bir önceki modülü tamamlamanızı
+şiddetle tavsiye ederiz.
+ft_transcendence Sürpriz.
+◦ Web kullanıcılarıyla Pong maçları için CLI'yi etkili bir şekilde kullanma
+konusunda kapsamlı belgeler ve kılavuzlar sağlayın.
+Bu ana modül, API entegrasyonu yoluyla CLI kullanıcılarını web oyuncularına
+sorunsuz bir şekilde bağlayan ve birleşik ve etkileşimli bir oyun ortamı sunan bir CLI
+oluşturarak Pong oyun deneyimini geliştirmeyi amaçlamaktadır.
+30
+Bonus kısmı, zorunlu kısım MÜKEMMEL ise değerlendirilecektir. "Mükemmel"
+demek, zorunlu kısmın tamamen tamamlanmış ve herhangi bir sorun olmadan
+çalıştığı anlamına gelir. TÜM zorunlu gereklilikleri karşılamazsanız, bonus
+kısmınız hiç değerlendirilmeyecektir.
+Bölüm VI Bonus
+bölümü
+Bu proje için bonus bölümü basit bir şekilde tasarlanmıştır. Ek modüller eklemeniz
+gerekmektedir.
+• Her bir küçük modül için beş puan verilecektir.
+• Her büyük modül için on puan verilecektir.
+31
+• Tüm bir özellik veya modül için anında ve eksiksiz bir çözüm
+sağlayan kütüphanelerin veya araçların kullanılması yasaktır.
+• Üçüncü taraf kütüphanesi veya aracının kullanımıyla ilgili
+doğrudan talimatlar (yapılabilir, yapılmalıdır, yapılamaz)
+mutlaka uygulanmalıdır.
+• Daha büyük bir özelliğin veya modülün alt bileşenini temsil eden
+basit, benzersiz bir görevi çözen küçük bir kütüphane veya aracın
+kullanılmasına izin verilir.
+• Değerlendirme sırasında ekip, konu tarafından açıkça
+onaylanmamış ve konunun kısıtlamalarıyla çelişmeyen herhangi bir
+kütüphane veya aracın kullanımını gerekçelendirecektir.
+• Değerlendirme sırasında, değerlendirici belirli bir kütüphane veya
+aracın kullanımının meşru (ve izin verilen) olup olmadığını veya
+esasen tüm bir özelliği veya modülü çözüp çözmediğini (ve bu
+nedenle yasak olup olmadığını) belirleyecektir.
+Bölüm VII
+Gönderim ve akran değerlendirmesi
+Ödevinizi her zamanki gibi Git deposuna gönderin. Savunma sırasında yalnızca deponuzdaki
+çalışmalar değerlendirilecektir. Dosyalarınızın adlarının doğru olduğundan emin olmak için
+iki kez kontrol etmenizi öneririz.
+Değerlendirme sırasında, bazen projenin kısa bir değişikliği talep edilebilir. Bu, küçük bir
+davranış değişikliği, birkaç satır kod yazma veya yeniden yazma ya da eklenmesi kolay bir
+özellik olabilir.
+Bu adım her projeye uygulanmayabilir, ancak değerlendirme kılavuzunda belirtilmişse
+buna hazırlıklı olmalısınız.
+Bu adım, projenin belirli bir bölümünü gerçekten anladığınızı doğrulamak içindir.
+Değişiklik, seçtiğiniz herhangi bir geliştirme ortamında (örneğin, normal kurulumunuzda)
+yapılabilir ve değerlendirmenin bir parçası olarak belirli bir zaman aralığı tanımlanmadıkça,
+birkaç dakika içinde gerçekleştirilebilir olmalıdır.
+Örneğin, bir işleve veya komut dosyasına küçük bir güncelleme yapmanız, bir ekranı
+değiştirmeniz veya yeni bilgileri depolamak için bir veri yapısını ayarlamanız i s t e n ebilir.
+32
+10001
+16997B3EAAA8F965C2C99AD2D1E7C1AD78B53E5AF3CCB21228CB747F6
+F9717A4824FFC9EF55AE6E3DC3045320031A4899E0B7A5368BDC2A4B9246
+F40E923432A3437CB5703BA745EB9
+53616C7465645F5F549209D53E8A1D597DFEF0A034A52CF06BF4132EA61FE
+0C907AB090B88EF6E0DF3250E47AB70367C522E351BCD6FE2683B44409CFC
+0A0A81D31546431B43D4CE504A554660E0806598302B8F776A1B72407A813
+C22D077BADE4F866A7FCF426864823BC25833264770351BC0EF3CD8C47930
+FDC58CBA86B49C5445ECD9C840D1C737D17B8D4A5CA935994847DED79443B
+3B79475AB2C9506F2C94E9FECC933D1689714AE02FE3C55F278E502E1B806
+D7B917906C25612B25700502525825CDC5D23F3856BD9B95F2EC6CA89CBC6
+ED26011D60D7CB6EAD304924717BCC06DC297BE7E9B29E7185B23614AB59C
+66E2B254C24D5DD6FE54133D4C676F88ED318516F7795B15404A4C014CC12
+E5BEAF0A3CBE66F9E1A778AD1F06DA87230D1127DB08E11086F16B1B09905
+C31B41262725E8CDD5B18CFB03C6A5CDBF72674C4E76F6FB1851AB7466C5A 4
+ft_transcendence Sürpriz.
+Ayrıntılar (kapsam, hedef vb.) değerlendirme kılavuzunda belirtilecektir ve aynı proje için
+bir değerlendirmeden diğerine farklılık gösterebilir.
+33
