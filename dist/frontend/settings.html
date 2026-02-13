@@ -1,0 +1,96 @@
+<div class="mb-8 text-center sm:text-left">
+    <h1 class="text-2xl sm:text-3xl font-bold text-slate-100 mb-4"> Ayarlar</h1>
+    <p class="text-slate-300 text-sm sm:text-base">Oyun deneyiminizi özelleştirin.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+    <div class="space-y-4 sm:space-y-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-3 sm:mb-4"> Kontroller ve Tuş Atamaları</h2>
+        
+        <div class="card">
+            <h3 class="text-lg font-semibold text-slate-100 mb-4">Oyuncu 1 Kontrolleri</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Yukarı Hareket:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">W</button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Aşağı Hareket:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">S</button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Oyunu Duraklat:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">Boşluk</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="text-lg font-semibold text-slate-100 mb-4">Oyuncu 2 Kontrolleri</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Yukarı Hareket:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">↑</button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Aşağı Hareket:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">↓</button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Özel Yetenek:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">Enter</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 class="text-lg font-semibold text-slate-100 mb-4">Genel Kontroller</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Menü:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">Esc</button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Oyunu Yeniden Başlat:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">R</button>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm sm:text-base">Sesi Kapat:</span>
+                    <button class="btn btn-secondary text-sm px-3 sm:px-4 py-1 sm:py-2" onclick="this.textContent='Tuşa basın...'">M</button>
+                </div>
+            </div>
+            <button class="btn w-full mt-4"> Varsayılan Tuşlara Sıfırla</button>
+        </div>
+    </div>
+    
+    <div class="space-y-4 sm:space-y-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-3 sm:mb-4"> Oyun Ayarları</h2>
+        
+        <div class="card">
+        
+        <div class="card">
+            <h3 class="text-lg font-semibold text-slate-100 mb-4">Dil Ayarları</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-slate-300 mb-2 text-sm sm:text-base">Uygulama Dili</label>
+                    <select class="input w-full text-sm sm:text-base">
+                        <option value="tr" selected>🇹🇷 Türkçe</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                    </select>
+                </div>
+                <div>
+                </div>
+                <div class="text-xs sm:text-sm text-slate-400 p-3 bg-slate-800/50 rounded-lg">
+                    💡 Dil değişiklikleri uygulamanın yeniden başlatılmasını gerektirir.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-col sm:flex-row justify-center mt-6 sm:mt-8 space-y-3 sm:space-y-0 sm:space-x-4 px-4">
+    <button class="btn bg-violet-600 hover:bg-violet-700 text-sm sm:text-base"> Tüm Ayarları Kaydet</button>
+    <button class="btn btn-secondary text-sm sm:text-base"> Varsayılana Sıfırla</button>
+</div>
