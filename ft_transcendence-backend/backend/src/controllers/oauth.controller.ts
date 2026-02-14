@@ -38,8 +38,6 @@ export const getProviders = async (
     reply: FastifyReply
 ): Promise<void> => {
     const providers: { name: string; id: OAuthProvider; enabled: boolean }[] = [
-        { name: 'Google', id: 'google', enabled: isProviderConfigured('google') },
-        { name: 'GitHub', id: 'github', enabled: isProviderConfigured('github') },
         { name: '42', id: '42', enabled: isProviderConfigured('42') },
     ];
 
@@ -61,7 +59,7 @@ export const initiateOAuth = async (
         const provider = request.params.provider as OAuthProvider;
 
         // Validate provider
-        if (!['google', 'github', '42'].includes(provider)) {
+        if (provider !== '42') {
             return reply.status(400).send(
                 errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid OAuth provider')
             );
@@ -298,7 +296,7 @@ export const linkOAuth = async (
         const provider = request.params.provider as OAuthProvider;
 
         // Validate provider
-        if (!['google', 'github', '42'].includes(provider)) {
+        if (provider !== '42') {
             return reply.status(400).send(
                 errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid OAuth provider')
             );

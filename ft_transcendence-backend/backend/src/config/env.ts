@@ -19,15 +19,6 @@ const envSchema = z.object({
     JWT_ACCESS_EXPIRY: z.string().default('15m'),
     JWT_REFRESH_EXPIRY: z.string().default('7d'),
 
-    // OAuth - Google
-    GOOGLE_CLIENT_ID: z.string().optional(),
-    GOOGLE_CLIENT_SECRET: z.string().optional(),
-    GOOGLE_CALLBACK_URL: z.string().optional(),
-
-    // OAuth - GitHub
-    GITHUB_CLIENT_ID: z.string().optional(),
-    GITHUB_CLIENT_SECRET: z.string().optional(),
-    GITHUB_CALLBACK_URL: z.string().optional(),
 
     // OAuth - 42
     FORTYTWO_CLIENT_ID: z.string().optional(),
@@ -94,16 +85,6 @@ export const env = {
 
     // OAuth
     oauth: {
-        google: {
-            clientId: parsedEnv.GOOGLE_CLIENT_ID,
-            clientSecret: parsedEnv.GOOGLE_CLIENT_SECRET,
-            callbackUrl: parsedEnv.GOOGLE_CALLBACK_URL,
-        },
-        github: {
-            clientId: parsedEnv.GITHUB_CLIENT_ID,
-            clientSecret: parsedEnv.GITHUB_CLIENT_SECRET,
-            callbackUrl: parsedEnv.GITHUB_CALLBACK_URL,
-        },
         fortyTwo: {
             clientId: parsedEnv.FORTYTWO_CLIENT_ID,
             clientSecret: parsedEnv.FORTYTWO_CLIENT_SECRET,

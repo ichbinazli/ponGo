@@ -30,7 +30,7 @@ export const oauthRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) 
             params: {
                 type: 'object',
                 properties: {
-                    provider: { type: 'string', enum: ['google', 'github', '42'] },
+                    provider: { type: 'string', enum: ['42'] },
                 },
                 required: ['provider'],
             },
@@ -47,7 +47,7 @@ export const oauthRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) 
             params: {
                 type: 'object',
                 properties: {
-                    provider: { type: 'string', enum: ['google', 'github', '42'] },
+                    provider: { type: 'string', enum: ['42'] },
                 },
                 required: ['provider'],
             },
@@ -75,7 +75,7 @@ export const oauthRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) 
             params: {
                 type: 'object',
                 properties: {
-                    provider: { type: 'string', enum: ['google', 'github', '42'] },
+                    provider: { type: 'string', enum: ['42'] },
                 },
                 required: ['provider'],
             },

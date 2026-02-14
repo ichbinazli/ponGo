@@ -440,7 +440,7 @@ export const openApiSpec = {
                         name: 'provider',
                         in: 'path',
                         required: true,
-                        schema: { type: 'string', enum: ['google', 'github', '42'] },
+                        schema: { type: 'string', enum: ['42'] },
                     },
                 ],
                 responses: {
