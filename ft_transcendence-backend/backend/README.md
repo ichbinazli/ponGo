@@ -65,8 +65,15 @@ JWT_SECRET=your-super-secret-jwt-key-change-in-production
 ```
 
 Şu şekilde değiştir (en az 32 karakter):
-```
 JWT_SECRET=benim-gizli-anahtarim-cok-uzun-olmali-12345678
+```
+
+Ayrıca **SMTP (E-posta)** ayarlarını da yapmalısın:
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=senin-mailin@gmail.com
+SMTP_PASS=google-app-password
 ```
 
 ### Adım 5: Veritabanını oluştur

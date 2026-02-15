@@ -47,6 +47,16 @@ GITHUB_CLIENT_SECRET=<production-secret>
 GITHUB_CALLBACK_URL=https://yourdomain.com/api/oauth/github/callback
 ```
 
+### SMTP (Email)
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM="ft_transcendence <no-reply@ft_transcendence.com>"
+```
+
 ### SSL
 
 ```env

@@ -43,11 +43,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
        │ {email, password}                │
        │─────────────────────────────────>│
        │                                  │
-       │       2FA enabled?               │
+       │  Password OK? 2FA Enabled?       │
        │<─────────────────────────────────│
        │                                  │
-       │ POST /api/2fa/verify             │
-       │ {userId, code}                   │
+       │ IF 2FA: { requires2FA: true }    │
+       │ AND Email sent with code         │
+       │                                  │
+       │ POST /api/auth/login             │
+       │ {email, password, twoFactorCode} │
        │─────────────────────────────────>│
        │                                  │
        │ {accessToken, refreshToken}      │
@@ -99,12 +102,14 @@ curl -X POST https://localhost:3000/api/auth/refresh \
 
 ## 2FA (İki Faktörlü Doğrulama)
 
+### Sistem
+Google Authenticator/TOTP yerine **E-posta tabanlı** doğrulama sistemi kullanılmaktadır.
+
 ### Kurulum Adımları
 
-1. **Setup:** `POST /api/2fa/setup` → QR kod döner
-2. **Authenticator'a ekle:** Google Authenticator, Authy
-3. **Doğrula:** `POST /api/2fa/confirm` + `{code: "123456"}`
-4. **Yedek kodlar:** `POST /api/2fa/backup-codes`
+1. **Setup:** `POST /api/2fa/setup` → E-postana 6 haneli kod gönderir.
+2. **Doğrula:** `POST /api/2fa/confirm` + `{code: "123456"}`
+3. **Sonuç:** 2FA aktifleşir. Artık girişte kod sorulur.
 
 ### Status Kontrolü
 
@@ -116,10 +121,33 @@ Authorization: Bearer ...
 ```json
 {
   "data": {
-    "enabled": true,
-    "hasBackupCodes": true,
-    "backupCodesCount": 8
+    "enabled": true
   }
+}
+```
+
+---
+
+## Şifre Sıfırlama
+
+### 1. Şifremi Unuttum
+Kullanıcı e-postasını girer, sistem 6 haneli bir kod gönderir.
+
+```bash
+POST /api/auth/forgot-password
+{ "email": "user@example.com" }
+```
+
+### 2. Şifreyi Sıfırla
+Gelen kod ve yeni şifre ile işlem tamamlanır.
+Tüm aktif oturumlar güvenlik gereği kapatılır.
+
+```bash
+POST /api/auth/reset-password
+{
+  "email": "user@example.com",
+  "code": "123456",
+  "newPassword": "YeniGucluSifre1!"
 }
 ```
 

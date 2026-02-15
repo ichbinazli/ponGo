@@ -87,12 +87,16 @@ const api = new API();
 ### Login
 
 ```javascript
-async function login(email, password) {
+async function login(email, password, twoFactorCode = null) {
+  const body = { email, password };
+  if (twoFactorCode) body.twoFactorCode = twoFactorCode;
+
   const res = await api.request('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify(body)
   });
 
+  // 2FA Gerekli: E-posta gönderildi, kod bekleniyor
   if (res.data.requires2FA) {
     return { needs2FA: true, userId: res.data.userId };
   }

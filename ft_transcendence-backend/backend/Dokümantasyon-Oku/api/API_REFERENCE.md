@@ -41,6 +41,8 @@ Backend'in sunduğu tüm API endpoint'lerinin kapsamlı referansı.
 | POST | `/refresh` | ❌ | Token yenileme |
 | POST | `/logout` | ✅ | Çıkış yap |
 | POST | `/logout-all` | ✅ | Tüm oturumlardan çık |
+| POST | `/forgot-password` | ❌ | Şifre sıfırlama kodu gönder |
+| POST | `/reset-password` | ❌ | Şifreyi sıfırla |
 | GET | `/me` | ✅ | Mevcut kullanıcı bilgisi |
 | GET | `/sessions` | ✅ | Aktif oturumlar |
 | DELETE | `/sessions/:sessionId` | ✅ | Oturum sonlandır |
@@ -174,21 +176,12 @@ POST /api/friends/block
 
 | Method | Endpoint | Auth | Açıklama |
 |--------|----------|------|----------|
-| POST | `/verify` | ❌ | Login sırasında 2FA doğrula |
 | GET | `/status` | ✅ | 2FA durumu |
-| POST | `/setup` | ✅ | 2FA kurulumu başlat |
-| POST | `/confirm` | ✅ | 2FA'yı aktifleştir |
-| POST | `/disable` | ✅ | 2FA'yı kapat |
-| POST | `/backup-codes` | ✅ | Yedek kodlar oluştur |
+| POST | `/setup` | ✅ | 2FA kurulumu başlat (Kod gönder) |
+| POST | `/confirm` | ✅ | 2FA'yı aktifleştir (Kodu doğrula) |
+| POST | `/disable` | ✅ | 2FA'yı kapat (Şifre gerekir) |
 
-### Verify 2FA (Login)
-```json
-POST /api/2fa/verify
-{
-  "userId": 1,
-  "code": "123456"
-}
-```
+
 
 ### Confirm 2FA
 ```json
