@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { userModel } from '../models/user.model.js';
 import { tournamentModel } from '../models/tournament.model.js';
 import { matchHistoryModel } from '../models/match.model.js';
-import { verifyTotpCode } from '../services/twoFactor.service.js';
+import { verifyPassword } from '../services/hash.service.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';
 
 // ===========================================
@@ -24,7 +24,7 @@ const addGuestSchema = z.object({
 const verifyParticipantSchema = z.object({
     tournamentId: z.number(),
     userId: z.number(),
-    code: z.string().min(6).max(8),
+    password: z.string().min(1),
     alias: z.string().min(2).max(20),
 });
 
@@ -95,7 +95,7 @@ export const createLocalTournament = async (
 };
 
 /**
- * Verify registered participant with 2FA
+ * Verify registered participant with password
  */
 export const verifyParticipant = async (
     request: FastifyRequest,
@@ -109,7 +109,7 @@ export const verifyParticipant = async (
             );
         }
 
-        const { tournamentId, userId, code, alias } = validation.data;
+        const { tournamentId, userId, password, alias } = validation.data;
 
         // Check tournament exists and is pending
         const tournament = tournamentModel.findById(tournamentId);
@@ -140,17 +140,18 @@ export const verifyParticipant = async (
             );
         }
 
-        // Check if 2FA is enabled
-        if (user.two_factor_enabled !== 1 || !user.two_factor_secret) {
+        // Check if user has a password
+        if (!user.password_hash) {
             return reply.status(400).send(
-                errorResponse(ErrorCodes.VALIDATION_ERROR, '2FA is not enabled for this user')
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'This user has no password set (OAuth-only account)')
             );
         }
 
-        // Verify 2FA code
-        if (!verifyTotpCode(code, user.two_factor_secret)) {
+        // Verify password
+        const isValid = await verifyPassword(password, user.password_hash);
+        if (!isValid) {
             return reply.status(401).send(
-                errorResponse(ErrorCodes.INVALID_CREDENTIALS, 'Invalid 2FA code')
+                errorResponse(ErrorCodes.INVALID_CREDENTIALS, 'Invalid password')
             );
         }
 

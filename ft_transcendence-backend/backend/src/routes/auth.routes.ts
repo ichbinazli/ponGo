@@ -8,6 +8,8 @@ import {
     getCurrentUser,
     getSessions,
     revokeSession,
+    forgotPassword,
+    resetPassword,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 
@@ -39,7 +41,7 @@ export const authRoutes = async (server: FastifyInstance): Promise<void> => {
                 properties: {
                     email: { type: 'string', format: 'email' },
                     password: { type: 'string' },
-                    twoFactorCode: { type: 'string', minLength: 6, maxLength: 9 },
+                    twoFactorCode: { type: 'string', minLength: 6, maxLength: 6 },
                 },
             },
         },
@@ -57,6 +59,34 @@ export const authRoutes = async (server: FastifyInstance): Promise<void> => {
             },
         },
         handler: refreshToken,
+    });
+
+    server.post('/forgot-password', {
+        schema: {
+            body: {
+                type: 'object',
+                required: ['email'],
+                properties: {
+                    email: { type: 'string', format: 'email' },
+                },
+            },
+        },
+        handler: forgotPassword,
+    });
+
+    server.post('/reset-password', {
+        schema: {
+            body: {
+                type: 'object',
+                required: ['email', 'code', 'newPassword'],
+                properties: {
+                    email: { type: 'string', format: 'email' },
+                    code: { type: 'string', minLength: 6, maxLength: 6 },
+                    newPassword: { type: 'string', minLength: 8 },
+                },
+            },
+        },
+        handler: resetPassword,
     });
 
     // Protected routes

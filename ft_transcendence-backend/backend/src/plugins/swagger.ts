@@ -129,8 +129,7 @@ export const openApiSpec = {
             TwoFactorSetup: {
                 type: 'object',
                 properties: {
-                    secret: { type: 'string' },
-                    qrCode: { type: 'string', description: 'Data URL for QR code image' },
+                    message: { type: 'string', description: 'Verification code sent to email' },
                 },
             },
         },
@@ -176,6 +175,7 @@ export const openApiSpec = {
             post: {
                 tags: ['Auth'],
                 summary: 'Login with email and password',
+                description: 'If 2FA is enabled, returns requires2FA:true and sends code to email. Retry with twoFactorCode.',
                 requestBody: {
                     required: true,
                     content: {
@@ -186,7 +186,7 @@ export const openApiSpec = {
                 },
                 responses: {
                     '200': {
-                        description: 'Login successful',
+                        description: 'Login successful or 2FA required',
                         content: {
                             'application/json': {
                                 schema: { $ref: '#/components/schemas/AuthResponse' },
@@ -217,6 +217,55 @@ export const openApiSpec = {
                 responses: {
                     '200': { description: 'Token refreshed' },
                     '401': { description: 'Invalid refresh token' },
+                },
+            },
+        },
+        '/api/auth/forgot-password': {
+            post: {
+                tags: ['Auth'],
+                summary: 'Send password reset code to email',
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['email'],
+                                properties: {
+                                    email: { type: 'string', format: 'email' },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    '200': { description: 'Reset code sent (always returns success)' },
+                },
+            },
+        },
+        '/api/auth/reset-password': {
+            post: {
+                tags: ['Auth'],
+                summary: 'Reset password with verification code',
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['email', 'code', 'newPassword'],
+                                properties: {
+                                    email: { type: 'string', format: 'email' },
+                                    code: { type: 'string', minLength: 6, maxLength: 6 },
+                                    newPassword: { type: 'string', minLength: 8 },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    '200': { description: 'Password reset successful' },
+                    '400': { description: 'Invalid or expired code' },
                 },
             },
         },
@@ -448,7 +497,7 @@ export const openApiSpec = {
                 },
             },
         },
-        // 2FA endpoints
+        // 2FA endpoints (Email-based)
         '/api/2fa/status': {
             get: {
                 tags: ['2FA'],
@@ -474,11 +523,11 @@ export const openApiSpec = {
         '/api/2fa/setup': {
             post: {
                 tags: ['2FA'],
-                summary: 'Setup 2FA',
+                summary: 'Start 2FA setup (sends code to email)',
                 security: [{ bearerAuth: [] }],
                 responses: {
                     '200': {
-                        description: '2FA setup data',
+                        description: 'Verification code sent to email',
                         content: {
                             'application/json': {
                                 schema: { $ref: '#/components/schemas/TwoFactorSetup' },
@@ -488,17 +537,92 @@ export const openApiSpec = {
                 },
             },
         },
-        '/api/2fa/verify': {
+        '/api/2fa/confirm': {
             post: {
                 tags: ['2FA'],
-                summary: 'Verify 2FA code',
+                summary: 'Confirm 2FA setup with email code',
+                security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
                     content: {
                         'application/json': {
                             schema: {
                                 type: 'object',
+                                required: ['code'],
                                 properties: {
+                                    code: { type: 'string', minLength: 6, maxLength: 6 },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    '200': { description: '2FA enabled' },
+                    '400': { description: 'Invalid or expired code' },
+                },
+            },
+        },
+        '/api/2fa/disable': {
+            post: {
+                tags: ['2FA'],
+                summary: 'Disable 2FA (requires password)',
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['password'],
+                                properties: {
+                                    password: { type: 'string' },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    '200': { description: '2FA disabled' },
+                    '401': { description: 'Invalid password' },
+                },
+            },
+        },
+        '/api/2fa/send-code': {
+            post: {
+                tags: ['2FA'],
+                summary: 'Send 2FA code for login',
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['userId'],
+                                properties: {
+                                    userId: { type: 'number' },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    '200': { description: 'Code sent to email' },
+                },
+            },
+        },
+        '/api/2fa/verify': {
+            post: {
+                tags: ['2FA'],
+                summary: 'Verify 2FA email code (login flow)',
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['userId', 'code'],
+                                properties: {
+                                    userId: { type: 'number' },
                                     code: { type: 'string', minLength: 6, maxLength: 6 },
                                 },
                             },

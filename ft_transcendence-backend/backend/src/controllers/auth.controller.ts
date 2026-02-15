@@ -8,9 +8,10 @@ import {
     verifyJwtToken,
     generateRandomToken,
 } from '../services/jwt.service.js';
-import { verifyTotpCode, isValidTotpFormat, isValidBackupCodeFormat } from '../services/twoFactor.service.js';
+import { generateVerificationCode, storeVerificationCode, verifyCode } from '../services/twoFactor.service.js';
+import { sendVerificationCode, sendPasswordResetCode } from '../services/email.service.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';
-import { registerSchema, loginSchema } from '../utils/validators.js';
+import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '../utils/validators.js';
 
 /**
  * Register a new user
@@ -132,46 +133,26 @@ export const login = async (
         }
 
         // Check if 2FA is enabled
-        if (user.two_factor_enabled === 1 && user.two_factor_secret) {
+        if (user.two_factor_enabled === 1) {
+            // If no 2FA code provided, send code to email and ask for it
             if (!input.twoFactorCode) {
+                // Generate and send email code
+                const code = generateVerificationCode();
+                storeVerificationCode(`2fa-login:${user.id}`, code, 5);
+                await sendVerificationCode(user.email, code);
+
                 return reply.status(200).send(
                     successResponse(
                         { requires2FA: true, userId: user.id },
-                        'Two-factor authentication required'
+                        'Two-factor authentication required. Code sent to your email.'
                     )
                 );
             }
 
-            // Verify 2FA code
-            let verified = false;
-
-            // Check TOTP code
-            if (isValidTotpFormat(input.twoFactorCode)) {
-                verified = verifyTotpCode(input.twoFactorCode, user.two_factor_secret);
-            }
-
-            // Check backup code if TOTP failed
-            if (!verified && isValidBackupCodeFormat(input.twoFactorCode) && user.two_factor_backup_codes) {
-                const hashedCodes: string[] = JSON.parse(user.two_factor_backup_codes);
-                const normalizedCode = input.twoFactorCode.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                const formattedCode = `${normalizedCode.slice(0, 4)}-${normalizedCode.slice(4)}`;
-
-                for (let i = 0; i < hashedCodes.length; i++) {
-                    if (await verifyPassword(formattedCode, hashedCodes[i])) {
-                        verified = true;
-                        // Remove used backup code
-                        hashedCodes.splice(i, 1);
-                        userModel.update(user.id, {
-                            two_factor_backup_codes: JSON.stringify(hashedCodes),
-                        });
-                        break;
-                    }
-                }
-            }
-
-            if (!verified) {
+            // Verify 2FA email code
+            if (!verifyCode(`2fa-login:${user.id}`, input.twoFactorCode)) {
                 return reply.status(401).send(
-                    errorResponse(ErrorCodes.INVALID_CREDENTIALS, 'Invalid 2FA code')
+                    errorResponse(ErrorCodes.INVALID_CREDENTIALS, 'Invalid or expired 2FA code')
                 );
             }
         }
@@ -212,6 +193,97 @@ export const login = async (
                 },
                 'Login successful'
             )
+        );
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid input', error.errors)
+            );
+        }
+        throw error;
+    }
+};
+
+/**
+ * Forgot password — sends reset code to email
+ * POST /api/auth/forgot-password
+ */
+export const forgotPassword = async (
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    try {
+        const input = forgotPasswordSchema.parse(request.body);
+
+        const user = userModel.findByEmail(input.email);
+
+        // Always return success to prevent email enumeration
+        if (!user || !user.password_hash) {
+            return reply.send(
+                successResponse(
+                    { message: 'If this email exists, a reset code has been sent.' },
+                    'Password reset code sent'
+                )
+            );
+        }
+
+        // Generate and store code (10 minute TTL for password reset)
+        const code = generateVerificationCode();
+        storeVerificationCode(`pwd-reset:${user.email}`, code, 10);
+
+        // Send code via email
+        await sendPasswordResetCode(user.email, code);
+
+        return reply.send(
+            successResponse(
+                { message: 'If this email exists, a reset code has been sent.' },
+                'Password reset code sent'
+            )
+        );
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid input', error.errors)
+            );
+        }
+        throw error;
+    }
+};
+
+/**
+ * Reset password — verifies code and sets new password
+ * POST /api/auth/reset-password
+ */
+export const resetPassword = async (
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    try {
+        const input = resetPasswordSchema.parse(request.body);
+
+        const user = userModel.findByEmail(input.email);
+        if (!user) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid reset request')
+            );
+        }
+
+        // Verify the reset code
+        if (!verifyCode(`pwd-reset:${user.email}`, input.code)) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid or expired reset code')
+            );
+        }
+
+        // Hash and update password
+        const passwordHash = await hashPassword(input.newPassword);
+        userModel.update(user.id, { password_hash: passwordHash });
+
+        // Revoke all sessions (force re-login)
+        sessionModel.revokeAllForUser(user.id);
+
+        return reply.send(
+            successResponse(null, 'Password reset successful. Please login with your new password.')
         );
     } catch (error) {
         if (error instanceof z.ZodError) {

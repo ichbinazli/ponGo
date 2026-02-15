@@ -6,14 +6,31 @@ import {
     confirmTwoFactor,
     disableTwoFactor,
     verifyTwoFactor,
-    regenerateBackupCodes,
+    sendTwoFactorCode,
 } from '../controllers/twoFactor.controller.js';
 
 /**
- * Two-Factor Authentication routes plugin
+ * Two-Factor Authentication routes plugin (Email-based)
  */
 export const twoFactorRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-    // ===== Public Route (for login flow) =====
+    // ===== Public Routes (for login flow) =====
+
+    /**
+     * Send 2FA verification code to email (login flow)
+     * POST /api/2fa/send-code
+     * Body: { userId: number }
+     */
+    fastify.post('/send-code', {
+        schema: {
+            body: {
+                type: 'object',
+                properties: {
+                    userId: { type: 'number' },
+                },
+                required: ['userId'],
+            },
+        },
+    }, sendTwoFactorCode);
 
     /**
      * Verify 2FA code during login
@@ -26,7 +43,7 @@ export const twoFactorRoutes: FastifyPluginAsync = async (fastify: FastifyInstan
                 type: 'object',
                 properties: {
                     userId: { type: 'number' },
-                    code: { type: 'string', minLength: 6, maxLength: 10 },
+                    code: { type: 'string', minLength: 6, maxLength: 6 },
                 },
                 required: ['userId', 'code'],
             },
@@ -44,7 +61,7 @@ export const twoFactorRoutes: FastifyPluginAsync = async (fastify: FastifyInstan
     }, getTwoFactorStatus);
 
     /**
-     * Initialize 2FA setup (get QR code and secret)
+     * Initialize 2FA setup (sends code to email)
      * POST /api/2fa/setup
      */
     fastify.post('/setup', {
@@ -72,7 +89,7 @@ export const twoFactorRoutes: FastifyPluginAsync = async (fastify: FastifyInstan
     /**
      * Disable 2FA
      * POST /api/2fa/disable
-     * Body: { code?: string, password?: string }
+     * Body: { password: string }
      */
     fastify.post('/disable', {
         preHandler: [authenticate],
@@ -80,28 +97,10 @@ export const twoFactorRoutes: FastifyPluginAsync = async (fastify: FastifyInstan
             body: {
                 type: 'object',
                 properties: {
-                    code: { type: 'string' },
                     password: { type: 'string' },
                 },
+                required: ['password'],
             },
         },
     }, disableTwoFactor);
-
-    /**
-     * Regenerate backup codes
-     * POST /api/2fa/backup-codes
-     * Body: { code: string }
-     */
-    fastify.post('/backup-codes', {
-        preHandler: [authenticate],
-        schema: {
-            body: {
-                type: 'object',
-                properties: {
-                    code: { type: 'string', minLength: 6, maxLength: 6 },
-                },
-                required: ['code'],
-            },
-        },
-    }, regenerateBackupCodes);
 };

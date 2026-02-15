@@ -69,9 +69,16 @@ export const changePasswordSchema = z.object({
     newPassword: passwordSchema,
 });
 
-// 2FA setup schema
-export const twoFactorSetupSchema = z.object({
-    code: z.string().length(6, '2FA code must be 6 digits'),
+// Forgot password schema
+export const forgotPasswordSchema = z.object({
+    email: emailSchema,
+});
+
+// Reset password schema
+export const resetPasswordSchema = z.object({
+    email: emailSchema,
+    code: z.string().length(6, 'Verification code must be 6 digits'),
+    newPassword: passwordSchema,
 });
 
 // Friend request schema
@@ -86,4 +93,6 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type PaginationInput = z.infer<typeof paginationSchema>;

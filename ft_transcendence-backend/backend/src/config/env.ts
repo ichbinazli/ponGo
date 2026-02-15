@@ -25,9 +25,12 @@ const envSchema = z.object({
     FORTYTWO_CLIENT_SECRET: z.string().optional(),
     FORTYTWO_CALLBACK_URL: z.string().optional(),
 
-    // 2FA
-    TWO_FACTOR_APP_NAME: z.string().default('ft_transcendence'),
-    TWO_FACTOR_ISSUER: z.string().default('ft_transcendence'),
+    // SMTP (Email)
+    SMTP_HOST: z.string().default('smtp.gmail.com'),
+    SMTP_PORT: z.string().default('587'),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    SMTP_FROM: z.string().default('ft_transcendence <noreply@ft-transcendence.com>'),
 
     // SSL
     SSL_KEY_PATH: z.string().default('./certs/key.pem'),
@@ -92,10 +95,13 @@ export const env = {
         },
     },
 
-    // 2FA
-    twoFactor: {
-        appName: parsedEnv.TWO_FACTOR_APP_NAME,
-        issuer: parsedEnv.TWO_FACTOR_ISSUER,
+    // SMTP (Email)
+    smtp: {
+        host: parsedEnv.SMTP_HOST,
+        port: parseInt(parsedEnv.SMTP_PORT, 10),
+        user: parsedEnv.SMTP_USER,
+        pass: parsedEnv.SMTP_PASS,
+        from: parsedEnv.SMTP_FROM,
     },
 
     // SSL
