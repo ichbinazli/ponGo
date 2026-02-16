@@ -6,37 +6,44 @@ Pong oyunu ve turnuva sistemi için backend API kullanımı.
 
 ## Maç Kaydetme
 
-### Normal Maç
+### 1. Maç Sonucu Kaydetme (Global)
+
+Oyun bittiğinde bu endpoint'e istek atılır.
 
 ```javascript
-async function saveMatch(player1Id, player2Id, scores) {
-  const res = await fetch('/api/matches', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      player1_id: player1Id,
-      player2_id: player2Id,
-      player1_score: scores.p1,
-      player2_score: scores.p2,
-      game_type: 'pong',
-      duration_seconds: scores.duration
-    })
-  });
-  return res.json();
-}
-```
+const matchData = {
+  player1_id: 1,
+  player2_id: 2,
+  player1_score: 11,
+  player2_score: 5,
+  winner_id: 1,
+  
+  // V2 Yeni Alanlar
+  game_mode: "modern",          // "modern" | "nostalgia" | "tournament"
+  match_type: "h2h",            // "h2h" | "h2ai"
+  player1_name: "PlayerOne",    // Snapshot
+  player2_name: "PlayerTwo",    // Snapshot (veya "AI Player")
+  aiDifficultly: null,          // "easy" | "medium" | "hard" (Sadece h2ai için)
+  winning_score: 11,
+  player1_power_up_freeze: true,
+  player1_power_up_mega: false,
+  player2_power_up_freeze: false,
+  player2_power_up_mega: true,
+  
+  duration_seconds: 120
+};
 
-### Request Format
+// AI Maçı için match_type: "h2ai" ve player2_id gönderilmesine gerek yok
+// (Backend otomatik AI player atar)
 
-```json
-{
-  "player1_id": 1,
-  "player2_id": 2,
-  "player1_score": 11,
-  "player2_score": 7,
-  "game_type": "pong",
-  "duration_seconds": 180
-}
+await fetch('/api/matches', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify(matchData)
+});
 ```
 
 ---

@@ -91,9 +91,29 @@ CREATE TABLE match_history (
     winner_id INTEGER,
     game_type TEXT DEFAULT 'pong',
     tournament_id INTEGER,
+CREATE TABLE match_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player1_id INTEGER NOT NULL,
+    player2_id INTEGER NOT NULL,
+    player1_score INTEGER DEFAULT 0,
+    player2_score INTEGER DEFAULT 0,
+    winner_id INTEGER,
+    game_type TEXT DEFAULT 'pong',
+    tournament_id INTEGER,
     duration_seconds INTEGER,
     started_at DATETIME,
     ended_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- V2 New Fields
+    game_mode TEXT DEFAULT 'modern',      -- modern, nostalgia, tournament
+    match_type TEXT DEFAULT 'h2h',        -- h2h, h2ai
+    ai_difficulty TEXT,                   -- easy, medium, hard
+    player1_name TEXT,                    -- Snapshot
+    player2_name TEXT,                    -- Snapshot
+    winning_score INTEGER DEFAULT 0,
+    p1_power_up_freeze INTEGER DEFAULT 0, -- boolean (0/1)
+    p1_power_up_mega INTEGER DEFAULT 0,   -- boolean (0/1)
+    p2_power_up_freeze INTEGER DEFAULT 0, -- boolean (0/1)
+    p2_power_up_mega INTEGER DEFAULT 0,   -- boolean (0/1)
     FOREIGN KEY (player1_id) REFERENCES users(id),
     FOREIGN KEY (player2_id) REFERENCES users(id),
     FOREIGN KEY (winner_id) REFERENCES users(id),
@@ -203,6 +223,7 @@ tournament_participants
 | 5 | `005_create_tournaments_table.sql` | tournaments + participants |
 | 6 | `007_add_tournament_matches.sql` | Local turnuva desteği |
 | 7 | `008_add_ai_support.sql` | AI Player desteği |
+| 8 | `009_update_match_history_v2.sql` | Yeni maç alanları V2 (mode, type, difficulty, names, powerups) |
 
 ---
 

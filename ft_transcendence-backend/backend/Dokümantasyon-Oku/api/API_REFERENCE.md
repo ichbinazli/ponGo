@@ -277,9 +277,37 @@ POST /api/matches
   "player2_id": 2,
   "player1_score": 11,
   "player2_score": 7,
-  "game_type": "pong",
-  "duration_seconds": 180,
-  "started_at": "2026-01-27T12:00:00.000Z"
+  "winner_id": 1,           // Opsiyonel
+  "game_type": "pong",      // Opsiyonel
+  "tournament_id": null,    // Opsiyonel
+  "duration_seconds": 180,  // Opsiyonel
+  "started_at": "...",      // Opsiyonel
+  
+  // V2 Yeni Alanlar
+  "game_mode": "modern",    // "modern" | "nostalgia" | "tournament"
+  "match_type": "h2h",      // "h2h" | "h2ai"
+  "aiDifficultly": "easy",  // Opsiyonel (Sadece h2ai için). "easy" | "medium" | "hard"
+  "player1_name": "PlayerOne", // Opsiyonel (Snapshot)
+  "player2_name": "PlayerTwo", // Opsiyonel (Snapshot)
+  "winning_score": 11,
+  "player1_power_up_freeze": false,
+  "player1_power_up_mega": false,
+  "player2_power_up_freeze": false,
+  "player2_power_up_mega": false
+}
+```
+
+> **NOT:** `match_type: "h2ai"` gönderilirse `player2_id` otomatik olarak "AI Player" olarak atanır. Bu durumda istek yapan kullanıcı `player1_id` olmalıdır.
+
+**Başarılı Yanıt (201 Created):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "match": { ... }
+  },
+  "message": "Match recorded successfully"
 }
 ```
 

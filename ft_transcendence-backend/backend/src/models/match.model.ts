@@ -20,6 +20,17 @@ export interface MatchHistory {
     duration_seconds: number | null;
     started_at: string | null;
     ended_at: string;
+    // New fields V2
+    game_mode: string;
+    match_type: string;
+    ai_difficulty: string | null;
+    player1_name: string | null;
+    player2_name: string | null;
+    winning_score: number; // default 0
+    p1_power_up_freeze: number; // 0 or 1
+    p1_power_up_mega: number; // 0 or 1
+    p2_power_up_freeze: number; // 0 or 1
+    p2_power_up_mega: number; // 0 or 1
 }
 
 /**
@@ -60,6 +71,17 @@ export interface CreateMatchInput {
     tournament_id?: number;
     duration_seconds?: number;
     started_at?: string;
+    // New fields V2
+    game_mode?: string;
+    match_type?: string;
+    ai_difficulty?: string | null;
+    player1_name?: string;
+    player2_name?: string;
+    winning_score?: number;
+    p1_power_up_freeze?: boolean;
+    p1_power_up_mega?: boolean;
+    p2_power_up_freeze?: boolean;
+    p2_power_up_mega?: boolean;
 }
 
 /**
@@ -74,8 +96,10 @@ export class MatchHistoryModel {
     create(input: CreateMatchInput): MatchHistory {
         const stmt = this.db.prepare(`
       INSERT INTO match_history 
-        (player1_id, player2_id, player1_score, player2_score, winner_id, game_type, tournament_id, duration_seconds, started_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (player1_id, player2_id, player1_score, player2_score, winner_id, game_type, tournament_id, duration_seconds, started_at,
+         game_mode, match_type, ai_difficulty, player1_name, player2_name, winning_score, 
+         p1_power_up_freeze, p1_power_up_mega, p2_power_up_freeze, p2_power_up_mega)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
         const result = stmt.run(
@@ -87,7 +111,17 @@ export class MatchHistoryModel {
             input.game_type ?? 'pong',
             input.tournament_id ?? null,
             input.duration_seconds ?? null,
-            input.started_at ?? null
+            input.started_at ?? null,
+            input.game_mode ?? 'modern',
+            input.match_type ?? 'h2h',
+            input.ai_difficulty ?? null,
+            input.player1_name ?? null,
+            input.player2_name ?? null,
+            input.winning_score ?? 0,
+            input.p1_power_up_freeze ? 1 : 0,
+            input.p1_power_up_mega ? 1 : 0,
+            input.p2_power_up_freeze ? 1 : 0,
+            input.p2_power_up_mega ? 1 : 0
         );
 
         return this.findById(result.lastInsertRowid as number)!;

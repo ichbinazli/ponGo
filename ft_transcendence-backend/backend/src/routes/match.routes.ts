@@ -34,26 +34,7 @@ export async function matchRoutes(fastify: FastifyInstance) {
         matchController.createMatch.bind(matchController)
     );
 
-    /**
-     * Create an AI match record (shortcut)
-     * POST /api/matches/ai
-     * 
-     * Requires authentication
-     * Basitleştirilmiş endpoint — sadece gerekli bilgileri gönder, backend AI ataması yapar
-     * 
-     * Body:
-     * {
-     *   "player_id": 1,            // Oyuncunun ID'si (giriş yapan kullanıcı olmalı)
-     *   "player_score": 11,        // Oyuncunun skoru
-     *   "ai_score": 7,             // AI'nın skoru
-     *   "duration_seconds": 120    // Optional
-     * }
-     */
-    fastify.post<{ Body: { player_id: number; player_score: number; ai_score: number; duration_seconds?: number } }>(
-        '/ai',
-        { preHandler: [authenticate] },
-        matchController.createAIMatch.bind(matchController)
-    );
+
 
     /**
      * Get a match by ID
