@@ -166,7 +166,7 @@ POST /api/friends/block
 | POST | `/:provider/link` | ✅ | Hesaba OAuth bağla |
 | DELETE | `/unlink` | ✅ | OAuth bağlantısını kaldır |
 
-**Desteklenen Providers:** `google`, `github`, `42`
+**Desteklenen Providers:** `42`
 
 ---
 
@@ -293,7 +293,7 @@ POST /api/matches
 |--------|----------|------|----------|
 | POST | `/create` | ✅ | Turnuva oluştur |
 | POST | `/:id/start` | ✅ | Turnuvayı başlat |
-| POST | `/verify-participant` | ✅ | Katılımcı doğrula (2FA) |
+| POST | `/verify-participant` | ✅ | Katılımcı doğrula (Şifre) |
 | POST | `/add-guest` | ✅ | Misafir ekle |
 | POST | `/match/:matchId/result` | ✅ | Maç sonucu kaydet |
 | GET | `/:id/participants` | ❌ | Katılımcılar |
@@ -310,13 +310,13 @@ POST /api/local-tournament/create
 }
 ```
 
-### Verify Participant (2FA)
+### Verify Participant (Şifre)
 ```json
 POST /api/local-tournament/verify-participant
 {
   "tournamentId": 1,
   "username": "player2",
-  "code": "123456"
+  "password": "KullaniciSifresi123!"
 }
 ```
 

@@ -35,16 +35,12 @@ Production deployment rehberi.
 | `DATABASE_PATH` | `/data/transcendence.db` |
 | `CORS_ORIGIN` | `https://yourdomain.com` |
 
-### OAuth
+### OAuth (42 Intra)
 
 ```env
-GOOGLE_CLIENT_ID=<production-id>
-GOOGLE_CLIENT_SECRET=<production-secret>
-GOOGLE_CALLBACK_URL=https://yourdomain.com/api/oauth/google/callback
-
-GITHUB_CLIENT_ID=<production-id>
-GITHUB_CLIENT_SECRET=<production-secret>
-GITHUB_CALLBACK_URL=https://yourdomain.com/api/oauth/github/callback
+FORTYTWO_CLIENT_ID=<production-id>
+FORTYTWO_CLIENT_SECRET=<production-secret>
+FORTYTWO_CALLBACK_URL=https://yourdomain.com/api/oauth/42/callback
 ```
 
 ### SMTP (Email)

@@ -23,7 +23,7 @@ Backend şunları yapar:
 - **Güvenlik:** Şifre hashleme, JWT token, 2FA
 - **Sosyal Özellikler:** Arkadaş ekleme, engelleme
 - **Oyun Verileri:** Maç sonuçları, skor tablosu, istatistikler
-- **OAuth:** Google, GitHub, 42 ile giriş
+- **OAuth:** 42 Intra ile giriş
 
 ---
 

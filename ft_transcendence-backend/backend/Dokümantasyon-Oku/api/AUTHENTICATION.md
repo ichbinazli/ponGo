@@ -4,7 +4,7 @@ Backend kimlik doğrulama sistemi: JWT, 2FA ve OAuth.
 
 ---
 
-## JWT Token Sistemi
+## JWT Token Sistemi 
 
 ### Token Türleri
 
@@ -159,20 +159,18 @@ POST /api/auth/reset-password
 
 | Provider | ID | Callback |
 |----------|-------|----------|
-| Google | `google` | `/api/oauth/google/callback` |
-| GitHub | `github` | `/api/oauth/github/callback` |
 | 42 Intra | `42` | `/api/oauth/42/callback` |
 
 ### OAuth Akışı
 
-1. `GET /api/oauth/google` → Redirect URL döner
-2. User Google'da authorize eder
-3. `GET /api/oauth/google/callback` → JWT tokens döner
+1. `GET /api/oauth/42` → Redirect URL döner
+2. User 42 Intra'da authorize eder
+3. `GET /api/oauth/42/callback` → JWT tokens döner
 
 ### Hesaba OAuth Bağlama
 
 ```bash
-POST /api/oauth/google/link
+POST /api/oauth/42/link
 Authorization: Bearer ...
 ```
 

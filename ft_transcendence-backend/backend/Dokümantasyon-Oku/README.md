@@ -51,7 +51,7 @@ npm run dev
 | `/api/auth` | Kimlik doğrulama | Kısmen |
 | `/api/users` | Kullanıcı işlemleri | Kısmen |
 | `/api/friends` | Arkadaşlık sistemi | ✅ |
-| `/api/oauth` | OAuth (Google, GitHub, 42) | Kısmen |
+| `/api/oauth` | OAuth (42 Intra) | Kısmen |
 | `/api/2fa` | İki faktörlü doğrulama | Kısmen |
 | `/api/gdpr` | GDPR uyumluluğu | Kısmen |
 | `/api/stats` | İstatistikler | ❌ |
