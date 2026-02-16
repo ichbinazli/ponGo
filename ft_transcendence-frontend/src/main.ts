@@ -526,16 +526,26 @@ class App {
     }
 
     private async renderProfile(): Promise<void> {
-        let user = JSON.parse(localStorage.getItem('user') || '{}');
         this.updateActiveNavLink(CONSTANTS.ROUTES.PROFILE);
         this.renderPage(this.createLoadingSpinner());
 
         try {
-            let userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-            const stats = await Api.get(`/api/users/${userId}/stats`);
+            const meResponse = await Api.get('/api/users/me');
+            const d = meResponse?.data;
+            const user = d ? {
+                id: d.id,
+                email: d.email,
+                displayName: d.displayName ?? d.display_name,
+                avatarUrl: d.avatarUrl ?? d.avatar_url,
+            } : JSON.parse(localStorage.getItem('user') || '{}');
+            if (meResponse?.data) {
+                localStorage.setItem('user', JSON.stringify({ ...JSON.parse(localStorage.getItem('user') || '{}'), ...user }));
+            }
+
+            const stats = await Api.get(`/api/users/${user.id}/stats`);
 
             await this.loadTemplate(CONSTANTS.TEMPLATES.PROFILE, false);
-            this.fillProfileData(stats);
+            this.fillProfileData(stats, user);
             this.delayedExecution(() => {
                 this.setupProfileTabs();
                 this.initProfilePhotoUpload();
@@ -563,11 +573,11 @@ class App {
 
 
 
-    private async fillProfileData(stats: any): Promise<void> {
+    private async fillProfileData(stats: any, userFromMe?: { id: number; displayName?: string; avatarUrl?: string }): Promise<void> {
         if (!stats.success) return;
 
         const statsData = stats.data;
-        let user = JSON.parse(localStorage.getItem('user') || '{}');
+        const user = userFromMe ?? JSON.parse(localStorage.getItem('user') || '{}');
 
         // 1. Maç Geçmişini Doldur
         let response = await Api.get('/api/stats/recent-matches?limit=10');

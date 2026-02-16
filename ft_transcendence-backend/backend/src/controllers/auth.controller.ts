@@ -12,6 +12,7 @@ import { generateVerificationCode, storeVerificationCode, verifyCode } from '../
 import { sendVerificationCode, sendPasswordResetCode } from '../services/email.service.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from '../utils/validators.js';
+import { getAvatarUrl } from '../services/upload.service.js';
 
 /**
  * Register a new user
@@ -74,7 +75,7 @@ export const register = async (
                         id: user.id,
                         email: user.email,
                         displayName: user.display_name,
-                        avatarUrl: user.avatar_url,
+                        avatarUrl: getAvatarUrl(user.avatar_url),
                     },
                     tokens: {
                         accessToken: tokens.accessToken,
@@ -182,7 +183,7 @@ export const login = async (
                         id: user.id,
                         email: user.email,
                         displayName: user.display_name,
-                        avatarUrl: user.avatar_url,
+                        avatarUrl: getAvatarUrl(user.avatar_url),
                         twoFactorEnabled: user.two_factor_enabled === 1,
                     },
                     tokens: {
@@ -469,7 +470,7 @@ export const getCurrentUser = async (
             id: user.id,
             email: user.email,
             displayName: user.display_name,
-            avatarUrl: user.avatar_url,
+            avatarUrl: getAvatarUrl(user.avatar_url),
             isOnline: user.is_online === 1,
             twoFactorEnabled: user.two_factor_enabled === 1,
             createdAt: user.created_at,

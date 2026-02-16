@@ -54,9 +54,10 @@ const createServer = (): FastifyInstance => {
 
 // Register plugins
 const registerPlugins = async (server: FastifyInstance): Promise<void> => {
-    // Security headers
+    // Security headers (crossOriginResourcePolicy: cross-origin so frontend can load /uploads/avatars from another origin)
     await server.register(helmet, {
         contentSecurityPolicy: env.isProduction,
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
     });
 
     // CORS

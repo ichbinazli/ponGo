@@ -31,11 +31,11 @@ export const getMyProfile = async (
             successResponse({
                 id: user.id,
                 email: user.email,
-                display_name: user.display_name,
-                avatar_url: getAvatarUrl(user.avatar_url),
-                is_online: user.is_online === 1,
-                two_factor_enabled: user.two_factor_enabled === 1,
-                created_at: user.created_at,
+                displayName: user.display_name,
+                avatarUrl: getAvatarUrl(user.avatar_url),
+                isOnline: user.is_online === 1,
+                twoFactorEnabled: user.two_factor_enabled === 1,
+                createdAt: user.created_at,
                 stats,
             })
         );
