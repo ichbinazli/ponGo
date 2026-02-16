@@ -77,7 +77,7 @@ const res = await fetch('/api/local-tournament/create', {
 });
 ```
 
-### 2. Kayıtlı Kullanıcı Ekle (2FA)
+### 2. Kayıtlı Kullanıcı Ekle (Şifre ile Doğrulama)
 
 ```javascript
 await fetch('/api/local-tournament/verify-participant', {
@@ -86,7 +86,7 @@ await fetch('/api/local-tournament/verify-participant', {
   body: JSON.stringify({
     tournamentId: 1,
     username: 'player2',
-    code: '123456'  // 2FA kodu
+    password: 'KullaniciSifresi123!'
   })
 });
 ```

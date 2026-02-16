@@ -10,7 +10,12 @@ Docker yapılandırması.
 
 ```bash
 docker build --target development -t ft-backend:dev .
-docker run -d -p 3000:3000 -v $(pwd):/app --env-file .env ft-backend:dev
+docker run -d -p 3000:3000 -v $(pwd):/app \
+  -e SMTP_HOST=smtp.gmail.com \
+  -e SMTP_PORT=587 \
+  -e SMTP_USER=your@email.com \
+  -e SMTP_PASS=yourpass \
+  --env-file .env ft-backend:dev
 ```
 
 ### Production
@@ -20,6 +25,10 @@ docker build --target production -t ft-backend:prod .
 docker run -d -p 3000:3000 \
   -v ft-data:/app/database \
   -v ./certs:/app/certs:ro \
+  -e SMTP_HOST=smtp.gmail.com \
+  -e SMTP_PORT=465 \
+  -e SMTP_USER=your@email.com \
+  -e SMTP_PASS=yourpass \
   --env-file .env.production \
   ft-backend:prod
 ```

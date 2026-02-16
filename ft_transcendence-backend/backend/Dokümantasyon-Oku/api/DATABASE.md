@@ -33,7 +33,6 @@ CREATE TABLE users (
     oauth_id TEXT,
     two_factor_secret TEXT,
     two_factor_enabled INTEGER DEFAULT 0,
-    backup_codes TEXT,
     is_online INTEGER DEFAULT 0,
     last_seen_at DATETIME,
     anonymized INTEGER DEFAULT 0,
@@ -202,8 +201,8 @@ tournament_participants
 | 3 | `003_create_friendships_table.sql` | friendships tablosu |
 | 4 | `004_create_match_history_table.sql` | match_history tablosu |
 | 5 | `005_create_tournaments_table.sql` | tournaments + participants |
-| 6 | `006_add_backup_codes.sql` | 2FA yedek kodlar |
-| 7 | `007_add_tournament_matches.sql` | Local turnuva desteği |
+| 6 | `007_add_tournament_matches.sql` | Local turnuva desteği |
+| 7 | `008_add_ai_support.sql` | AI Player desteği |
 
 ---
 

@@ -1,3 +1,7 @@
+# ⚠️ ARŞİVLENMİŞ DOKÜMAN
+
+> **NOT:** Bu dosya proje geliştirme sürecindeki ilk planlamayı içerir. Güncel API ve veritabanı yapısı için `backend/Dokümantasyon-Oku` klasöründeki dosyaları referans alınız. (Örneğin: 2FA sistemi burada anlatılandan farklı olarak Email tabanlıdır).
+
 # Backend API Güncellemeleri — Implementation Plan
 
 **Tarih:** 2026-02-12  
