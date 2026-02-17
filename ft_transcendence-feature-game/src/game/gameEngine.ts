@@ -1,95 +1,13 @@
 /* eslint-disable no-console */
 import { initUI, ui } from './ui';
-import { initGameObjects, keysPressedHuman, keysPressedAI, paddles, ball, gameState, scores } from './types';
+import { initGameObjects, keysPressedHuman, keysPressedAI, paddles, ball, gameState, scores, playersInfo } from './types';
 import { update } from './modes/human2ai';
-// import api from '../api/apiLibrary-backup';
-
-// async function testApi() {
-//     try {
-//         const res = await api.get('/api/users/search?q=ksl');
-//         console.log('API OK:', res);
-//     } catch (err) {
-//         console.error('API HATA:', err);
-//     }
-// }
-
-// sadece hızlı test için, oyun başlarken bir kez çalıştır
-// testApi();
-// ...existing code...
+import { initFreezeUI, initPowerupUI, hydratePowerups, isFrozen, streaks, freezeUsed, updatePowerupBoard, clearFreeze, clearMega, freezeState, freezeUI, updateFreeze, updateMega, maybeApplyFreeze, maybeApplyMegaPaddle, basePaddleHeights } from './powerUps';
+import { initGameOverUI, gameOverUI, hideGameOverModal } from './gameOver';
+// import { saveMatch, MatchPayload } from './apiCalls';
 
 const DEFAULT_WINNING_SCORE = 5;
 let winningScore = DEFAULT_WINNING_SCORE;
-
-type Powerups = {
-    freeze: boolean;
-    megaPaddle: boolean;
-};
-
-const powerups: Powerups = {
-    freeze: false,
-    megaPaddle: false,
-};
-
-const streaks = {
-    player1: 0,
-    player2: 0,
-};
-
-const freezeUsed = {
-    player1: false,
-    player2: false,
-};
-
-type FreezeState = {
-    active: boolean;
-    target: 'player1' | 'player2' | null;
-    expiresAt: number;
-};
-
-const freezeState: FreezeState = {
-    active: false,
-    target: null,
-    expiresAt: 0,
-};
-
-const freezeUI = {
-    p1: null as HTMLDivElement | null,
-    p2: null as HTMLDivElement | null,
-};
-
-type MegaState = {
-    active: boolean;
-    expiresAt: number;
-};
-
-const megaState: Record<'player1' | 'player2', MegaState> = {
-    player1: { active: false, expiresAt: 0 },
-    player2: { active: false, expiresAt: 0 },
-};
-
-const basePaddleHeights = {
-    player1: 0,
-    player2: 0,
-};
-
-const powerupUI = {
-    board: null as HTMLDivElement | null,
-    p1Streak: null as HTMLElement | null,
-    p2Streak: null as HTMLElement | null,
-    p1Progress: null as HTMLDivElement | null,
-    p2Progress: null as HTMLDivElement | null,
-    p1Foot: null as HTMLElement | null,
-    p2Foot: null as HTMLElement | null,
-    p1MegaProgress: null as HTMLDivElement | null,
-    p2MegaProgress: null as HTMLDivElement | null,
-    p1MegaFoot: null as HTMLElement | null,
-    p2MegaFoot: null as HTMLElement | null,
-    p1FreezeCount: null as HTMLElement | null,
-    p2FreezeCount: null as HTMLElement | null,
-    p1MegaCount: null as HTMLElement | null,
-    p2MegaCount: null as HTMLElement | null,
-};
-
 let gameRunning = false;
 let animationId: number | null = null;
 let gameFinished = false;
@@ -97,28 +15,11 @@ let lastTime = performance.now();
 let spaceHintDismissed = false;
 let spaceToggleBound = false;
 
-type GameOverUI = {
-    overlay: HTMLDivElement | null;
-    title: HTMLElement | null;
-    score: HTMLElement | null;
-    playAgain: HTMLButtonElement | null;
-    backToOptions: HTMLAnchorElement | null;
-};
-
-const gameOverUI: GameOverUI = {
-    overlay: null,
-    title: null,
-    score: null,
-    playAgain: null,
-    backToOptions: null,
-};
-
 export function initGameEngine(): void {
     if (animationId !== null) {
         cancelAnimationFrame(animationId);
         animationId = null;
     }
-
     gameRunning = false;
     gameFinished = false;
     spaceHintDismissed = false;
@@ -174,63 +75,6 @@ function updateScoreboard() {
     }
 }
 
-function updatePowerupBoard() {
-    if (!powerupUI.board) return;
-    const streak1 = streaks.player1;
-    const streak2 = streaks.player2;
-
-    if (powerupUI.p1Streak) powerupUI.p1Streak.textContent = `Sayı Serisi: ${streak1}`;
-    if (powerupUI.p2Streak) powerupUI.p2Streak.textContent = `Sayı Serisi: ${streak2}`;
-
-    const enabled = powerups.freeze || powerups.megaPaddle;
-    powerupUI.board.classList.toggle('hidden', !enabled);
-    if (!enabled) return;
-
-    const progressPct = (streak: number, threshold: number) => {
-        if (streak === 0) return 0;
-        const mod = streak % threshold;
-        return mod === 0 ? 100 : (mod / threshold) * 100;
-    };
-
-    // Freeze UI
-    if (powerupUI.p1Progress) powerupUI.p1Progress.style.width = `${powerups.freeze ? (freezeUsed.player1 ? 100 : progressPct(streak1, 3)) : 0}%`;
-    if (powerupUI.p2Progress) powerupUI.p2Progress.style.width = `${powerups.freeze ? (freezeUsed.player2 ? 100 : progressPct(streak2, 3)) : 0}%`;
-
-    const freezeCountText = (streak: number, used: boolean) => {
-        if (used) return '3/3';
-        const current = streak === 0 ? 0 : (streak % 3 || 3);
-        return `${current}/3`;
-    };
-
-    if (powerupUI.p1FreezeCount) powerupUI.p1FreezeCount.textContent = powerups.freeze ? freezeCountText(streak1, freezeUsed.player1) : '0/3';
-    if (powerupUI.p2FreezeCount) powerupUI.p2FreezeCount.textContent = powerups.freeze ? freezeCountText(streak2, freezeUsed.player2) : '0/3';
-
-    // Mega Paddle UI
-    const megaActive = {
-        player1: megaState.player1.active,
-        player2: megaState.player2.active,
-    };
-
-    if (powerupUI.p1MegaProgress)
-        powerupUI.p1MegaProgress.style.width = `${powerups.megaPaddle ? (megaActive.player1 ? 100 : progressPct(streak1, 5)) : 0}%`;
-    if (powerupUI.p2MegaProgress)
-        powerupUI.p2MegaProgress.style.width = `${powerups.megaPaddle ? (megaActive.player2 ? 100 : progressPct(streak2, 5)) : 0}%`;
-
-    const megaCountText = (streak: number, active: boolean) => {
-        if (active) return '5/5';
-        const current = streak === 0 ? 0 : (streak % 5 || 5);
-        return `${current}/5`;
-    };
-
-    if (powerupUI.p1MegaCount) powerupUI.p1MegaCount.textContent = powerups.megaPaddle ? megaCountText(streak1, megaActive.player1) : '0/5';
-    if (powerupUI.p2MegaCount) powerupUI.p2MegaCount.textContent = powerups.megaPaddle ? megaCountText(streak2, megaActive.player2) : '0/5';
-
-    const freezeBlocks = document.querySelectorAll('.freeze-block');
-    freezeBlocks.forEach((el) => el.classList.toggle('hidden', !powerups.freeze));
-    const megaBlocks = document.querySelectorAll('.mega-block');
-    megaBlocks.forEach((el) => el.classList.toggle('hidden', !powerups.megaPaddle));
-}
-
 function resetBall(serveRight: boolean) {
     ball.x = ui.gameBoard.clientWidth / 2 - ui.ball.clientWidth / 2;
     ball.y = ui.gameBoard.clientHeight / 2 - ui.ball.clientHeight / 2;
@@ -248,7 +92,7 @@ function centerBallAndStop() {
     syncPositions();
 }
 
-function resetMatchState() {
+export function resetMatchState() {
     scores.player1 = 0;
     scores.player2 = 0;
     streaks.player1 = 0;
@@ -266,7 +110,7 @@ function resetMatchState() {
     gameFinished = false;
 }
 
-function startGame() {
+export function startGame() {
     if (gameRunning) return;
     if (gameFinished) resetMatchState();
 
@@ -289,8 +133,22 @@ function stopGame() {
         cancelAnimationFrame(animationId);
         animationId = null;
     }
-    //centerBallAndStop();
 }
+
+// function saveMatchResult() {
+//     const matchPayload: MatchPayload = {
+//         player1_id: null,
+//         player2_id: playersInfo.player2_id,
+//         player1_score: scores.player1,
+//         player2_score: scores.player2,
+//         game_type: gameState.gameMode,
+//         duration_seconds: 0,
+//         started_at: new Date().toISOString(),
+//     };
+//     console.log('started_at: ', new Date().toISOString());
+//     saveMatch(matchPayload);
+// }
+
 
 function finishGame(winner: 'player1' | 'player2') {
     gameFinished = true;
@@ -299,6 +157,7 @@ function finishGame(winner: 'player1' | 'player2') {
     clearMega('player1');
     clearMega('player2');
     centerBallAndStop();
+    //saveMatchResult();
     showGameOverModal(winner);
 }
 
@@ -441,30 +300,6 @@ function bindSpaceToggle() {
     });
 }
 
-function initGameOverUI() {
-    gameOverUI.overlay = document.getElementById('gameOverOverlay') as HTMLDivElement;
-    gameOverUI.title = document.getElementById('winnerTitle');
-    gameOverUI.score = document.getElementById('winnerScore');
-    gameOverUI.playAgain = document.getElementById('playAgainButton') as HTMLButtonElement;
-    gameOverUI.backToOptions = document.getElementById('backToOptionsButton') as HTMLAnchorElement;
-
-    if (gameOverUI.playAgain) {
-        gameOverUI.playAgain.onclick = () => {
-            hideGameOverModal();
-            resetMatchState();
-            startGame();
-        };
-    }
-
-    if (gameOverUI.backToOptions) {
-        gameOverUI.backToOptions.onclick = (event) => {
-            event.preventDefault();
-            hideGameOverModal();
-            navigateToGameOptions();
-        };
-    }
-}
-
 function setPlayerNames() {
     const storedPlayer1 = sessionStorage.getItem('player1');
     const storedPlayer2 = sessionStorage.getItem('player2');
@@ -480,6 +315,20 @@ function setPlayerNames() {
     const player2Name = isAiMatch
         ? (singlePlayer || storedPlayer2 || 'Player 2')
         : (storedPlayer2 || 'Player 2');
+
+    gameState.gameMode = isAiMatch ? 'h2ai' : 'h2h';
+
+    playersInfo.player1_name = player1Name;
+    playersInfo.player2_name = player2Name;
+    if (isAiMatch){
+        playersInfo.player1_id = 1;
+    } else {
+        playersInfo.player1_id = 0;
+    }
+
+    const storedPlayer1Id = JSON.parse(localStorage.getItem('user') || '{}').id || 0;
+
+    playersInfo.player2_id = storedPlayer1Id;
 
     if (ui.player1Name) ui.player1Name.textContent = player1Name;
     if (ui.player2Name) ui.player2Name.textContent = player2Name;
@@ -507,162 +356,7 @@ function showGameOverModal(winner: 'player1' | 'player2') {
     gameOverUI.overlay.classList.remove('hidden');
 }
 
-function hideGameOverModal() {
-    gameOverUI.overlay?.classList.add('hidden');
-}
-
-function navigateToGameOptions() {
-    const path = '/game-options';
-    window.history.pushState({}, '', path);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-}
-
 function captureBasePaddleHeights() {
     if (ui.paddle1) basePaddleHeights.player1 = ui.paddle1.clientHeight;
     if (ui.paddle2) basePaddleHeights.player2 = ui.paddle2.clientHeight;
-}
-
-function clampPaddlePosition(player: 'player1' | 'player2') {
-    const paddleEl = player === 'player1' ? ui.paddle1 : ui.paddle2;
-    if (!paddleEl) return;
-    const maxTop = ui.gameBoard.clientHeight - paddleEl.clientHeight;
-    const current = player === 'player1' ? paddles.paddle1Y : paddles.paddle2Y;
-    const clamped = Math.min(Math.max(current, 0), maxTop);
-
-    if (player === 'player1') paddles.paddle1Y = clamped;
-    else paddles.paddle2Y = clamped;
-}
-
-function initFreezeUI() {
-    freezeUI.p1 = document.getElementById('freezeOverlayP1') as HTMLDivElement;
-    freezeUI.p2 = document.getElementById('freezeOverlayP2') as HTMLDivElement;
-}
-
-function initPowerupUI() {
-    powerupUI.board = document.getElementById('powerupBoard') as HTMLDivElement;
-    powerupUI.p1Streak = document.getElementById('p1Streak');
-    powerupUI.p2Streak = document.getElementById('p2Streak');
-    powerupUI.p1Progress = document.getElementById('p1ProgressBar') as HTMLDivElement;
-    powerupUI.p2Progress = document.getElementById('p2ProgressBar') as HTMLDivElement;
-    powerupUI.p1Foot = document.getElementById('p1Foot');
-    powerupUI.p2Foot = document.getElementById('p2Foot');
-    powerupUI.p1MegaProgress = document.getElementById('p1MegaProgressBar') as HTMLDivElement;
-    powerupUI.p2MegaProgress = document.getElementById('p2MegaProgressBar') as HTMLDivElement;
-    powerupUI.p1MegaFoot = document.getElementById('p1MegaFoot');
-    powerupUI.p2MegaFoot = document.getElementById('p2MegaFoot');
-    powerupUI.p1FreezeCount = document.getElementById('p1FreezeCount');
-    powerupUI.p2FreezeCount = document.getElementById('p2FreezeCount');
-    powerupUI.p1MegaCount = document.getElementById('p1MegaCount');
-    powerupUI.p2MegaCount = document.getElementById('p2MegaCount');
-}
-
-function hydratePowerups() {
-    const stored = sessionStorage.getItem('powerups');
-    if (!stored) return;
-    try {
-        const parsed = JSON.parse(stored);
-        powerups.freeze = Boolean(parsed?.freeze);
-        powerups.megaPaddle = Boolean(parsed?.megaPaddle);
-        const enabled = powerups.freeze || powerups.megaPaddle;
-        if (powerupUI.board) powerupUI.board.classList.toggle('hidden', !enabled);
-    } catch (err) {
-        console.error('Powerup parse error', err);
-    }
-}
-
-function isFrozen(player: 'player1' | 'player2') {
-    return freezeState.active && freezeState.target === player;
-}
-
-function updateFreeze(now: number) {
-    if (!freezeState.active) return;
-    if (now >= freezeState.expiresAt) {
-        clearFreeze();
-        return;
-    }
-
-    if (freezeState.target === 'player1' && freezeUI.p1)
-        freezeUI.p1.style.top = `${paddles.paddle1Y}px`;
-    if (freezeState.target === 'player2' && freezeUI.p2)
-        freezeUI.p2.style.top = `${paddles.paddle2Y}px`;
-}
-
-function clearFreeze() {
-    freezeState.active = false;
-    freezeState.target = null;
-    freezeState.expiresAt = 0;
-    freezeUI.p1?.classList.add('hidden');
-    freezeUI.p2?.classList.add('hidden');
-}
-
-function maybeApplyFreeze(scorer: 'player1' | 'player2', target: 'player1' | 'player2', now: number) {
-    if (!powerups.freeze) return;
-    if (freezeUsed[scorer]) return;
-    if (freezeState.active) return;
-
-    const streak = scorer === 'player1' ? streaks.player1 : streaks.player2;
-    if (streak < 3) return;
-    if (streak % 3 !== 0) return; // only on every 3rd consecutive score (3,6,9,...)
-
-    freezeUsed[scorer] = true;
-
-    freezeState.active = true;
-    freezeState.target = target;
-    freezeState.expiresAt = now + 5000;
-
-    const overlay = target === 'player1' ? freezeUI.p1 : freezeUI.p2;
-    const top = target === 'player1' ? paddles.paddle1Y : paddles.paddle2Y;
-    if (overlay) {
-        overlay.style.top = `${top}px`;
-        overlay.classList.remove('hidden');
-    }
-}
-
-function maybeApplyMegaPaddle(player: 'player1' | 'player2', now: number) {
-    if (!powerups.megaPaddle) return;
-
-    const state = megaState[player];
-    if (state.active) return;
-
-    const streak = player === 'player1' ? streaks.player1 : streaks.player2;
-    if (streak < 5) return;
-    if (streak % 5 !== 0) return;
-
-    state.active = true;
-    state.expiresAt = now + 7000;
-
-    const paddleEl = player === 'player1' ? ui.paddle1 : ui.paddle2;
-    const baseHeight = player === 'player1' ? basePaddleHeights.player1 : basePaddleHeights.player2;
-    if (paddleEl) {
-        const newHeight = (baseHeight || paddleEl.clientHeight) * 2;
-        paddleEl.style.height = `${newHeight}px`;
-        paddleEl.classList.add('mega-active');
-        clampPaddlePosition(player);
-    }
-}
-
-function clearMega(player: 'player1' | 'player2') {
-    const state = megaState[player];
-    state.active = false;
-    state.expiresAt = 0;
-
-    const paddleEl = player === 'player1' ? ui.paddle1 : ui.paddle2;
-    const baseHeight = player === 'player1' ? basePaddleHeights.player1 : basePaddleHeights.player2;
-
-    if (paddleEl) {
-        if (baseHeight > 0) paddleEl.style.height = `${baseHeight}px`;
-        else paddleEl.style.height = '';
-        paddleEl.classList.remove('mega-active');
-        clampPaddlePosition(player);
-    }
-}
-
-function updateMega(now: number) {
-    (['player1', 'player2'] as const).forEach((player) => {
-        const state = megaState[player];
-        if (!state.active) return;
-        if (now >= state.expiresAt) {
-            clearMega(player);
-        }
-    });
 }

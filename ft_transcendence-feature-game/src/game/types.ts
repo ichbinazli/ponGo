@@ -29,6 +29,13 @@ export const scores = {
     player2: 0,
 }
 
+export const playersInfo = {
+    player1_name: '',
+    player2_name: '',
+    player1_id: 0,
+    player2_id: 0,
+}
+
 let matchType = sessionStorage.getItem('matchType');
 if (matchType !== 'h2h' && matchType !== 'h2ai') {
     matchType = 'h2h';
