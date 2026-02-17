@@ -55,11 +55,11 @@ export class ThemeManager {
             const timeLeftMs = expiresTimestamp - now; // Kalan milisaniye
 
             // Zamanı formatla (Dakika:Saniye)
-            const minutes = Math.floor(timeLeftMs / 60000);
-            const seconds = Math.floor((timeLeftMs % 60000) / 1000);
-            const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            // const minutes = Math.floor(timeLeftMs / 60000);
+            // const seconds = Math.floor((timeLeftMs % 60000) / 1000);
+            // const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             const howMany = 14 * 60 * 1000;
-            console.log(`Token Bitiş Zamanı: ${new Date(expiresAt).toLocaleString()}, Kalan Süre: ${formattedTimeLeft}`);
+            // console.log(`Token Bitiş Zamanı: ${new Date(expiresAt).toLocaleString()}, Kalan Süre: ${formattedTimeLeft}`);
             if (timeLeftMs < howMany && !isRefreshing && refreshToken) {
                 try {
                     isRefreshing = true;
@@ -428,8 +428,15 @@ class App {
     private async renderNostalgia(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.GAME_NOSTALGIA);
         await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_NOSTALGIA, false);
-        const { initModelViewer } = await import('./babylon/model-viewer');
-        initModelViewer();
+        
+        // 3D Pong oyununu başlat
+        this.delayedExecution(async () => {
+            const { Pong3DGame } = await import('./3D-game/pong3d');
+            const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
+            if (canvas) {
+                new Pong3DGame(canvas);
+            }
+        }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 
     private async renderTournament(): Promise<void> {

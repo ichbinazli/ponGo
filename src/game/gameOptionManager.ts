@@ -30,19 +30,11 @@ const GAME_MODE_CONFIG: Record<GameMode, GameModeConfig> = {
     }
 };
 
-let currentMode: GameMode | null = null;
-
-/**
- * Router yölendir - SPA için navigate fonksiyonu
- */
 function navigateTo(path: string): void {
     window.history.pushState({}, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
-/**
- * Oyun modu kartlarına click event'i ekle
- */
 export function setupGameModeSelection(): void {
     const modeLinks = document.querySelectorAll<HTMLAnchorElement>('[data-game-mode]');
     const modeCards = document.querySelectorAll<HTMLDivElement>('[data-game-mode]:not(a)');
@@ -58,7 +50,6 @@ export function setupGameModeSelection(): void {
             // Seçilen moda ait ayar bölümüne scroll et
             const mode = card.dataset.gameMode;
             if (mode) {
-                currentMode = mode as GameMode;
                 const settingsElement = document.querySelector<HTMLDivElement>(
                     `[data-game-mode-settings="${mode}"]`
                 );
@@ -123,10 +114,10 @@ export function setupNostalgiaMode(): void {
     const players1v1Section = document.getElementById('nostalgia-players-1v1');
     const aiSettingsSection = document.getElementById('nostalgia-ai-settings');
     const startButton = document.getElementById('start-nostalgia-btn') as HTMLButtonElement | null;
-
+    let selectedMode: string | undefined;
     modeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            const selectedMode = btn.dataset.nostalgiaMode;
+            selectedMode = btn.dataset.nostalgiaMode;
 
             modeButtons.forEach(b => b.classList.remove('bg-purple-500', 'ring-2', 'ring-purple-400'));
             btn.classList.add('bg-purple-500', 'ring-2', 'ring-purple-400');
@@ -149,13 +140,12 @@ export function setupNostalgiaMode(): void {
 
     if (startButton) {
         startButton.addEventListener('click', () => {
-            const selectedBtn = document.querySelector<HTMLButtonElement>('.nostalgia-mode-btn.bg-purple-500');
-            if (!selectedBtn) {
-                alert('Lütfen bir oyun modu seçin!');
-                return;
-            }
-
-            const selectedMode = selectedBtn.dataset.nostalgiaMode;
+            const winScoreSelect = document.getElementById('nostalgia-win-score') as HTMLSelectElement | null;
+            const winScoreParsed = winScoreSelect ? parseInt(winScoreSelect.value, 10) : NaN;
+            const winScoreToStore = !Number.isNaN(winScoreParsed) && winScoreParsed > 0
+                ? winScoreParsed.toString()
+                : '10';
+            sessionStorage.setItem('winningScore', winScoreToStore);
 
             if (selectedMode === '1v1') {
                 const player1Input = (document.getElementById('nostalgia-player1-name') as HTMLInputElement)?.value.trim();
@@ -191,10 +181,10 @@ export function setupModernMode(): void {
     const players1v1Section = document.getElementById('modern-players-1v1');
     const aiSettingsSection = document.getElementById('modern-ai-settings');
     const startButton = document.getElementById('start-modern-btn') as HTMLButtonElement | null;
-
+    let selectedMode: string | undefined;
     modeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            const selectedMode = btn.dataset.modernMode;
+            selectedMode = btn.dataset.modernMode;
 
             modeButtons.forEach(b => b.classList.remove('bg-cyan-500', 'ring-2', 'ring-cyan-400'));
             btn.classList.add('bg-cyan-500', 'ring-2', 'ring-cyan-400');
@@ -217,19 +207,18 @@ export function setupModernMode(): void {
 
     if (startButton) {
         startButton.addEventListener('click', () => {
-            const selectedBtn = document.querySelector<HTMLButtonElement>('.modern-mode-btn.bg-cyan-500');
-            if (!selectedBtn) {
-                alert('Lütfen bir oyun modu seçin!');
-                return;
-            }
-
-            const selectedMode = selectedBtn.dataset.modernMode;
-
             const powerups = {
                 freeze: (document.getElementById('powerup-freeze') as HTMLInputElement)?.checked || false,
                 speedBoost: (document.getElementById('powerup-speed-boost') as HTMLInputElement)?.checked || false,
                 megaPaddle: (document.getElementById('powerup-mega-paddle') as HTMLInputElement)?.checked || false
             };
+
+            const winScoreSelect = document.getElementById('modern-win-score') as HTMLSelectElement | null;
+            const winScoreParsed = winScoreSelect ? parseInt(winScoreSelect.value, 10) : NaN;
+            const winScoreToStore = !Number.isNaN(winScoreParsed) && winScoreParsed > 0
+                ? winScoreParsed.toString()
+                : '10';
+            sessionStorage.setItem('winningScore', winScoreToStore);
 
             if (selectedMode === '1v1') {
                 const player1Input = (document.getElementById('modern-player1-name') as HTMLInputElement)?.value.trim();
@@ -239,6 +228,7 @@ export function setupModernMode(): void {
                 const player2 = player2Input || 'Oyuncu 2';
 
                 sessionStorage.setItem('gameMode', 'modern');
+                sessionStorage.setItem('matchType', 'h2h');
                 sessionStorage.setItem('player1', player1);
                 sessionStorage.setItem('player2', player2);
                 sessionStorage.setItem('powerups', JSON.stringify(powerups));
@@ -249,6 +239,7 @@ export function setupModernMode(): void {
                 const aiDifficulty = (document.getElementById('modern-ai-difficulty') as HTMLSelectElement)?.value;
 
                 sessionStorage.setItem('gameMode', 'modern');
+                sessionStorage.setItem('matchType', 'h2ai');
                 sessionStorage.setItem('playerName', playerName);
                 sessionStorage.setItem('aiDifficulty', aiDifficulty);
                 sessionStorage.setItem('powerups', JSON.stringify(powerups));
@@ -407,36 +398,76 @@ Object.values(GAME_MODE_CONFIG).forEach((config) => {
         modeDiv.classList.add('hidden');
     }
 });
-currentMode = null;
 
 /**
- * Tüm setup işlemlerini başlat
+ * Oyun seçeneklerini temizle (SPA için state sıfırla)
  */
+function resetGameOptionState(): void {
+    // Mode butonlarından seçili durumunu kaldır
+    document.querySelectorAll<HTMLButtonElement>('.modern-mode-btn, .nostalgia-mode-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-500', 'ring-2', 'ring-cyan-400', 'bg-purple-500', 'ring-2', 'ring-purple-400');
+    });
+    
+    // Start buttonlarını disabled yap
+    const startButtons = document.querySelectorAll<HTMLButtonElement>(
+        '#start-modern-btn, #start-nostalgia-btn, #start-tournament-btn'
+    );
+    startButtons.forEach(btn => {
+        btn.disabled = true;
+    });
+    
+    // Tüm ayar bölümlerini gizle
+    document.querySelectorAll<HTMLDivElement>('[data-game-mode-settings]').forEach(el => {
+        el.classList.add('hidden');
+    });
+    
+    // Oyuncu bilgisi bölümlerini gizle
+    document.querySelectorAll<HTMLDivElement>(
+        '#modern-players-2v2, #modern-players-1v1, #nostalgia-players-2v2, #nostalgia-players-1v1'
+    ).forEach(el => {
+        if (el) el.classList.add('hidden');
+    });
+}
+
+
 export function initGameOptions(): void {
     console.log('Game Options başlatılıyor...');
+    resetGameOptionState();
     setupGameModeSelection();
     setupNostalgiaMode();
     setupModernMode();
     setupTournamentFunctionality();
+    sessionStorage.clear();
+    
+    // localStorage'dan kullanıcı adını al ve AI input'larını doldur
+    fillPlayerNameInputs();
+    
     console.log('Game Options başarıyla başlatıldı');
 }
 
-/**
- * Mevcut modu getir
- */
-export function getCurrentMode(): GameMode | null {
-    return currentMode;
+function fillPlayerNameInputs(): void {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) return;
+        
+        const user = JSON.parse(userStr);
+        const displayName = user?.displayName;
+        
+        if (!displayName) return;
+        
+        // Modern mod AI oyuncu input'u
+        const modernPlayerInput = document.getElementById('modern-player-name') as HTMLInputElement | null;
+        if (modernPlayerInput) {
+            modernPlayerInput.value = displayName;
+        }
+        
+        // Nostalgia mod AI oyuncu input'u
+        const nostalgiaPlayerInput = document.getElementById('nostalgia-player-name') as HTMLInputElement | null;
+        if (nostalgiaPlayerInput) {
+            nostalgiaPlayerInput.value = displayName;
+        }
+    } catch (error) {
+        console.error('localStorage displayName okunamadı:', error);
+    }
 }
 
-/**
- * Tüm ayarları gizle
- */
-export function clearOptions(): void {
-    Object.values(GAME_MODE_CONFIG).forEach((config) => {
-        const modeDiv = document.querySelector(config.divSelector) as HTMLElement;
-        if (modeDiv) {
-            modeDiv.classList.add('hidden');
-        }
-    });
-    currentMode = null;
-}
