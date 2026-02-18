@@ -42,6 +42,8 @@ const recordMatchResultSchema = z.object({
     participant2Score: z.number().min(0),
     winnerParticipantId: z.number(),
     durationSeconds: z.number().optional(),
+    winningScore: z.number().int().min(1).optional(),
+    gameMode: z.enum(['modern', 'nostalgia', 'tournament']).optional().default('tournament'),
 });
 
 // ===========================================
@@ -354,7 +356,7 @@ export const recordMatchResult = async (
             );
         }
 
-        const { participant1Score, participant2Score, winnerParticipantId, durationSeconds } = validation.data;
+        const { participant1Score, participant2Score, winnerParticipantId, durationSeconds, winningScore, gameMode } = validation.data;
 
         // Get match with participants
         const match = tournamentModel.getMatchWithParticipants(matchId);
@@ -407,6 +409,12 @@ export const recordMatchResult = async (
                     game_type: 'tournament',
                     tournament_id: match.tournament_id,
                     duration_seconds: durationSeconds,
+                    // V2 fields
+                    game_mode: gameMode ?? 'tournament',
+                    match_type: 'h2h',
+                    player1_name: isP1Winner ? winnerParticipant.alias : loserParticipant.alias,
+                    player2_name: isP1Winner ? loserParticipant.alias : winnerParticipant.alias,
+                    winning_score: winningScore,
                 });
 
                 persistedToHistory = true;
