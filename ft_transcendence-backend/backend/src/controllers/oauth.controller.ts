@@ -195,7 +195,7 @@ export const oauthCallback = async (
         // If no user exists, create new one
         if (!user) {
             // Generate unique display name if taken
-            let displayName = profile.displayName.replace(/[^a-zA-Z0-9_-]/g, '_');
+            let displayName = profile.displayName.replace(/[^\p{L}\p{N}_-]/gu, '_');
             if (displayName.length < 3) displayName = `user_${displayName}`;
             if (displayName.length > 32) displayName = displayName.substring(0, 32);
 
@@ -264,7 +264,7 @@ export const oauthCallback = async (
 
         // Redirect to frontend with token in URL fragment
         const frontendUrl = env.corsOrigin;
-        const redirectUrl = `${frontendUrl}/auth/callback#access_token=${tokens.accessToken}&refresh_token=${refreshToken}`;
+        const redirectUrl = `${frontendUrl}/auth/callback?access_token=${tokens.accessToken}&refresh_token=${refreshToken}`;
 
         return reply.redirect(redirectUrl);
     } catch (error) {

@@ -141,6 +141,11 @@ export const deleteAvatar = (filename: string): boolean => {
         return false;
     }
 
+    // Don't try to delete external URLs
+    if (filename.startsWith('http://') || filename.startsWith('https://')) {
+        return false;
+    }
+
     const filepath = join(process.cwd(), env.upload.dir, 'avatars', filename);
 
     if (existsSync(filepath)) {
@@ -161,6 +166,10 @@ export const deleteAvatar = (filename: string): boolean => {
 export const getAvatarUrl = (filename: string): string => {
     if (!filename) {
         return '/uploads/avatars/default-avatar.png';
+    }
+    // External URLs (e.g. 42 CDN) should be returned as-is
+    if (filename.startsWith('http://') || filename.startsWith('https://')) {
+        return filename;
     }
     return `/uploads/avatars/${filename}`;
 };
