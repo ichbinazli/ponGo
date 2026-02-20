@@ -10,8 +10,6 @@ import {
 } from '../services/oauth.service.js';
 import {
     generateTokenPair,
-    getRefreshTokenExpiry,
-    generateRandomToken,
 } from '../services/jwt.service.js';
 import { hashToken } from '../services/hash.service.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';
@@ -215,10 +213,11 @@ export const oauthCallback = async (
             });
         }
 
-        // Generate tokens
-        const refreshToken = generateRandomToken();
-        const refreshTokenHash = await hashToken(refreshToken);
-        const expiresAt = getRefreshTokenExpiry();
+        // Generate JWT tokens (access + refresh)
+        const tokens = generateTokenPair(request.server, user);
+
+        // Hash the JWT refresh token for session storage (same as login flow)
+        const refreshTokenHash = await hashToken(tokens.refreshToken);
 
         // Extract user agent and IP
         const userAgent = request.headers['user-agent'] || 'unknown';
@@ -230,11 +229,8 @@ export const oauthCallback = async (
             refresh_token_hash: refreshTokenHash,
             user_agent: userAgent,
             ip_address: ipAddress,
-            expires_at: expiresAt.toISOString(),
+            expires_at: tokens.refreshTokenExpiresAt.toISOString(),
         });
-
-        // Generate JWT tokens
-        const tokens = generateTokenPair(request.server, user);
 
         // Update user online status
         userModel.setOnlineStatus(user.id, true);
@@ -254,7 +250,7 @@ export const oauthCallback = async (
                     },
                     tokens: {
                         accessToken: tokens.accessToken,
-                        refreshToken,
+                        refreshToken: tokens.refreshToken,
                         expiresAt: tokens.accessTokenExpiresAt.toISOString(),
                     },
                     isNewUser: !user.password_hash,
@@ -262,9 +258,9 @@ export const oauthCallback = async (
             );
         }
 
-        // Redirect to frontend with token in URL fragment
+        // Redirect to frontend with tokens in query params
         const frontendUrl = env.corsOrigin;
-        const redirectUrl = `${frontendUrl}/auth/callback?access_token=${tokens.accessToken}&refresh_token=${refreshToken}`;
+        const redirectUrl = `${frontendUrl}/auth/callback?access_token=${tokens.accessToken}&refresh_token=${tokens.refreshToken}`;
 
         return reply.redirect(redirectUrl);
     } catch (error) {
