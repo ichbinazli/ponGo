@@ -2,8 +2,10 @@ import { FastifyInstance } from 'fastify';
 import {
     createLocalTournament,
     addGuestParticipant,
+    addParticipant,
     startTournament,
     recordMatchResult,
+    completeTournament,
     getTournamentMatches,
     getTournamentBracket,
     getTournamentParticipants,
@@ -66,8 +68,14 @@ export const localTournamentRoutes = async (fastify: FastifyInstance): Promise<v
     // ==========================================
 
 
+    // Add verified registered participant
+    fastify.post(
+        '/add-participant',
+        { preHandler: [authenticate] },
+        addParticipant
+    );
 
-    // Add guest participant (no 2FA required)
+    // Add guest participant (no verification required)
     fastify.post(
         '/add-guest',
         { preHandler: [authenticate] },
@@ -111,5 +119,19 @@ export const localTournamentRoutes = async (fastify: FastifyInstance): Promise<v
         '/:id/bracket',
         { schema: { params: tournamentIdParams } },
         getTournamentBracket
+    );
+
+    // ==========================================
+    // Tournament Completion (Requires Auth)
+    // ==========================================
+
+    // Complete tournament and set winner
+    fastify.post<{ Params: { id: string } }>(
+        '/:id/complete',
+        {
+            preHandler: [authenticate],
+            schema: { params: tournamentIdParams }
+        },
+        completeTournament
     );
 };

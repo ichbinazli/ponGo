@@ -39,6 +39,7 @@ Backend'in sunduğu tüm API endpoint'lerinin kapsamlı referansı.
 | POST | `/register` | ❌ | Yeni kullanıcı kaydı |
 | POST | `/login` | ❌ | Kullanıcı girişi |
 | POST | `/refresh` | ❌ | Token yenileme |
+| POST | `/verify-password` | ✅ | Şifre doğrulama (game team için) |
 | POST | `/logout` | ✅ | Çıkış yap |
 | POST | `/logout-all` | ✅ | Tüm oturumlardan çık |
 | POST | `/forgot-password` | ❌ | Şifre sıfırlama kodu gönder |
@@ -73,6 +74,17 @@ POST /api/auth/refresh
 {
   "refreshToken": "eyJhbG..."
 }
+```
+
+### Verify Password (🆕)
+```json
+POST /api/auth/verify-password
+Authorization: Bearer <token>
+{
+  "userId": 5,
+  "password": "KullaniciSifresi123!"
+}
+// Yanıt: { "verified": true, "user": { "id": 5, "displayName": "...", "avatarUrl": "..." } }
 ```
 
 ---
@@ -181,8 +193,6 @@ POST /api/friends/block
 | POST | `/confirm` | ✅ | 2FA'yı aktifleştir (Kodu doğrula) |
 | POST | `/disable` | ✅ | 2FA'yı kapat (Şifre gerekir) |
 
-
-
 ### Confirm 2FA
 ```json
 POST /api/2fa/confirm
@@ -265,30 +275,31 @@ DELETE /api/gdpr/delete
 
 | Method | Endpoint | Auth | Açıklama |
 |--------|----------|------|----------|
-| POST | `/` | ❌ | Maç kaydet |
+| POST | `/` | ✅ | Maç kaydet |
 | GET | `/` | ❌ | Maçları listele |
 | GET | `/:id` | ❌ | Maç detayı |
 
 ### Create Match
 ```json
 POST /api/matches
+Authorization: Bearer <token>
 {
   "player1_id": 1,
-  "player2_id": 2,
+  "player2_id": 2,           // null olabilir (misafir oyuncu)
   "player1_score": 11,
   "player2_score": 7,
-  "winner_id": 1,           // Opsiyonel
-  "game_type": "pong",      // Opsiyonel
-  "tournament_id": null,    // Opsiyonel
-  "duration_seconds": 180,  // Opsiyonel
-  "started_at": "...",      // Opsiyonel
-  
+  "winner_id": 1,             // Opsiyonel (otomatik hesaplanır)
+  "game_type": "pong",        // "pong" | "tournament" | "ai" | "other"
+  "tournament_id": null,      // Opsiyonel
+  "duration_seconds": 180,    // Opsiyonel
+  "started_at": "...",        // Opsiyonel
+
   // V2 Yeni Alanlar
-  "game_mode": "modern",    // "modern" | "nostalgia" | "tournament"
-  "match_type": "h2h",      // "h2h" | "h2ai"
-  "aiDifficultly": "easy",  // Opsiyonel (Sadece h2ai için). "easy" | "medium" | "hard"
-  "player1_name": "PlayerOne", // Opsiyonel (Snapshot)
-  "player2_name": "PlayerTwo", // Opsiyonel (Snapshot)
+  "game_mode": "modern",      // "modern" | "nostalgia" | "tournament"
+  "match_type": "h2h",        // "h2h" | "h2ai"
+  "aiDifficultly": "easy",    // Opsiyonel (Sadece h2ai). "easy" | "medium" | "hard"
+  "player1_name": "PlayerOne",// Opsiyonel
+  "player2_name": "Misafir",  // player2_id null ise ZORUNLU
   "winning_score": 11,
   "player1_power_up_freeze": false,
   "player1_power_up_mega": false,
@@ -297,19 +308,8 @@ POST /api/matches
 }
 ```
 
-> **NOT:** `match_type: "h2ai"` gönderilirse `player2_id` otomatik olarak "AI Player" olarak atanır. Bu durumda istek yapan kullanıcı `player1_id` olmalıdır.
-
-**Başarılı Yanıt (201 Created):**
-
-```json
-{
-  "success": true,
-  "data": {
-    "match": { ... }
-  },
-  "message": "Match recorded successfully"
-}
-```
+> **NOT:** `player2_id: null` → Misafir oyuncu. Bu durumda `player2_name` zorunludur. En az 1 oyuncu kayıtlı olmalıdır.  
+> `match_type: "h2ai"` → player2_id otomatik AI Player olur. player1_id istek yapan kullanıcı olmalıdır.
 
 ---
 
@@ -320,10 +320,11 @@ POST /api/matches
 | Method | Endpoint | Auth | Açıklama |
 |--------|----------|------|----------|
 | POST | `/create` | ✅ | Turnuva oluştur |
-| POST | `/:id/start` | ✅ | Turnuvayı başlat |
-| POST | `/verify-participant` | ✅ | Katılımcı doğrula (Şifre) |
+| POST | `/add-participant` | ✅ | Kayıtlı kullanıcı ekle (🆕) |
 | POST | `/add-guest` | ✅ | Misafir ekle |
+| POST | `/:id/start` | ✅ | Turnuvayı başlat (bracket) |
 | POST | `/match/:matchId/result` | ✅ | Maç sonucu kaydet |
+| POST | `/:id/complete` | ✅ | Turnuvayı bitir + winner (🆕) |
 | GET | `/:id/participants` | ❌ | Katılımcılar |
 | GET | `/:id/matches` | ❌ | Maçlar |
 | GET | `/:id/bracket` | ❌ | Bracket |
@@ -334,17 +335,17 @@ POST /api/local-tournament/create
 {
   "name": "Haftalık Turnuva",
   "description": "Arkadaşlar arası",
-  "max_players": 8
+  "maxPlayers": 8
 }
 ```
 
-### Verify Participant (Şifre)
+### Add Participant — Kayıtlı Kullanıcı (🆕)
 ```json
-POST /api/local-tournament/verify-participant
+POST /api/local-tournament/add-participant
 {
   "tournamentId": 1,
-  "username": "player2",
-  "password": "KullaniciSifresi123!"
+  "userId": 5,
+  "alias": "ProPlayer"
 }
 ```
 
@@ -357,14 +358,37 @@ POST /api/local-tournament/add-guest
 }
 ```
 
+### Start Tournament (Bracket Gönder)
+```json
+POST /api/local-tournament/1/start
+{
+  "matches": [
+    { "round": 1, "matchOrder": 1, "participant1Alias": "ProPlayer", "participant2Alias": "Misafir1" },
+    { "round": 1, "matchOrder": 2, "participant1Alias": "Player3", "participant2Alias": "Player4" }
+  ]
+}
+```
+
 ### Record Match Result
 ```json
 POST /api/local-tournament/match/1/result
 {
-  "participant1_score": 11,
-  "participant2_score": 5,
-  "duration_seconds": 120
+  "participant1Score": 11,
+  "participant2Score": 5,
+  "winnerParticipantId": 1,
+  "durationSeconds": 120,
+  "winningScore": 11,
+  "gameMode": "tournament"
 }
+```
+
+### Complete Tournament (🆕)
+```json
+POST /api/local-tournament/1/complete
+{
+  "winnerParticipantId": 1
+}
+// Yanıt: { tournament: {..., status: "completed"}, winner: { participantId, userId, alias, isGuest } }
 ```
 
 ---
@@ -403,4 +427,4 @@ Authorization: Bearer <accessToken>
 
 ---
 
-*Son Güncelleme: Ocak 2026*
+*Son Güncelleme: Şubat 2026*

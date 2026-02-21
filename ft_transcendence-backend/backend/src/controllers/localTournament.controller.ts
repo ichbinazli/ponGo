@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
+import { userModel } from '../models/user.model.js';
 import { tournamentModel } from '../models/tournament.model.js';
 import { matchHistoryModel } from '../models/match.model.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';
@@ -19,7 +20,15 @@ const addGuestSchema = z.object({
     alias: z.string().min(2).max(20),
 });
 
+const addParticipantSchema = z.object({
+    tournamentId: z.number(),
+    userId: z.number(),
+    alias: z.string().min(2).max(20),
+});
 
+const completeTournamentSchema = z.object({
+    winnerParticipantId: z.number(),
+});
 
 const startTournamentSchema = z.object({
     matches: z.array(z.object({
@@ -483,6 +492,169 @@ export const getTournamentParticipants = async (
         request.log.error(error);
         return reply.status(500).send(
             errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to get participants')
+        );
+    }
+};
+
+/**
+ * Add verified registered participant to tournament
+ * Frontend önce /api/auth/verify-password ile şifre doğrulaması yapar,
+ * ardından bu endpoint ile kullanıcıyı turnuvaya ekler.
+ */
+export const addParticipant = async (
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    try {
+        const validation = addParticipantSchema.safeParse(request.body);
+        if (!validation.success) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, validation.error.message)
+            );
+        }
+
+        const { tournamentId, userId, alias } = validation.data;
+
+        // Check tournament exists and is pending
+        const tournament = tournamentModel.findById(tournamentId);
+        if (!tournament) {
+            return reply.status(404).send(
+                errorResponse(ErrorCodes.NOT_FOUND, 'Tournament not found')
+            );
+        }
+
+        if (tournament.status !== 'pending') {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Tournament is not in registration phase')
+            );
+        }
+
+        // Verify user exists
+        const user = userModel.findById(userId);
+        if (!user) {
+            return reply.status(404).send(
+                errorResponse(ErrorCodes.NOT_FOUND, 'User not found')
+            );
+        }
+
+        // Check alias uniqueness
+        if (!tournamentModel.isAliasUnique(tournamentId, alias)) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Alias is already taken in this tournament')
+            );
+        }
+
+        // Check if user is already a participant
+        if (tournamentModel.isParticipant(tournamentId, userId)) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'User is already a participant in this tournament')
+            );
+        }
+
+        // Check participant count
+        const participantCount = tournamentModel.getParticipantCount(tournamentId);
+        if (participantCount >= tournament.max_players) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Tournament is full')
+            );
+        }
+
+        // Add participant
+        const participant = tournamentModel.addParticipant(tournamentId, userId, alias);
+
+        return reply.status(201).send(
+            successResponse({
+                participant,
+                user: {
+                    id: user.id,
+                    displayName: user.display_name,
+                    avatarUrl: user.avatar_url,
+                },
+            })
+        );
+    } catch (error) {
+        request.log.error(error);
+        return reply.status(500).send(
+            errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to add participant')
+        );
+    }
+};
+
+/**
+ * Complete tournament — set winner and finalize
+ * Son round'un kazananı belirlendikten sonra frontend bu endpoint'i çağırır.
+ */
+export const completeTournament = async (
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+): Promise<void> => {
+    try {
+        const tournamentId = parseInt(request.params.id, 10);
+        if (isNaN(tournamentId)) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid tournament ID')
+            );
+        }
+
+        const validation = completeTournamentSchema.safeParse(request.body);
+        if (!validation.success) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, validation.error.message)
+            );
+        }
+
+        const { winnerParticipantId } = validation.data;
+
+        // Check tournament exists and is in_progress
+        const tournament = tournamentModel.findById(tournamentId);
+        if (!tournament) {
+            return reply.status(404).send(
+                errorResponse(ErrorCodes.NOT_FOUND, 'Tournament not found')
+            );
+        }
+
+        if (tournament.status !== 'in_progress') {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Tournament is not in progress')
+            );
+        }
+
+        // Verify winner participant belongs to this tournament
+        const winnerParticipant = tournamentModel.getParticipant(winnerParticipantId);
+        if (!winnerParticipant || winnerParticipant.tournament_id !== tournamentId) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid winner participant for this tournament')
+            );
+        }
+
+        // Set winner status to 'winner' and placement to 1
+        tournamentModel.updateParticipantStatusById(winnerParticipantId, 'winner');
+
+        // Set tournament winner (user_id if registered, null if guest)
+        const winnerUserId = winnerParticipant.user_id;
+        if (winnerUserId) {
+            tournamentModel.setWinner(tournamentId, winnerUserId);
+        }
+
+        // Update tournament status to completed
+        tournamentModel.updateStatus(tournamentId, 'completed');
+
+        return reply.send(
+            successResponse({
+                tournament: tournamentModel.findById(tournamentId),
+                winner: {
+                    participantId: winnerParticipantId,
+                    userId: winnerUserId,
+                    alias: winnerParticipant.alias,
+                    isGuest: winnerParticipant.is_guest === 1,
+                },
+                message: 'Tournament completed successfully',
+            })
+        );
+    } catch (error) {
+        request.log.error(error);
+        return reply.status(500).send(
+            errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to complete tournament')
         );
     }
 };
