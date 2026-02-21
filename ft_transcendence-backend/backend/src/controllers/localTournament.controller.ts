@@ -248,6 +248,8 @@ export const startTournament = async (
 
 /**
  * Record match result
+ * Maç sonucunu kaydeder, kazananı otomatik olarak bir sonraki round'a ilerletir.
+ * Yanıtta roundCompleted ve nextRound bilgisi döner.
  */
 export const recordMatchResult = async (
     request: FastifyRequest<{ Params: { matchId: string } }>,
@@ -333,34 +335,77 @@ export const recordMatchResult = async (
             }
         }
 
-        // Update participant statuses using participant ID (works for both registered and guest)
-        // Mark winner as still playing
+        // Update participant statuses
         if (winnerParticipant) {
-            tournamentModel.updateParticipantStatusById(
-                winnerParticipantId,
-                'playing'
-            );
+            tournamentModel.updateParticipantStatusById(winnerParticipantId, 'playing');
         }
 
-        // Mark loser as eliminated
         const loserParticipantId = match.participant1_id === winnerParticipantId
             ? match.participant2_id
             : match.participant1_id;
 
         if (loserParticipantId) {
-            tournamentModel.updateParticipantStatusById(
-                loserParticipantId,
-                'eliminated'
-            );
+            tournamentModel.updateParticipantStatusById(loserParticipantId, 'eliminated');
         }
 
-        return reply.send(
-            successResponse({
-                match: tournamentModel.getMatchWithParticipants(matchId),
-                persistedToHistory,
-                message: 'Match result recorded successfully',
-            })
-        );
+        // =============================================
+        // Otomatik İlerletme: Kazananı sonraki round'a ata
+        // =============================================
+        // Bracket formülü:
+        //   nextMatchOrder = ceil(currentMatchOrder / 2)
+        //   position = currentMatchOrder tek ise 1, çift ise 2
+        const currentRound = match.round;
+        const currentMatchOrder = match.match_order;
+        const nextRound = currentRound + 1;
+        const nextMatchOrder = Math.ceil(currentMatchOrder / 2);
+        const nextPosition: 1 | 2 = currentMatchOrder % 2 === 1 ? 1 : 2;
+
+        // Sonraki round'da bu maç var mı kontrol et
+        const nextRoundMatches = tournamentModel.getMatchesByRound(match.tournament_id, nextRound);
+        const nextMatch = nextRoundMatches.find(m => m.match_order === nextMatchOrder);
+
+        if (nextMatch) {
+            // Kazananı sonraki round'un maçına ata
+            tournamentModel.setMatchParticipant(nextMatch.id, nextPosition, winnerParticipantId);
+        }
+
+        // Bu round tamamlandı mı kontrol et
+        const currentRoundMatches = tournamentModel.getMatchesByRound(match.tournament_id, currentRound);
+        const roundCompleted = currentRoundMatches.every(m => m.status === 'completed');
+
+        // Round tamamlandıysa turnuva round'unu ilerlet
+        if (roundCompleted) {
+            tournamentModel.advanceRound(match.tournament_id);
+        }
+
+        // Yanıt oluştur
+        const responseData: Record<string, unknown> = {
+            match: tournamentModel.getMatchWithParticipants(matchId),
+            persistedToHistory,
+            roundCompleted,
+            message: 'Match result recorded successfully',
+        };
+
+        // Round tamamlandıysa ve sonraki round varsa, yeni eşleşmeleri yanıta ekle
+        if (roundCompleted && nextRoundMatches.length > 0) {
+            const updatedNextRoundMatches = tournamentModel.getMatchesByRound(match.tournament_id, nextRound);
+            responseData.nextRound = {
+                round: nextRound,
+                matches: updatedNextRoundMatches,
+            };
+        }
+
+        // Son round ise ve tamamlandıysa (final maçı) bilgi ekle
+        if (roundCompleted && nextRoundMatches.length === 0) {
+            responseData.isFinalMatch = true;
+            responseData.tournamentWinner = {
+                participantId: winnerParticipantId,
+                userId: winnerParticipant?.user_id ?? null,
+                alias: winnerParticipant?.alias ?? null,
+            };
+        }
+
+        return reply.send(successResponse(responseData));
     } catch (error) {
         request.log.error(error);
         return reply.status(500).send(

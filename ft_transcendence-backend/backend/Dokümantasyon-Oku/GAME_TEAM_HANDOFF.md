@@ -18,6 +18,7 @@ Bu döküman, oyun ekibinin turnuva ve maç modülleri için kullanacağı tüm 
 | `POST /add-participant` | ✅ **Yeni** — Kayıtlı kullanıcı ekleme |
 | `POST /:id/complete` | ✅ **Yeni** — Turnuva bitirme |
 | `POST /api/matches` — `player2_id: null` | ✅ **Güncellendi** — Misafir oyuncu desteği |
+| `POST /match/:matchId/result` | ✅ **Güncellendi** — Otomatik ilerletme + nextRound |
 
 ---
 
@@ -120,12 +121,8 @@ Authorization: Bearer <token>
   "success": true,
   "data": {
     "tournament": {
-      "id": 1,
-      "name": "42 Pong Cup",
-      "status": "pending",
-      "max_players": 8,
-      "current_round": 0,
-      "created_at": "..."
+      "id": 1, "name": "42 Pong Cup", "status": "pending",
+      "max_players": 8, "current_round": 0, "created_at": "..."
     }
   }
 }
@@ -134,8 +131,6 @@ Authorization: Bearer <token>
 ---
 
 ### Aşama 2: Oyuncu Ekleme
-
-Her oyuncu için **önce şifre doğrula, sonra ekle** akışını kullanın.
 
 #### 2a. Şifre Doğrulama (Kayıtlı Kullanıcılar)
 
@@ -148,22 +143,10 @@ Authorization: Bearer <token>
 { "userId": 5, "password": "kullaniciSifresi123" }
 ```
 
-**Başarılı Yanıt:**
-```json
-{
-  "success": true,
-  "data": {
-    "verified": true,
-    "user": { "id": 5, "displayName": "Nazlı", "avatarUrl": "..." }
-  }
-}
-```
-
+**Başarılı:** `{ "verified": true, "user": { "id": 5, "displayName": "Nazlı", "avatarUrl": "..." } }`  
 **Başarısız:** `401 Invalid password` veya `400 OAuth-only account`
 
 #### 2b. Kayıtlı Kullanıcı Ekleme
-
-Şifre doğrulandıktan sonra:
 
 ```
 POST /api/local-tournament/add-participant
@@ -171,25 +154,10 @@ Authorization: Bearer <token>
 ```
 
 ```json
-{
-  "tournamentId": 1,
-  "userId": 5,
-  "alias": "Nazlı42"
-}
+{ "tournamentId": 1, "userId": 5, "alias": "Nazlı42" }
 ```
 
-**Yanıt:**
-```json
-{
-  "success": true,
-  "data": {
-    "participant": { "id": 1, "tournament_id": 1, "user_id": 5, "alias": "Nazlı42", "is_guest": 0 },
-    "user": { "id": 5, "displayName": "Nazlı", "avatarUrl": "..." }
-  }
-}
-```
-
-#### 2c. Misafir Oyuncu Ekleme (Şifre gereksiz)
+#### 2c. Misafir Oyuncu Ekleme
 
 ```
 POST /api/local-tournament/add-guest
@@ -197,31 +165,22 @@ Authorization: Bearer <token>
 ```
 
 ```json
-{
-  "tournamentId": 1,
-  "alias": "MisafirAli"
-}
+{ "tournamentId": 1, "alias": "MisafirAli" }
 ```
 
-#### Katılımcı Listesi Alma
+#### Katılımcı Listesi
 
 ```
 GET /api/local-tournament/1/participants
 ```
 
-**Yanıt:**
 ```json
 {
-  "success": true,
-  "data": {
-    "tournament": { "id": 1, "name": "42 Pong Cup", "status": "pending", ... },
-    "participants": [
-      { "id": 1, "user_id": 5, "alias": "Nazlı42", "is_guest": 0, "display_name": "Nazlı", "avatar_url": "..." },
-      { "id": 2, "user_id": null, "alias": "MisafirAli", "is_guest": 1, "display_name": null, "avatar_url": null }
-    ],
-    "count": 2,
-    "maxPlayers": 8
-  }
+  "participants": [
+    { "id": 1, "user_id": 5, "alias": "Nazlı42", "is_guest": 0, "display_name": "Nazlı", "avatar_url": "..." },
+    { "id": 2, "user_id": null, "alias": "MisafirAli", "is_guest": 1, "display_name": null, "avatar_url": null }
+  ],
+  "count": 2, "maxPlayers": 8
 }
 ```
 
@@ -229,7 +188,7 @@ GET /api/local-tournament/1/participants
 
 ### Aşama 3: Turnuvayı Başlatma (Bracket Gönderme)
 
-Frontend bracket'ı oluşturur ve eşleşmeleri gönderir:
+Frontend bracket'ı oluşturur ve **tüm round'ların eşleşmelerini** gönderir. İleri round'lar için participant boş bırakılır (backend otomatik dolduracak).
 
 ```
 POST /api/local-tournament/1/start
@@ -246,28 +205,25 @@ Authorization: Bearer <token>
 }
 ```
 
-> **Not:** İlerleyen round'lar için `participant1Alias` / `participant2Alias` boş bırakılabilir (kazananlar sonra atanır).
+> **Not:** Round 2+ maçları için `participant1Alias`/`participant2Alias` boş bırakın. Backend, maç sonuçları geldikçe kazananları otomatik olarak sonraki round'a atar.
 
 **Yanıt:**
 ```json
 {
-  "success": true,
-  "data": {
-    "tournament": { "id": 1, "status": "in_progress", ... },
-    "matches": [
-      { "id": 1, "round": 1, "match_order": 1, "participant1_id": 1, "participant2_id": 2, "status": "pending" },
-      { "id": 2, "round": 1, "match_order": 2, "participant1_id": 3, "participant2_id": 4, "status": "pending" },
-      { "id": 3, "round": 2, "match_order": 1, "participant1_id": null, "participant2_id": null, "status": "pending" }
-    ]
-  }
+  "tournament": { "id": 1, "status": "in_progress" },
+  "matches": [
+    { "id": 1, "round": 1, "match_order": 1, "participant1_id": 1, "participant2_id": 2, "status": "pending" },
+    { "id": 2, "round": 1, "match_order": 2, "participant1_id": 3, "participant2_id": 4, "status": "pending" },
+    { "id": 3, "round": 2, "match_order": 1, "participant1_id": null, "participant2_id": null, "status": "pending" }
+  ]
 }
 ```
 
 ---
 
-### Aşama 4: Maç Sonuçlarını Kaydetme
+### Aşama 4: Maç Sonuçlarını Kaydetme (Otomatik İlerletmeli)
 
-Her maç bittikten sonra:
+Her maç bittikten sonra sonucu gönderin. **Backend kazananı otomatik olarak sonraki round'a atar.**
 
 ```
 POST /api/local-tournament/match/1/result
@@ -285,31 +241,55 @@ Authorization: Bearer <token>
 }
 ```
 
-**Yanıt:**
+#### Yanıt Senaryoları
+
+**1. Round devam ediyor** (diğer maçlar henüz bitmedi):
 ```json
 {
-  "success": true,
-  "data": {
-    "match": {
-      "id": 1,
-      "round": 1,
-      "match_order": 1,
-      "participant1_id": 1,
-      "participant2_id": 2,
-      "participant1_score": 11,
-      "participant2_score": 5,
-      "winner_participant_id": 1,
-      "status": "completed",
-      "participant1_alias": "Nazlı42",
-      "participant2_alias": "MisafirAli",
-      "winner_alias": "Nazlı42"
-    },
-    "persistedToHistory": false
+  "match": { "id": 1, "status": "completed", "winner_participant_id": 1, ... },
+  "persistedToHistory": false,
+  "roundCompleted": false
+}
+```
+
+**2. Round tamamlandı** → `nextRound` ile yeni eşleşmeleri alırsınız:
+```json
+{
+  "match": { ... },
+  "persistedToHistory": true,
+  "roundCompleted": true,
+  "nextRound": {
+    "round": 2,
+    "matches": [
+      {
+        "id": 3, "round": 2, "match_order": 1,
+        "participant1_id": 1, "participant2_id": 3,
+        "participant1_alias": "Nazlı42", "participant2_alias": "Player3",
+        "status": "pending"
+      }
+    ]
   }
 }
 ```
 
-> **`persistedToHistory`:** Her iki oyuncu da kayıtlı kullanıcıysa `true` (match_history tablosuna kaydedilir). Misafir varsa `false`.
+**3. Final maçı bitti** → Turnuva kazananı belirlendi:
+```json
+{
+  "match": { ... },
+  "roundCompleted": true,
+  "isFinalMatch": true,
+  "tournamentWinner": {
+    "participantId": 1,
+    "userId": 5,
+    "alias": "Nazlı42"
+  }
+}
+```
+
+> **⚡ Frontend İçin Akış:**
+> 1. `roundCompleted: false` → Diğer maçları oynatmaya devam edin
+> 2. `roundCompleted: true` + `nextRound` var → `nextRound.matches` ile yeni round'u gösterin
+> 3. `isFinalMatch: true` → `/:id/complete` çağırarak turnuvayı sonlandırın
 
 #### Bracket Durumunu Alma
 
@@ -317,13 +297,13 @@ Authorization: Bearer <token>
 GET /api/local-tournament/1/bracket
 ```
 
-Round'lara göre organize edilmiş tüm maçlar ve katılımcılar döner.
+Sayfa yenilenirse veya güncel eşleşmeleri almak istiyorsanız bu endpoint'i kullanın.
 
 ---
 
 ### Aşama 5: Turnuvayı Bitirme
 
-Son round kazananı belliyken:
+`isFinalMatch: true` aldıktan sonra:
 
 ```
 POST /api/local-tournament/1/complete
@@ -331,53 +311,27 @@ Authorization: Bearer <token>
 ```
 
 ```json
-{
-  "winnerParticipantId": 1
-}
+{ "winnerParticipantId": 1 }
 ```
 
 **Yanıt:**
 ```json
 {
-  "success": true,
-  "data": {
-    "tournament": { "id": 1, "status": "completed", "winner_id": 5, ... },
-    "winner": {
-      "participantId": 1,
-      "userId": 5,
-      "alias": "Nazlı42",
-      "isGuest": false
-    }
-  }
+  "tournament": { "id": 1, "status": "completed", "winner_id": 5 },
+  "winner": { "participantId": 1, "userId": 5, "alias": "Nazlı42", "isGuest": false }
 }
 ```
 
 ---
 
-## 📊 Veri Tipleri Referansı
+## 📊 Veri Tipleri
 
-### game_mode
-| Değer | Açıklama |
+| Alan | Değerler |
 |---|---|
-| `modern` | Modern mod (power-up'lı) |
-| `nostalgia` | Klasik pong |
-| `tournament` | Turnuva maçı |
-
-### match_type
-| Değer | Açıklama |
-|---|---|
-| `h2h` | İnsan vs İnsan |
-| `h2ai` | İnsan vs AI |
-
-### Tournament Status Akışı
-```
-pending → in_progress → completed
-```
-
-### Participant Status Akışı
-```
-registered → playing → eliminated / winner
-```
+| `game_mode` | `modern` · `nostalgia` · `tournament` |
+| `match_type` | `h2h` · `h2ai` |
+| Tournament Status | `pending` → `in_progress` → `completed` |
+| Participant Status | `registered` → `playing` → `eliminated` / `winner` |
 
 ---
 
@@ -386,11 +340,10 @@ registered → playing → eliminated / winner
 | HTTP | Code | Açıklama |
 |------|------|----------|
 | 400 | `VALIDATION_ERROR` | Geçersiz istek verisi |
-| 400 | `INVALID_PLAYERS` | Geçersiz oyuncu (ikisi de null / aynı kişi) |
+| 400 | `INVALID_PLAYERS` | Geçersiz oyuncu |
 | 401 | `INVALID_CREDENTIALS` | Yanlış şifre |
-| 403 | `FORBIDDEN` | Yetki yok (kendi maçını kaydet) |
+| 403 | `FORBIDDEN` | Yetki yok |
 | 404 | `NOT_FOUND` | Kaynak bulunamadı |
-| 404 | `PLAYER_NOT_FOUND` | Oyuncu bulunamadı |
 
 ---
 
