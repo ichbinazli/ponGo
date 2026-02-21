@@ -10,6 +10,7 @@ import {
     revokeSession,
     forgotPassword,
     resetPassword,
+    verifyUserPassword,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 
@@ -87,6 +88,22 @@ export const authRoutes = async (server: FastifyInstance): Promise<void> => {
             },
         },
         handler: resetPassword,
+    });
+
+    // Verify user password (for game team - match participant verification)
+    server.post('/verify-password', {
+        preHandler: [authenticate],
+        schema: {
+            body: {
+                type: 'object',
+                required: ['userId', 'password'],
+                properties: {
+                    userId: { type: 'number' },
+                    password: { type: 'string' },
+                },
+            },
+        },
+        handler: verifyUserPassword,
     });
 
     // Protected routes

@@ -15,6 +15,75 @@ import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema 
 import { getAvatarUrl } from '../services/upload.service.js';
 
 /**
+ * Verify user password
+ * POST /api/auth/verify-password
+ * 
+ * Genel amaçlı şifre doğrulama — oyun ekibi tarafından kullanılacak.
+ * Frontend userId ve password gönderir, backend doğrular.
+ */
+const verifyPasswordSchema = z.object({
+    userId: z.number().int().positive(),
+    password: z.string().min(1),
+});
+
+export const verifyUserPassword = async (
+    request: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    try {
+        const validation = verifyPasswordSchema.safeParse(request.body);
+        if (!validation.success) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, validation.error.message)
+            );
+        }
+
+        const { userId, password } = validation.data;
+
+        // Find user
+        const user = userModel.findById(userId);
+        if (!user) {
+            return reply.status(404).send(
+                errorResponse(ErrorCodes.NOT_FOUND, 'User not found')
+            );
+        }
+
+        // Check if user has a password (might be OAuth-only)
+        if (!user.password_hash) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'This user has no password set (OAuth-only account)')
+            );
+        }
+
+        // Verify password
+        const isValid = await verifyPassword(password, user.password_hash);
+        if (!isValid) {
+            return reply.status(401).send(
+                errorResponse(ErrorCodes.INVALID_CREDENTIALS, 'Invalid password')
+            );
+        }
+
+        return reply.send(
+            successResponse({
+                verified: true,
+                user: {
+                    id: user.id,
+                    displayName: user.display_name,
+                    avatarUrl: getAvatarUrl(user.avatar_url),
+                },
+            })
+        );
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return reply.status(400).send(
+                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid input', error.errors)
+            );
+        }
+        throw error;
+    }
+};
+
+/**
  * Register a new user
  */
 export const register = async (

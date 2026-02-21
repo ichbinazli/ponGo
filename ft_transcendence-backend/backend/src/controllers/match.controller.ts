@@ -10,7 +10,7 @@ import { z } from 'zod';
 // Validation schemas
 const createMatchSchema = z.object({
     player1_id: z.number().int().positive(),
-    player2_id: z.number().int().positive(),
+    player2_id: z.number().int().positive().nullable(),
     player1_score: z.number().int().min(0),
     player2_score: z.number().int().min(0),
     winner_id: z.number().int().positive().nullable().optional(),
@@ -46,6 +46,7 @@ export class MatchController {
      * POST /api/matches
      * 
      * Requires authentication. İstek yapan kullanıcı player1 veya player2 olmalıdır.
+     * player2_id null olabilir (misafir oyuncu). Bu durumda player2_name zorunludur.
      */
     async createMatch(
         request: FastifyRequest<{ Body: CreateMatchInput }>,
@@ -54,7 +55,6 @@ export class MatchController {
         try {
             const validatedData = createMatchSchema.parse(request.body);
 
-            // SORUN 2 FIX: İstek yapan kullanıcı maçın oyuncularından biri olmalı
             const userId = request.user.id;
 
             // Map aiDifficultly (typo from frontend) to ai_difficulty
@@ -78,7 +78,20 @@ export class MatchController {
                 validatedData.player2_id = aiUser.id;
                 validatedData.game_type = 'ai';
             } else {
-                // PvP maçlarında player1 veya player2 giriş yapan kullanıcı olmalı
+                // PvP (h2h) maçları
+
+                // Kural: İkisi de null olamaz
+                if (validatedData.player1_id === null && validatedData.player2_id === null) {
+                    return reply.status(400).send({
+                        success: false,
+                        error: {
+                            code: 'INVALID_PLAYERS',
+                            message: 'At least one player must be a registered user',
+                        },
+                    });
+                }
+
+                // Giriş yapan kullanıcı kayıtlı oyunculardan biri olmalı
                 if (validatedData.player1_id !== userId && validatedData.player2_id !== userId) {
                     return reply.status(403).send({
                         success: false,
@@ -89,8 +102,8 @@ export class MatchController {
                     });
                 }
 
-                // SORUN 3 FIX: Aynı oyuncu kendine karşı oynayamaz
-                if (validatedData.player1_id === validatedData.player2_id) {
+                // Aynı oyuncu kendine karşı oynayamaz
+                if (validatedData.player2_id !== null && validatedData.player1_id === validatedData.player2_id) {
                     return reply.status(400).send({
                         success: false,
                         error: {
@@ -99,9 +112,20 @@ export class MatchController {
                         },
                     });
                 }
+
+                // Misafir oyuncu varsa player2_name zorunlu
+                if (validatedData.player2_id === null && !validatedData.player2_name) {
+                    return reply.status(400).send({
+                        success: false,
+                        error: {
+                            code: 'VALIDATION_ERROR',
+                            message: 'player2_name is required when player2_id is null (guest player)',
+                        },
+                    });
+                }
             }
 
-            // Validate players exist
+            // Validate player1 exists (always required)
             const player1 = userModel.findById(validatedData.player1_id);
             if (!player1) {
                 return reply.status(400).send({
@@ -113,15 +137,18 @@ export class MatchController {
                 });
             }
 
-            const player2 = userModel.findById(validatedData.player2_id);
-            if (!player2) {
-                return reply.status(400).send({
-                    success: false,
-                    error: {
-                        code: 'PLAYER_NOT_FOUND',
-                        message: `Player 2 with ID ${validatedData.player2_id} not found`,
-                    },
-                });
+            // Validate player2 exists (only if not null / not guest)
+            if (validatedData.player2_id !== null) {
+                const player2 = userModel.findById(validatedData.player2_id);
+                if (!player2) {
+                    return reply.status(400).send({
+                        success: false,
+                        error: {
+                            code: 'PLAYER_NOT_FOUND',
+                            message: `Player 2 with ID ${validatedData.player2_id} not found`,
+                        },
+                    });
+                }
             }
 
             // Validate winner_id if provided

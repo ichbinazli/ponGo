@@ -1,9 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { userModel } from '../models/user.model.js';
 import { tournamentModel } from '../models/tournament.model.js';
 import { matchHistoryModel } from '../models/match.model.js';
-import { verifyPassword } from '../services/hash.service.js';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response.js';
 
 // ===========================================
@@ -21,12 +19,7 @@ const addGuestSchema = z.object({
     alias: z.string().min(2).max(20),
 });
 
-const verifyParticipantSchema = z.object({
-    tournamentId: z.number(),
-    userId: z.number(),
-    password: z.string().min(1),
-    alias: z.string().min(2).max(20),
-});
+
 
 const startTournamentSchema = z.object({
     matches: z.array(z.object({
@@ -96,96 +89,6 @@ export const createLocalTournament = async (
     }
 };
 
-/**
- * Verify registered participant with password
- */
-export const verifyParticipant = async (
-    request: FastifyRequest,
-    reply: FastifyReply
-): Promise<void> => {
-    try {
-        const validation = verifyParticipantSchema.safeParse(request.body);
-        if (!validation.success) {
-            return reply.status(400).send(
-                errorResponse(ErrorCodes.VALIDATION_ERROR, validation.error.message)
-            );
-        }
-
-        const { tournamentId, userId, password, alias } = validation.data;
-
-        // Check tournament exists and is pending
-        const tournament = tournamentModel.findById(tournamentId);
-        if (!tournament) {
-            return reply.status(404).send(
-                errorResponse(ErrorCodes.NOT_FOUND, 'Tournament not found')
-            );
-        }
-
-        if (tournament.status !== 'pending') {
-            return reply.status(400).send(
-                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Tournament is not in registration phase')
-            );
-        }
-
-        // Check alias uniqueness
-        if (!tournamentModel.isAliasUnique(tournamentId, alias)) {
-            return reply.status(400).send(
-                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Alias is already taken in this tournament')
-            );
-        }
-
-        // Get user
-        const user = userModel.findById(userId);
-        if (!user) {
-            return reply.status(404).send(
-                errorResponse(ErrorCodes.NOT_FOUND, 'User not found')
-            );
-        }
-
-        // Check if user has a password
-        if (!user.password_hash) {
-            return reply.status(400).send(
-                errorResponse(ErrorCodes.VALIDATION_ERROR, 'This user has no password set (OAuth-only account)')
-            );
-        }
-
-        // Verify password
-        const isValid = await verifyPassword(password, user.password_hash);
-        if (!isValid) {
-            return reply.status(401).send(
-                errorResponse(ErrorCodes.INVALID_CREDENTIALS, 'Invalid password')
-            );
-        }
-
-        // Check participant count
-        const participantCount = tournamentModel.getParticipantCount(tournamentId);
-        if (participantCount >= tournament.max_players) {
-            return reply.status(400).send(
-                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Tournament is full')
-            );
-        }
-
-        // Add participant
-        const participant = tournamentModel.addParticipant(tournamentId, userId, alias);
-
-        return reply.send(
-            successResponse({
-                verified: true,
-                participant,
-                user: {
-                    id: user.id,
-                    displayName: user.display_name,
-                    avatarUrl: user.avatar_url,
-                },
-            })
-        );
-    } catch (error) {
-        request.log.error(error);
-        return reply.status(500).send(
-            errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to verify participant')
-        );
-    }
-};
 
 /**
  * Add guest participant (no verification needed)

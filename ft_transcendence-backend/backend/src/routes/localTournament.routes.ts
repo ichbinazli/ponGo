@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import {
     createLocalTournament,
-    verifyParticipant,
     addGuestParticipant,
     startTournament,
     recordMatchResult,
@@ -66,12 +65,7 @@ export const localTournamentRoutes = async (fastify: FastifyInstance): Promise<v
     // Participant Management (Requires Auth)
     // ==========================================
 
-    // Verify and add registered participant (with 2FA)
-    fastify.post(
-        '/verify-participant',
-        { preHandler: [authenticate] },
-        verifyParticipant
-    );
+
 
     // Add guest participant (no 2FA required)
     fastify.post(

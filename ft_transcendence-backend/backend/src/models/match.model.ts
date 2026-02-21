@@ -11,7 +11,7 @@ export type GameType = 'pong' | 'tournament' | 'ai' | 'other';
 export interface MatchHistory {
     id: number;
     player1_id: number;
-    player2_id: number;
+    player2_id: number | null;
     player1_score: number;
     player2_score: number;
     winner_id: number | null;
@@ -63,7 +63,7 @@ export interface UserStats {
  */
 export interface CreateMatchInput {
     player1_id: number;
-    player2_id: number;
+    player2_id: number | null;
     player1_score: number;
     player2_score: number;
     winner_id?: number | null;
