@@ -33,8 +33,10 @@ export class ThemeManager {
         } else {
             this.setupTheme();
         }
+        
         let isRefreshing = false; // Çakışmaları önlemek için kilit
 
+        
         setInterval(async () => {
             const expiresAt = localStorage.getItem('expiresAt');
             const refreshToken = localStorage.getItem('refreshToken');
@@ -55,11 +57,11 @@ export class ThemeManager {
             const timeLeftMs = expiresTimestamp - now; // Kalan milisaniye
 
             // Zamanı formatla (Dakika:Saniye)
-            // const minutes = Math.floor(timeLeftMs / 60000);
-            // const seconds = Math.floor((timeLeftMs % 60000) / 1000);
-            // const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const minutes = Math.floor(timeLeftMs / 60000);
+            const seconds = Math.floor((timeLeftMs % 60000) / 1000);
+            const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             const howMany = 14 * 60 * 1000;
-            // console.log(`Token Bitiş Zamanı: ${new Date(expiresAt).toLocaleString()}, Kalan Süre: ${formattedTimeLeft}`);
+            console.log(`Token Bitiş Zamanı: ${new Date(expiresAt).toLocaleString()}, Kalan Süre: ${formattedTimeLeft}`);
             if (timeLeftMs < howMany && !isRefreshing && refreshToken) {
                 try {
                     isRefreshing = true;
@@ -83,6 +85,7 @@ export class ThemeManager {
                 }
             }
         }, 1000);
+        
     }
 
     private setupTheme(): void {
@@ -158,7 +161,8 @@ const CONSTANTS = {
         LOGOUT: '/logout',
         LOGIN: '/login',
         REGISTER: '/register',
-        REREGISTER: '/reset-password'
+        REREGISTER: '/reset-password',
+        AUTH_CALLBACK: '/auth/callback'
     },
     TEMPLATES: {
         HOME: 'home',
@@ -175,7 +179,8 @@ const CONSTANTS = {
         ERROR: 'error',
         LOGIN: 'login',
         REGISTER: 'register',
-        REREGISTER: 'reset-password'
+        REREGISTER: 'reset-password',
+        AUTH_CALLBACK: 'auth-callback'
     },
     SELECTORS: {
         MAIN_CONTENT: 'main-content',
@@ -230,13 +235,39 @@ class App {
             { path: CONSTANTS.ROUTES.FRIENDS, handler: () => this.renderFriends() },
             { path: CONSTANTS.ROUTES.SETTINGS, handler: () => this.renderSettings() },
             { path: CONSTANTS.ROUTES.LOGOUT, handler: () => this.renderLogout() },
-            { path: '/login', handler: () => this.renderLogin() },
-            { path: '/register', handler: () => this.renderRegister() },
-            { path: '/reset-password', handler: () => this.renderResetPassword() },];
+            { path: CONSTANTS.ROUTES.LOGIN, handler: () => this.renderLogin() },
+            { path: CONSTANTS.ROUTES.REGISTER, handler: () => this.renderRegister() },
+            { path: CONSTANTS.ROUTES.REREGISTER, handler: () => this.renderResetPassword() },
+            { path: CONSTANTS.ROUTES.AUTH_CALLBACK, handler: () => this.renderAuthCallback() },
+        ];
 
         routes.forEach(route => {
             this.router.addRoute(route.path, route.handler);
         });
+    }
+
+    private async renderAuthCallback(): Promise<void> {
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token');
+        console.log('Auth callback tokens:', { accessToken, refreshToken });
+
+        if (accessToken && refreshToken) {
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+            const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+            localStorage.setItem('expiresAt', expiresAt);
+
+            Api.setAuthToken(accessToken);
+
+            let response = await Api.get('/api/users/me');
+            if (response.success) {
+                localStorage.setItem('user', JSON.stringify(response.data));
+            } else {
+                console.error('Failed to fetch user data after auth callback:', response);
+            }
+            this.router.navigate('/home');
+        }
     }
 
     private setupEventListeners(): void {
