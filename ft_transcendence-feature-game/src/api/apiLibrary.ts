@@ -5,7 +5,7 @@ class Api {
     private baseURL: string;
 
     constructor() {
-        this.baseURL = 'https://localhost:3000';
+        this.baseURL = 'https://localhost';
         this.axiosInstance = axios.create({
             baseURL: this.baseURL,
             headers: {

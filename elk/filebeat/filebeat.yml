@@ -1,0 +1,44 @@
+filebeat.inputs:
+  # Docker container loglarını topla
+  - type: container
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+
+# Logstash'e gönder
+output.logstash:
+  hosts: ["logstash:5044"]
+  loadbalance: true
+
+# Filebeat iç loglama
+logging.level: warning
+logging.to_files: false
+
+# Telemetri kapat
+monitoring.enabled: false
+
+# Gecikme ayarları
+queue.mem:
+  events: 4096
+  flush.min_events: 512
+  flush.timeout: 5s
+
+# Yeniden bağlanma
+filebeat.registry.path: /usr/share/filebeat/data/registry
+
+# Sadece ft_transcendence container'larını al
+processors:
+  - drop_event:
+      when:
+        not:
+          or:
+            - contains:
+                container.labels.com_docker_compose_project: "ft_transcendence"
+            - contains:
+                container.name: "ft_"

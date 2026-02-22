@@ -1,0 +1,478 @@
+
+# ============================================================
+# ft_transcendence - Ana Docker Compose
+# Tüm servisleri tek yerden yönet:
+#   docker-compose up -d
+#   docker-compose down
+#   docker-compose logs -f <service>
+# ============================================================
+
+services:
+
+  # ─────────────────────────────────────────────
+  # NGINX - Reverse Proxy / API Gateway
+  # ─────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: ft_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - backend
+      - game
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────
+  # BACKEND - Fastify API (Monolith)
+  # ─────────────────────────────────────────────
+  backend:
+    build:
+      context: ./ft_transcendence-backend/backend
+      target: production
+    container_name: ft_backend
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - DATABASE_PATH=/app/database/transcendence.db
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_EXPIRY=${JWT_ACCESS_EXPIRY:-15m}
+      - JWT_REFRESH_EXPIRY=${JWT_REFRESH_EXPIRY:-7d}
+      - FORTYTWO_CLIENT_ID=${FORTYTWO_CLIENT_ID}
+      - FORTYTWO_CLIENT_SECRET=${FORTYTWO_CLIENT_SECRET}
+      - FORTYTWO_CALLBACK_URL=${FORTYTWO_CALLBACK_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_CALLBACK_URL=${GITHUB_CALLBACK_URL}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+      - TWO_FACTOR_APP_NAME=ft_transcendence
+      - SSL_KEY_PATH=/app/certs/key.pem
+      - SSL_CERT_PATH=/app/certs/cert.pem
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://localhost}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-5242880}
+    volumes:
+      - backend_data:/app/database
+      - ./ft_transcendence-backend/backend/certs:/app/certs:ro
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        labels: "service=backend"
+
+  # ─────────────────────────────────────────────
+  # GAME (feature-game) - Frontend + Pong + Babylon.js
+  # ─────────────────────────────────────────────
+  game:
+    build:
+      context: ./ft_transcendence-feature-game
+      dockerfile: Dockerfile
+    container_name: ft_game
+    expose:
+      - "5173"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      # feature-game kendi SSL sertifikalarını kullanıyor
+      - ./nginx/ssl/cert.pem:/app/certs/cert.pem:ro
+      - ./nginx/ssl/key.pem:/app/certs/key.pem:ro
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      # https-server üzerinden çalışıyor (SSL)
+      test: ["CMD", "wget", "--no-check-certificate", "--quiet", "--tries=1", "--spider", "https://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=game"
+
+  # ─────────────────────────────────────────────
+  # MIKROSERVISLER
+  # ─────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./services/auth-service
+      target: production
+    container_name: ft_auth_service
+    expose:
+      - "3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - DATABASE_PATH=/app/database/transcendence.db
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_EXPIRY=${JWT_ACCESS_EXPIRY:-15m}
+      - JWT_REFRESH_EXPIRY=${JWT_REFRESH_EXPIRY:-7d}
+      - FORTYTWO_CLIENT_ID=${FORTYTWO_CLIENT_ID}
+      - FORTYTWO_CLIENT_SECRET=${FORTYTWO_CLIENT_SECRET}
+      - FORTYTWO_CALLBACK_URL=${FORTYTWO_CALLBACK_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_CALLBACK_URL=${GITHUB_CALLBACK_URL}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://localhost}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+    volumes:
+      - backend_data:/app/database
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=auth-service"
+
+  user-service:
+    build:
+      context: ./services/user-service
+      target: production
+    container_name: ft_user_service
+    expose:
+      - "3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - HOST=0.0.0.0
+      - DATABASE_PATH=/app/database/transcendence.db
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://localhost}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-5242880}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-12}
+    volumes:
+      - backend_data:/app/database
+      - backend_uploads:/app/uploads
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=user-service"
+
+  game-service:
+    build:
+      context: ./services/game-service
+      target: production
+    container_name: ft_game_service
+    expose:
+      - "3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - HOST=0.0.0.0
+      - DATABASE_PATH=/app/database/transcendence.db
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://localhost}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+    volumes:
+      - backend_data:/app/database
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=game-service"
+
+  # ─────────────────────────────────────────────
+  # ELASTICSEARCH - Log storage & indexing
+  # ─────────────────────────────────────────────
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: ft_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+      - cluster.name=ft-transcendence
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+      - ./elk/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    expose:
+      - "9200"
+      - "9300"
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ─────────────────────────────────────────────
+  # LOGSTASH - Log processing pipeline
+  # ─────────────────────────────────────────────
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: ft_logstash
+    environment:
+      - LS_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.monitoring.enabled=false
+    volumes:
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    expose:
+      - "5044"
+      - "9600"
+    networks:
+      - transcendence_network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # KIBANA - Log visualization
+  # ─────────────────────────────────────────────
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: ft_kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    volumes:
+      - ./elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      - kibana_data:/usr/share/kibana/data
+    ports:
+      - "5601:5601"
+    networks:
+      - transcendence_network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5601/api/status | grep -q 'available'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  # ─────────────────────────────────────────────
+  # FILEBEAT - Log shipper (Docker → Logstash)
+  # ─────────────────────────────────────────────
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: ft_filebeat
+    user: root
+    command: ["--strict.perms=false"]
+    volumes:
+      - ./elk/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - transcendence_network
+    depends_on:
+      - logstash
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # PROMETHEUS - Metrics collection
+  # ─────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: ft_prometheus
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────
+  # GRAFANA - Metrics visualization
+  # ─────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: ft_grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    networks:
+      - transcendence_network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:3000/api/health | grep -q 'ok'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ─────────────────────────────────────────────
+  # NODE EXPORTER - Host system metrics
+  # ─────────────────────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: ft_node_exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - "9100"
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────
+  # CADVISOR - Docker container metrics
+  # ─────────────────────────────────────────────
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: ft_cadvisor
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    expose:
+      - "8080"
+    networks:
+      - transcendence_network
+    restart: unless-stopped
+
+# ─────────────────────────────────────────────
+# VOLUMES
+# ─────────────────────────────────────────────
+volumes:
+  backend_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local
+  nginx_logs:
+    driver: local
+  es_data:
+    driver: local
+  kibana_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ─────────────────────────────────────────────
+# NETWORKS
+# ─────────────────────────────────────────────
+networks:
+  transcendence_network:
+    driver: bridge
+    name: transcendence_network

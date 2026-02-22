@@ -1,0 +1,189 @@
+groups:
+  # ──────────────────────────────────
+  # Servis Sağlığı
+  # ──────────────────────────────────
+  - name: service_health
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Servis çöktü: {{ $labels.job }}"
+          description: "{{ $labels.job }} servisi 1 dakika boyunca erişilemiyor."
+
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend API çöktü!"
+          description: "ft_transcendence backend servisi erişilemiyor."
+
+  # ──────────────────────────────────
+  # CPU Kullanımı
+  # ──────────────────────────────────
+  - name: cpu_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: >
+          100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek CPU kullanımı ({{ $labels.instance }})"
+          description: "CPU kullanımı son 5 dakika boyunca %80'in üzerinde: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: CriticalCPUUsage
+        expr: >
+          100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "KRİTİK: CPU kullanımı çok yüksek!"
+          description: "CPU kullanımı %95'in üzerinde: {{ $value | printf \"%.1f\" }}%"
+
+  # ──────────────────────────────────
+  # Bellek Kullanımı
+  # ──────────────────────────────────
+  - name: memory_alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: >
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          / node_memory_MemTotal_bytes * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek bellek kullanımı"
+          description: "Bellek kullanımı %80'in üzerinde: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: CriticalMemoryUsage
+        expr: >
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          / node_memory_MemTotal_bytes * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "KRİTİK: Bellek dolmak üzere!"
+          description: "Bellek kullanımı %95'in üzerinde: {{ $value | printf \"%.1f\" }}%"
+
+  # ──────────────────────────────────
+  # Disk Kullanımı
+  # ──────────────────────────────────
+  - name: disk_alerts
+    rules:
+      - alert: HighDiskUsage
+        expr: >
+          (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_avail_bytes{fstype!="tmpfs"})
+          / node_filesystem_size_bytes{fstype!="tmpfs"} * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk dolmak üzere: {{ $labels.mountpoint }}"
+          description: "{{ $labels.mountpoint }} disk kullanımı %80'in üzerinde: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: CriticalDiskUsage
+        expr: >
+          (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_avail_bytes{fstype!="tmpfs"})
+          / node_filesystem_size_bytes{fstype!="tmpfs"} * 100 > 95
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "KRİTİK: Disk neredeyse dolu!"
+          description: "{{ $labels.mountpoint }} disk %95 dolu: {{ $value | printf \"%.1f\" }}%"
+
+  # ──────────────────────────────────
+  # Docker Container Metrikleri
+  # ──────────────────────────────────
+  - name: container_alerts
+    rules:
+      - alert: ContainerHighCPU
+        expr: >
+          (rate(container_cpu_usage_seconds_total{name!=""}[5m])) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container yüksek CPU: {{ $labels.name }}"
+          description: "{{ $labels.name }} container CPU kullanımı: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: ContainerHighMemory
+        expr: >
+          container_memory_usage_bytes{name!=""}
+          / container_spec_memory_limit_bytes{name!=""} * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container yüksek bellek: {{ $labels.name }}"
+          description: "{{ $labels.name }} container bellek kullanımı: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: ContainerRestarting
+        expr: >
+          rate(container_last_seen{name!=""}[5m]) == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container yeniden başlatılıyor: {{ $labels.name }}"
+          description: "{{ $labels.name }} container sürekli restart yapıyor."
+
+  # ──────────────────────────────────
+  # HTTP / API Metrikleri
+  # ──────────────────────────────────
+  - name: http_alerts
+    rules:
+      - alert: HighHTTPErrorRate
+        expr: >
+          rate(http_requests_total{status=~"5.."}[5m])
+          / rate(http_requests_total[5m]) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek HTTP 5xx hata oranı"
+          description: "HTTP 5xx hata oranı %5'in üzerinde: {{ $value | printf \"%.1f\" }}%"
+
+      - alert: HighHTTPLatency
+        expr: >
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Yüksek API gecikme süresi"
+          description: "P95 yanıt süresi 1 saniyenin üzerinde: {{ $value | printf \"%.2f\" }}s"
+
+  # ──────────────────────────────────
+  # Elasticsearch Sağlığı
+  # ──────────────────────────────────
+  - name: elasticsearch_alerts
+    rules:
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch cluster RED durumda!"
+          description: "Elasticsearch cluster sağlık durumu RED. Veri kaybı riski."
+
+      - alert: ElasticsearchClusterYellow
+        expr: elasticsearch_cluster_health_status{color="yellow"} == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elasticsearch cluster YELLOW durumda"
+          description: "Elasticsearch cluster bazı shard'lar atanmamış durumda."

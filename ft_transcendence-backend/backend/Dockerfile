@@ -1,56 +1,53 @@
-FROM node:20-alpine AS base
-
+FROM node:20-bookworm-slim AS base
 WORKDIR /app
 
-# Install dependencies for better-sqlite3
-RUN apk add --no-cache python3 make g++
+# Install build dependencies for better-sqlite3
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package*.json ./
 
+# ─────────────────────────────────────────────
 # Development stage
+# ─────────────────────────────────────────────
 FROM base AS development
 RUN npm install
 COPY . .
 CMD ["npm", "run", "dev"]
 
+# ─────────────────────────────────────────────
 # Build stage
+# ─────────────────────────────────────────────
 FROM base AS builder
-RUN npm ci
+RUN npm install
 COPY . .
 RUN npm run build
+# Dev bağımlılıklarını kaldır
+RUN npm prune --production
 
-# Production stage
-FROM node:20-alpine AS production
-
+# ─────────────────────────────────────────────
+# Production stage — Debian slim (glibc uyumlu, musl sorunu yok)
+# ─────────────────────────────────────────────
+FROM node:20-bookworm-slim AS production
 WORKDIR /app
 
-# Install runtime dependencies for better-sqlite3
-RUN apk add --no-cache python3 make g++
+# Runtime native deps
+RUN apt-get update && apt-get install -y python3 make g++ wget && rm -rf /var/lib/apt/lists/*
 
-# Copy package files and install production dependencies
-COPY package*.json ./
-RUN npm ci --only=production && \
-    npm cache clean --force
-
-# Copy built application
+# node_modules builder'dan (native binary glibc ile derlenmiş)
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+RUN mkdir -p uploads/avatars certs logs
 
-# Create necessary directories
-RUN mkdir -p database uploads/avatars certs logs
+# Copy the database files properly (including migrations folder)
+COPY database ./database
 
-# Set proper permissions
 RUN chown -R node:node /app
-
-# Switch to non-root user
 USER node
 
-# Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider --no-check-certificate https://localhost:3000/health || exit 1
 
-# Start server
 CMD ["node", "dist/app.js"]

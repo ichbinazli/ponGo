@@ -5,7 +5,7 @@ class Api {
     private baseURL: string;
 
     constructor() {
-        this.baseURL = 'https://localhost:3000';
+        this.baseURL = '';  // Nginx proxy üzerinden git (https://localhost/api/...)
         this.axiosInstance = axios.create({
             baseURL: this.baseURL,
             headers: {
