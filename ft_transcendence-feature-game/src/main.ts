@@ -604,6 +604,7 @@ class App {
                 this.setupProfileTabs();
                 this.initProfilePhotoUpload();
                 this.setupDangerZone();
+                this.setupChangePasswordModal();
             }, CONSTANTS.TIMEOUTS.DOM_READY);
 
             const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
@@ -804,6 +805,146 @@ class App {
                 }
             });
         }
+    }
+
+    private setupChangePasswordModal(): void {
+        const openBtn = document.getElementById('open-change-password-modal');
+        const modal = document.getElementById('change-password-modal');
+        const closeBtn = document.getElementById('close-change-password-modal');
+        const form = document.getElementById('change-password-form') as HTMLFormElement | null;
+        const currentPw = document.getElementById('cp-current-password') as HTMLInputElement | null;
+        const newPw = document.getElementById('cp-new-password') as HTMLInputElement | null;
+        const confirmPw = document.getElementById('cp-confirm-password') as HTMLInputElement | null;
+        const submitBtn = document.getElementById('cp-submit-btn') as HTMLButtonElement | null;
+        const btnText = document.getElementById('cp-btn-text');
+        const spinner = document.getElementById('cp-spinner');
+        const errorEl = document.getElementById('cp-error');
+        const successEl = document.getElementById('cp-success');
+        const confirmError = document.getElementById('cp-confirm-error');
+
+        const reqLength = document.getElementById('cp-req-length');
+        const reqLower = document.getElementById('cp-req-lowercase');
+        const reqUpper = document.getElementById('cp-req-uppercase');
+        const reqNumber = document.getElementById('cp-req-number');
+        const reqSpecial = document.getElementById('cp-req-special');
+
+        if (!openBtn || !modal) return;
+
+        // Open modal
+        openBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            // Reset form
+            form?.reset();
+            if (errorEl) errorEl.classList.add('hidden');
+            if (successEl) successEl.classList.add('hidden');
+            if (confirmError) confirmError.classList.add('hidden');
+            if (submitBtn) submitBtn.disabled = true;
+            [reqLength, reqLower, reqUpper, reqNumber, reqSpecial].forEach(el => {
+                if (!el) return;
+                el.classList.remove('text-green-400', 'text-red-400');
+                el.classList.add('text-slate-500');
+                const icon = el.querySelector('.cp-req-icon');
+                if (icon) icon.textContent = '○';
+            });
+        });
+
+        // Close modal
+        const closeModal = () => modal.classList.add('hidden');
+        closeBtn?.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Password validation helpers
+        const updateReq = (el: HTMLElement | null, valid: boolean) => {
+            if (!el) return;
+            const icon = el.querySelector('.cp-req-icon');
+            if (valid) {
+                el.classList.remove('text-slate-500', 'text-red-400');
+                el.classList.add('text-green-400');
+                if (icon) icon.textContent = '✓';
+            } else {
+                el.classList.remove('text-green-400', 'text-red-400');
+                el.classList.add('text-slate-500');
+                if (icon) icon.textContent = '○';
+            }
+        };
+
+        const validatePw = (pw: string) => {
+            const c = {
+                len: pw.length >= 8,
+                low: /[a-z]/.test(pw),
+                up: /[A-Z]/.test(pw),
+                num: /[0-9]/.test(pw),
+                spec: /[^a-zA-Z0-9]/.test(pw),
+            };
+            updateReq(reqLength, c.len);
+            updateReq(reqLower, c.low);
+            updateReq(reqUpper, c.up);
+            updateReq(reqNumber, c.num);
+            updateReq(reqSpecial, c.spec);
+            return c.len && c.low && c.up && c.num && c.spec;
+        };
+
+        const checkFormValid = () => {
+            const curPw = currentPw?.value || '';
+            const np = newPw?.value || '';
+            const cp = confirmPw?.value || '';
+            const pwValid = validatePw(np);
+            const match = np === cp && np.length > 0;
+            if (confirmError) {
+                if (cp.length > 0 && !match) confirmError.classList.remove('hidden');
+                else confirmError.classList.add('hidden');
+            }
+            if (submitBtn) submitBtn.disabled = !(curPw.length > 0 && pwValid && match);
+        };
+
+        currentPw?.addEventListener('input', checkFormValid);
+        newPw?.addEventListener('input', checkFormValid);
+        confirmPw?.addEventListener('input', checkFormValid);
+
+        // Submit
+        form?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = currentPw?.value || '';
+            const newPassword = newPw?.value || '';
+
+            if (btnText) btnText.textContent = this.i18n.t('profile.changingPassword') || 'Değiştiriliyor...';
+            spinner?.classList.remove('hidden');
+            if (submitBtn) submitBtn.disabled = true;
+            if (errorEl) errorEl.classList.add('hidden');
+            if (successEl) successEl.classList.add('hidden');
+
+            try {
+                await Api.put('/api/users/me/password', {
+                    currentPassword,
+                    newPassword,
+                });
+                if (successEl) {
+                    successEl.textContent = this.i18n.t('profile.passwordChanged') || 'Şifre başarıyla değiştirildi!';
+                    successEl.classList.remove('hidden');
+                }
+                form?.reset();
+                [reqLength, reqLower, reqUpper, reqNumber, reqSpecial].forEach(el => {
+                    if (!el) return;
+                    el.classList.remove('text-green-400', 'text-red-400');
+                    el.classList.add('text-slate-500');
+                    const icon = el.querySelector('.cp-req-icon');
+                    if (icon) icon.textContent = '○';
+                });
+                if (submitBtn) submitBtn.disabled = true;
+                setTimeout(() => closeModal(), 2000);
+            } catch (err: any) {
+                if (errorEl) {
+                    errorEl.textContent = err?.message || this.i18n.t('profile.passwordChangeError') || 'Şifre değiştirme başarısız oldu.';
+                    errorEl.classList.remove('hidden');
+                }
+                if (submitBtn) submitBtn.disabled = false;
+            } finally {
+                if (btnText) btnText.textContent = this.i18n.t('profile.changePassword') || 'Şifre Değiştir';
+                spinner?.classList.add('hidden');
+            }
+        });
     }
 
     private async renderSettings(): Promise<void> {
@@ -1151,18 +1292,247 @@ class App {
         await this.loadTemplate('reset-password', false);
 
         this.delayedExecution(() => {
-            const form = document.getElementById('reset-password-form') as HTMLFormElement | null;
-            if (!form) return;
-            form.addEventListener('submit', async (e) => {
+            let userEmail = '';
+            let verificationCode = '';
+            let resendInterval: ReturnType<typeof setInterval> | null = null;
+
+            // DOM elements
+            const stepEmail = document.getElementById('step-email');
+            const stepCode = document.getElementById('step-code');
+            const stepPassword = document.getElementById('step-password');
+            const stepSuccess = document.getElementById('step-success');
+            const stepIndicator1 = document.getElementById('step-indicator-1');
+            const stepIndicator2 = document.getElementById('step-indicator-2');
+            const stepIndicator3 = document.getElementById('step-indicator-3');
+
+            const emailForm = document.getElementById('reset-email-form') as HTMLFormElement | null;
+            const codeForm = document.getElementById('verify-code-form') as HTMLFormElement | null;
+            const passwordForm = document.getElementById('new-password-form') as HTMLFormElement | null;
+
+            const emailError = document.getElementById('email-error');
+            const codeError = document.getElementById('code-error');
+            const passwordResetError = document.getElementById('password-reset-error');
+            const confirmError = document.getElementById('confirm-error');
+            const sentEmailDisplay = document.getElementById('sent-email-display');
+            const sendCodeText = document.getElementById('send-code-text');
+            const sendCodeSpinner = document.getElementById('send-code-spinner');
+            const resendBtn = document.getElementById('resend-code-btn');
+            const resendTimer = document.getElementById('resend-timer');
+            const changeEmailBtn = document.getElementById('change-email-btn');
+            const verifyCodeBtn = document.getElementById('verify-code-btn') as HTMLButtonElement | null;
+            const resetPasswordBtn = document.getElementById('reset-password-btn') as HTMLButtonElement | null;
+            const resetBtnText = document.getElementById('reset-btn-text');
+            const resetSpinner = document.getElementById('reset-spinner');
+
+            // Step navigation helper
+            const goToStep = (step: number) => {
+                stepEmail?.classList.add('hidden');
+                stepCode?.classList.add('hidden');
+                stepPassword?.classList.add('hidden');
+                stepSuccess?.classList.add('hidden');
+
+                [stepIndicator1, stepIndicator2, stepIndicator3].forEach((ind, i) => {
+                    if (!ind) return;
+                    if (i < step) {
+                        ind.classList.remove('bg-white/20', 'text-slate-400');
+                        ind.classList.add('bg-purple-500', 'text-white');
+                    } else {
+                        ind.classList.remove('bg-purple-500', 'text-white');
+                        ind.classList.add('bg-white/20', 'text-slate-400');
+                    }
+                });
+
+                if (step === 1) stepEmail?.classList.remove('hidden');
+                else if (step === 2) stepCode?.classList.remove('hidden');
+                else if (step === 3) stepPassword?.classList.remove('hidden');
+                else if (step === 4) stepSuccess?.classList.remove('hidden');
+            };
+
+            // Resend countdown
+            const startResendCountdown = () => {
+                let seconds = 60;
+                if (resendBtn) (resendBtn as HTMLButtonElement).disabled = true;
+                if (resendTimer) resendTimer.textContent = String(seconds);
+                if (resendInterval) clearInterval(resendInterval);
+                resendInterval = setInterval(() => {
+                    seconds--;
+                    if (resendTimer) resendTimer.textContent = String(seconds);
+                    if (seconds <= 0) {
+                        if (resendInterval) clearInterval(resendInterval);
+                        if (resendBtn) (resendBtn as HTMLButtonElement).disabled = false;
+                    }
+                }, 1000);
+            };
+
+            // STEP 1: Send email code
+            emailForm?.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const email = (document.getElementById('reset-email') as HTMLInputElement).value;
+                const emailInput = document.getElementById('reset-email') as HTMLInputElement;
+                userEmail = emailInput?.value || '';
+
+                if (sendCodeText) sendCodeText.textContent = this.i18n.t('reset.sending');
+                sendCodeSpinner?.classList.remove('hidden');
+
                 try {
-                    await Api.post('/api/auth/forgot-password', { email });
-                    alert(this.i18n.t('alert.resetSent'));
-                    this.router.navigate('/login');
+                    await Api.post('/api/auth/forgot-password', { email: userEmail });
+                    if (sentEmailDisplay) sentEmailDisplay.textContent = userEmail;
+                    goToStep(2);
+                    startResendCountdown();
+                    // Focus first code input
+                    const firstInput = document.querySelector('.code-input') as HTMLInputElement;
+                    firstInput?.focus();
                 } catch (err) {
-                    console.error('Reregister error', err);
-                    alert(this.i18n.t('alert.resetError'));
+                    if (emailError) {
+                        emailError.textContent = this.i18n.t('reset.emailSendError');
+                        emailError.classList.remove('hidden');
+                    }
+                } finally {
+                    if (sendCodeText) sendCodeText.textContent = this.i18n.t('reset.sendCode');
+                    sendCodeSpinner?.classList.add('hidden');
+                }
+            });
+
+            // Code input UX — auto advance & backspace
+            const codeInputs = document.querySelectorAll('.code-input') as NodeListOf<HTMLInputElement>;
+            codeInputs.forEach((input, idx) => {
+                input.addEventListener('input', () => {
+                    const val = input.value.replace(/[^0-9]/g, '');
+                    input.value = val;
+                    if (val && idx < codeInputs.length - 1) {
+                        codeInputs[idx + 1].focus();
+                    }
+                    // Check if all filled
+                    const code = Array.from(codeInputs).map(i => i.value).join('');
+                    if (verifyCodeBtn) verifyCodeBtn.disabled = code.length !== 6;
+                });
+                input.addEventListener('keydown', (e: KeyboardEvent) => {
+                    if (e.key === 'Backspace' && !input.value && idx > 0) {
+                        codeInputs[idx - 1].focus();
+                    }
+                });
+                input.addEventListener('paste', (e: ClipboardEvent) => {
+                    e.preventDefault();
+                    const paste = e.clipboardData?.getData('text')?.replace(/[^0-9]/g, '') || '';
+                    for (let i = 0; i < Math.min(paste.length, codeInputs.length); i++) {
+                        codeInputs[i].value = paste[i];
+                    }
+                    const focusIdx = Math.min(paste.length, codeInputs.length - 1);
+                    codeInputs[focusIdx].focus();
+                    const code = Array.from(codeInputs).map(i => i.value).join('');
+                    if (verifyCodeBtn) verifyCodeBtn.disabled = code.length !== 6;
+                });
+            });
+
+            // Resend code
+            resendBtn?.addEventListener('click', async () => {
+                try {
+                    await Api.post('/api/auth/forgot-password', { email: userEmail });
+                    startResendCountdown();
+                    if (codeError) codeError.classList.add('hidden');
+                } catch (err) {
+                    if (codeError) {
+                        codeError.textContent = this.i18n.t('reset.resendError');
+                        codeError.classList.remove('hidden');
+                    }
+                }
+            });
+
+            // Change email — go back to step 1
+            changeEmailBtn?.addEventListener('click', () => {
+                if (resendInterval) clearInterval(resendInterval);
+                goToStep(1);
+            });
+
+            // STEP 2: Verify code — just move to step 3
+            codeForm?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                verificationCode = Array.from(codeInputs).map(i => i.value).join('');
+                if (verificationCode.length !== 6) return;
+                goToStep(3);
+                const newPwInput = document.getElementById('new-password') as HTMLInputElement;
+                newPwInput?.focus();
+            });
+
+            // STEP 3: Password validation
+            const rpReqLength = document.getElementById('rp-req-length');
+            const rpReqLower = document.getElementById('rp-req-lowercase');
+            const rpReqUpper = document.getElementById('rp-req-uppercase');
+            const rpReqNumber = document.getElementById('rp-req-number');
+            const rpReqSpecial = document.getElementById('rp-req-special');
+            const newPwInput = document.getElementById('new-password') as HTMLInputElement;
+            const confirmPwInput = document.getElementById('confirm-password') as HTMLInputElement;
+
+            const updateReq = (el: HTMLElement | null, valid: boolean) => {
+                if (!el) return;
+                const icon = el.querySelector('.rp-req-icon');
+                if (valid) {
+                    el.classList.remove('text-slate-500', 'text-red-400');
+                    el.classList.add('text-green-400');
+                    if (icon) icon.textContent = '✓';
+                } else {
+                    el.classList.remove('text-green-400', 'text-red-400');
+                    el.classList.add('text-slate-500');
+                    if (icon) icon.textContent = '○';
+                }
+            };
+
+            const validatePw = (pw: string) => {
+                const c = {
+                    len: pw.length >= 8,
+                    low: /[a-z]/.test(pw),
+                    up: /[A-Z]/.test(pw),
+                    num: /[0-9]/.test(pw),
+                    spec: /[^a-zA-Z0-9]/.test(pw),
+                };
+                updateReq(rpReqLength, c.len);
+                updateReq(rpReqLower, c.low);
+                updateReq(rpReqUpper, c.up);
+                updateReq(rpReqNumber, c.num);
+                updateReq(rpReqSpecial, c.spec);
+                return c.len && c.low && c.up && c.num && c.spec;
+            };
+
+            const checkResetFormValid = () => {
+                const pw = newPwInput?.value || '';
+                const cpw = confirmPwInput?.value || '';
+                const pwValid = validatePw(pw);
+                const match = pw === cpw && pw.length > 0;
+                if (confirmError) {
+                    if (cpw.length > 0 && !match) confirmError.classList.remove('hidden');
+                    else confirmError.classList.add('hidden');
+                }
+                if (resetPasswordBtn) resetPasswordBtn.disabled = !(pwValid && match);
+            };
+
+            newPwInput?.addEventListener('input', checkResetFormValid);
+            confirmPwInput?.addEventListener('input', checkResetFormValid);
+
+            // STEP 3: Submit — call reset-password API
+            passwordForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newPassword = newPwInput?.value || '';
+
+                if (resetBtnText) resetBtnText.textContent = this.i18n.t('reset.resetting');
+                resetSpinner?.classList.remove('hidden');
+                if (resetPasswordBtn) resetPasswordBtn.disabled = true;
+
+                try {
+                    await Api.post('/api/auth/reset-password', {
+                        email: userEmail,
+                        code: verificationCode,
+                        newPassword: newPassword,
+                    });
+                    goToStep(4);
+                } catch (err: any) {
+                    if (passwordResetError) {
+                        const msg = err?.message || this.i18n.t('reset.resetError');
+                        passwordResetError.textContent = msg;
+                        passwordResetError.classList.remove('hidden');
+                    }
+                    if (resetPasswordBtn) resetPasswordBtn.disabled = false;
+                } finally {
+                    if (resetBtnText) resetBtnText.textContent = this.i18n.t('reset.resetPassword');
+                    resetSpinner?.classList.add('hidden');
                 }
             });
         }, CONSTANTS.TIMEOUTS.DOM_READY);

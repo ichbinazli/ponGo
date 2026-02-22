@@ -112,7 +112,7 @@
                                 </select>
                             </label>
                         </div>
-                        <button class="btn w-full" data-i18n="profile.changePassword"> Şifre Değiştir</button>
+                        <button id="open-change-password-modal" class="btn w-full" data-i18n="profile.changePassword"> Şifre Değiştir</button>
                     </div>
                 </div>
                 <div class="card border-rose-600 bg-rose-900/20 lg:col-span-2">
@@ -138,4 +138,57 @@
         </div>
     </div>
     <input type="file" id="photo-upload" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden">
+</div>
+
+<!-- Şifre Değiştir Modal -->
+<div id="change-password-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+  <div class="bg-slate-800/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 max-w-md w-full relative animate-fade-in">
+    <button id="close-change-password-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-white" data-i18n="profile.changePassword">Şifre Değiştir</h2>
+    </div>
+
+    <form id="change-password-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1" data-i18n="profile.currentPassword">Mevcut Şifre</label>
+        <input type="password" id="cp-current-password" required placeholder="••••••••"
+          class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1" data-i18n="profile.newPassword">Yeni Şifre</label>
+        <input type="password" id="cp-new-password" required placeholder="••••••••"
+          class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+        <ul class="mt-2 space-y-1 text-xs">
+          <li id="cp-req-length" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.minLength">En az 8 karakter</span></li>
+          <li id="cp-req-lowercase" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.lowercase">En az bir küçük harf</span></li>
+          <li id="cp-req-uppercase" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.uppercase">En az bir büyük harf</span></li>
+          <li id="cp-req-number" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.number">En az bir rakam</span></li>
+          <li id="cp-req-special" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.special">En az bir özel karakter</span></li>
+        </ul>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1" data-i18n="profile.confirmNewPassword">Yeni Şifre Tekrar</label>
+        <input type="password" id="cp-confirm-password" required placeholder="••••••••"
+          class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+        <p id="cp-confirm-error" class="text-red-400 text-xs mt-1 hidden" data-i18n="password.mismatch">Şifreler eşleşmiyor</p>
+      </div>
+      <p id="cp-error" class="text-red-400 text-xs hidden"></p>
+      <p id="cp-success" class="text-green-400 text-xs hidden"></p>
+      <button type="submit" id="cp-submit-btn" disabled
+        class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+        <span id="cp-btn-text" data-i18n="profile.changePassword">Şifre Değiştir</span>
+        <div id="cp-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
+      </button>
+    </form>
+  </div>
 </div>
