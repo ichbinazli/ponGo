@@ -1,0 +1,86 @@
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="max-w-md w-full">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">ft_transcendence</h1>
+      <p class="text-slate-400" data-i18n="register.subtitle">Ücretsiz hesap oluştur ve oyuna başla</p>
+    </div>
+    <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8">
+      <h2 class="text-2xl font-bold text-center text-white mb-8" data-i18n="register.title">
+        Hesap Oluştur
+      </h2>
+
+      <form id="register-form" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="register.username">
+            Kullanıcı Adı
+          </label>
+          <input
+            type="text"
+            name="displayName"
+            id="displayName"
+            required
+            placeholder="kullaniciadi"
+            class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl
+                   text-white placeholder-slate-400 focus:outline-none
+                   focus:ring-2 focus:ring-purple-500 transition"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="register.email">
+            E-posta
+          </label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            placeholder="eposta@ornek.com"
+            class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl
+                   text-white placeholder-slate-400 focus:outline-none
+                   focus:ring-2 focus:ring-purple-500 transition"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="register.password">
+            Şifre
+          </label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            placeholder="En az 8 karakter"
+            class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl
+                   text-white placeholder-slate-400 focus:outline-none
+                   focus:ring-2 focus:ring-purple-500 transition"
+          />
+        </div>
+        <label class="flex items-center text-sm text-slate-300">
+          <input
+            type="checkbox"
+            required
+            class="mr-2 rounded border-white/20 bg-white/5 text-purple-500
+                   focus:ring-purple-500 focus:ring-offset-0"
+          />
+          <span data-i18n="register.terms">Kullanım koşullarını kabul ediyorum</span>
+        </label>
+        <button
+          type="submit"
+          class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold
+                 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600
+                 transition transform hover:scale-[1.02] active:scale-[0.98]"
+          data-i18n="register.submit"
+        >
+          Hesap Oluştur
+        </button>
+        <p class="text-center text-sm text-slate-400 pt-2">
+          <span data-i18n="register.hasAccount">Zaten hesabın var mı?</span>
+          <a href="/login" data-route class="text-purple-400 hover:text-purple-300 font-medium transition" data-i18n="register.login">
+            Giriş Yap
+          </a>
+        </p>
+
+      </form>
+    </div>
+  </div>
+</div>

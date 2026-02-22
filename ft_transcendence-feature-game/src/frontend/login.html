@@ -3,18 +3,18 @@
 
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-white mb-2">ft_transcendence</h1>
-      <p class="text-slate-400">Oyun dünyasına hoş geldiniz</p>
+      <p class="text-slate-400" data-i18n="login.welcome">Oyun dünyasına hoş geldiniz</p>
     </div>
 
     <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8">
-      <h2 class="text-2xl font-bold text-center text-white mb-8">
+      <h2 class="text-2xl font-bold text-center text-white mb-8" data-i18n="login.title">
         Giriş Yap
       </h2>
 
       <form id="login-form" class="space-y-6">
 
         <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2">
+          <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="login.email">
             E-Posta
           </label>
           <input
@@ -28,7 +28,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2">
+          <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="login.password">
             Şifre
           </label>
           <input
@@ -42,10 +42,10 @@
           />
         </div>
         <div class="flex items-center justify-between text-sm">
-          <a href="/reset-password" data-route class="text-purple-400 hover:text-purple-300 transition">
+          <a href="/reset-password" data-route class="text-purple-400 hover:text-purple-300 transition" data-i18n="login.forgotPassword">
             Şifremi unuttum
           </a>
-          <a href="/register" data-route class="text-purple-400 hover:text-purple-300 transition">
+          <a href="/register" data-route class="text-purple-400 hover:text-purple-300 transition" data-i18n="login.newAccount">
             Yeni hesap oluştur
           </a>
         </div>
@@ -55,6 +55,7 @@
           class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold
                  py-3 rounded-xl hover:from-purple-600 hover:to-pink-600
                  transition transform hover:scale-[1.02] active:scale-[0.98]"
+          data-i18n="login.submit"
         >
           Giriş Yap
         </button>
@@ -75,7 +76,7 @@
             alt="42 Logo"
             class="h-5 w-5 brightness-0 invert"
           />
-          Intra ile Giriş Yap
+          <span data-i18n="login.intra">Intra ile Giriş Yap</span>
         </button>
 
 

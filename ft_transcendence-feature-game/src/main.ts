@@ -4,6 +4,7 @@ import { APIClient, LeaderboardEntry } from './api/APIClient';
 import { TemplateLoader } from './utils/templateLoader';
 import Api from './api/apiLibrary';
 import { initGameOptions } from './game/gameOptionManager';
+import { I18n, Language } from './utils/i18n';
 
 // ============================================================================
 // THEME MANAGER
@@ -142,11 +143,11 @@ export class ThemeManager {
 // ============================================================================
 const CONSTANTS = {
     ERROR_MESSAGES: {
-        UNEXPECTED: 'Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.',
-        PROFILE_LOAD: 'Profil yüklenemedi. Lütfen daha sonra tekrar deneyin.',
-        LEADERBOARD_LOAD: 'Skor tablosu yüklenemedi. Lütfen daha sonra tekrar deneyin.',
-        FRIENDS_LOAD: 'Arkadaş listesi yüklenemedi. Lütfen daha sonra tekrar deneyin.',
-        TEMPLATE_LOAD: 'Sayfa yüklenemedi. Lütfen daha sonra tekrar deneyin.'
+        UNEXPECTED: 'error.unexpected',
+        PROFILE_LOAD: 'error.profileLoad',
+        LEADERBOARD_LOAD: 'error.leaderboardLoad',
+        FRIENDS_LOAD: 'error.friendsLoad',
+        TEMPLATE_LOAD: 'error.templateLoad'
     },
     ROUTES: {
         HOME: '/',
@@ -199,10 +200,12 @@ const CONSTANTS = {
 class App {
     private router: Router;
     private apiClient: APIClient;
+    private i18n: I18n;
 
     constructor() {
         this.apiClient = new APIClient();
         this.router = new Router();
+        this.i18n = I18n.getInstance();
         // Initialize theme manager (removing unused variable warning)
         ThemeManager.getInstance();
         this.init();
@@ -213,6 +216,7 @@ class App {
         this.setupRoutes();
         this.setupEventListeners();
         this.setupMobileMenu();
+        this.i18n.applyTranslations();
         this.router.init();
     }
 
@@ -345,6 +349,7 @@ class App {
         const mainContent = document.getElementById(CONSTANTS.SELECTORS.MAIN_CONTENT);
         if (mainContent) {
             mainContent.innerHTML = content;
+            this.i18n.applyTranslations();
         }
     }
 
@@ -373,9 +378,9 @@ class App {
         return `
             <div class="card animate-fade-in max-w-md mx-auto">
                 <div class="error-message text-center">
-                    <h2 class="text-xl font-bold mb-2">Hata</h2>
+                    <h2 class="text-xl font-bold mb-2" data-i18n="error.title">${this.i18n.t('error.title')}</h2>
                     <p class="mb-4 text-slate-300">${message}</p>
-                    <button class="btn w-full" onclick="location.reload()">Sayfayı Yenile</button>
+                    <button class="btn w-full" onclick="location.reload()" data-i18n="error.reload">${this.i18n.t('error.reload')}</button>
                 </div>
             </div>
         `;
@@ -392,12 +397,12 @@ class App {
     private createPodiumCard(player: any, index: number): string {
         const medals = ['🥇', '🥈', '🥉'];
         const gradients = ['from-yellow-400 to-yellow-600', 'from-gray-300 to-gray-500', 'from-orange-400 to-orange-600'];
-        const positions = ['Birinci', 'İkinci', 'Üçüncü'];
+        const positionKeys = ['leaderboard.first', 'leaderboard.second', 'leaderboard.third'];
 
         return `
             <div class="podium-card bg-gradient-to-br ${gradients[index]} p-4 sm:p-6 rounded-xl text-center transform hover:scale-105 transition-all duration-300">
                 <div class="text-4xl sm:text-6xl mb-2 sm:mb-4">${medals[index]}</div>
-                <h3 class="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">${positions[index]}</h3>
+                <h3 class="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">${this.i18n.t(positionKeys[index])}</h3>
                 <div class="text-white/90 mb-2 sm:mb-4">
                     <h4 class="text-base sm:text-lg font-semibold">${player.name}</h4>
                     <p class="text-xs sm:text-sm">${player.score.toLocaleString()} puan</p>
@@ -407,8 +412,8 @@ class App {
         `;
     }
 
-    private showError(message: string): void {
-        this.renderPage(this.createErrorMessage(message));
+    private showError(messageKey: string): void {
+        this.renderPage(this.createErrorMessage(this.i18n.t(messageKey)));
     }
 
     private updateActiveNavLink(path: string): void {
@@ -523,7 +528,7 @@ class App {
                         </td>
                         <td class="py-2 sm:py-3 px-2 sm:px-4 hidden lg:table-cell">
                             <span class="status-${Math.random() > 0.6 ? 'online' : Math.random() > 0.3 ? 'away' : 'offline'} text-xs">
-                                ${Math.random() > 0.6 ? '● Çevrimiçi' : Math.random() > 0.3 ? '● Uzakta' : '● Çevrimdışı'}
+                                ${Math.random() > 0.6 ? this.i18n.t('leaderboard.online') : Math.random() > 0.3 ? this.i18n.t('leaderboard.away') : this.i18n.t('leaderboard.offline')}
                             </span>
                         </td>
                     </tr>
@@ -567,13 +572,13 @@ class App {
                 const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
 
                 if (!allowedTypes.includes(file.type)) {
-                    alert('Lütfen sadece resim dosyası seçin! (PNG, JPG, GIF, WebP)');
+                    alert(I18n.getInstance().t('alert.invalidFile'));
                     photoUpload.value = '';
                     return;
                 }
 
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('Dosya boyutu 5MB\'dan küçük olmalıdır!');
+                    alert(I18n.getInstance().t('alert.fileTooLarge'));
                     photoUpload.value = '';
                     return;
                 }
@@ -654,8 +659,8 @@ class App {
                     const opponentScore = isPlayer1 ? item.player2_score : item.player1_score;
 
                     const result = item.winner_id === user.id ?
-                        `<span class="text-green-400 font-bold">GALİBİYET</span>` :
-                        `<span class="text-red-400 font-bold">MAĞLUBİYET</span>`;
+                        `<span class="text-green-400 font-bold">${this.i18n.t('profile.victory')}</span>` :
+                        `<span class="text-red-400 font-bold">${this.i18n.t('profile.defeat')}</span>`;
 
                     const matchDate = new Date(item.ended_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
                     const durationMinutes = Math.floor(item.duration_seconds / 60);
@@ -694,27 +699,27 @@ class App {
         if (statsGridContainer) {
             statsGridContainer.innerHTML = `
             <div class="stat-card">
-                <h4 class="text-sm font-semibold text-white/70 mb-2">Toplam Puan</h4>
+                <h4 class="text-sm font-semibold text-white/70 mb-2" data-i18n="profile.totalPoints">${this.i18n.t('profile.totalPoints')}</h4>
                 <div class="text-2xl font-bold text-yellow-400">${statsData.total_points_scored}</div>
             </div>
             <div class="stat-card">
-                <h4 class="text-sm font-semibold text-white/70 mb-2">Oyun Sayısı</h4>
+                <h4 class="text-sm font-semibold text-white/70 mb-2" data-i18n="profile.totalGames">${this.i18n.t('profile.totalGames')}</h4>
                 <div class="text-2xl font-bold text-blue-400">${statsData.total_matches}</div>
             </div>
             <div class="stat-card">
-                <h4 class="text-sm font-semibold text-white/70 mb-2">Galibiyetler</h4>
+                <h4 class="text-sm font-semibold text-white/70 mb-2" data-i18n="profile.wins">${this.i18n.t('profile.wins')}</h4>
                 <div class="text-2xl font-bold text-green-400">${statsData.wins}</div>
             </div>
             <div class="stat-card">
-                <h4 class="text-sm font-semibold text-white/70 mb-2">Mağlubiyetler</h4>
+                <h4 class="text-sm font-semibold text-white/70 mb-2" data-i18n="profile.losses">${this.i18n.t('profile.losses')}</h4>
                 <div class="text-2xl font-bold text-red-400">${statsData.losses}</div>
             </div>
             <div class="stat-card">
-                <h4 class="text-sm font-semibold text-white/70 mb-2">Kazanma Oranı</h4>
+                <h4 class="text-sm font-semibold text-white/70 mb-2" data-i18n="profile.winRate">${this.i18n.t('profile.winRate')}</h4>
                 <div class="text-2xl font-bold text-purple-400">${statsData.win_rate}%</div>
             </div>
             <div class="stat-card">
-                <h4 class="text-sm font-semibold text-white/70 mb-2">Beraberlik</h4>
+                <h4 class="text-sm font-semibold text-white/70 mb-2" data-i18n="profile.draws">${this.i18n.t('profile.draws')}</h4>
                 <div class="text-2xl font-bold text-orange-400">${statsData.draws}</div>
             </div>
         `;
@@ -741,6 +746,19 @@ class App {
     private async renderSettings(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.SETTINGS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.SETTINGS);
+        
+        this.delayedExecution(() => {
+            const langSelect = document.getElementById('language-select') as HTMLSelectElement | null;
+            if (langSelect) {
+                // Set current language as selected
+                langSelect.value = this.i18n.getLanguage();
+                
+                langSelect.addEventListener('change', () => {
+                    const newLang = langSelect.value as Language;
+                    this.i18n.setLanguage(newLang);
+                });
+            }
+        }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 
     private async renderLogout(): Promise<void> {
@@ -759,7 +777,7 @@ class App {
         setTimeout(() => {
             localStorage.clear();
             Api.setAuthToken("");
-            alert('Başarıyla çıkış yaptınız!');
+            alert(this.i18n.t('alert.logoutSuccess'));
             this.router.navigate('/login');
         }, 1000);
     }
@@ -931,14 +949,14 @@ class App {
                         localStorage.setItem('expiresAt', res.data.tokens.expiresAt);
                         localStorage.setItem('user', JSON.stringify(res.data.user));
                         await Api.setAuthToken(res.data.tokens.accessToken);
-                        alert('Giriş başarılı');
+                        alert(this.i18n.t('alert.loginSuccess'));
                         this.router.navigate('/home');
                     } else {
-                        alert('Giriş başarısız');
+                        alert(this.i18n.t('alert.loginFailed'));
                     }
                 } catch (err) {
                     console.error('Login error', err);
-                    alert('Giriş sırasında hata oluştu');
+                    alert(this.i18n.t('alert.loginError'));
                 }
             });
         }, CONSTANTS.TIMEOUTS.DOM_READY);
@@ -958,11 +976,11 @@ class App {
                 let password = (document.getElementById('password') as HTMLInputElement).value;
                 try {
                     await Api.post('/api/auth/register', { displayName, email, password });
-                    alert('Kayıt başarılı. Giriş sayfasına yönlendiriliyorsunuz.');
+                    alert(this.i18n.t('alert.registerSuccess'));
                     this.router.navigate('/login');
                 } catch (err) {
                     console.error('Register error', err);
-                    alert('Kayıt sırasında hata oluştu');
+                    alert(this.i18n.t('alert.registerError'));
                 }
             });
         }, CONSTANTS.TIMEOUTS.DOM_READY);
@@ -979,11 +997,11 @@ class App {
                 const email = (document.getElementById('reset-email') as HTMLInputElement).value;
                 try {
                     await Api.post('/api/auth/forgot-password', { email });
-                    alert('Sıfırlama bağlantısı gönderildi (test).');
+                    alert(this.i18n.t('alert.resetSent'));
                     this.router.navigate('/login');
                 } catch (err) {
                     console.error('Reregister error', err);
-                    alert('İşlem sırasında hata oluştu');
+                    alert(this.i18n.t('alert.resetError'));
                 }
             });
         }, CONSTANTS.TIMEOUTS.DOM_READY);

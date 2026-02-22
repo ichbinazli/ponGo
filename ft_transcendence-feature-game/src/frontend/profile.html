@@ -1,11 +1,11 @@
 <div class="card animate-fade-in">
-    <h1 class="text-3xl md:text-4xl font-bold text-white text-center mb-8 text-shadow">
+    <h1 class="text-3xl md:text-4xl font-bold text-white text-center mb-8 text-shadow" data-i18n="profile.title">
          Oyuncu Profili
     </h1>
     <div class="flex flex-wrap justify-center mb-8 space-x-2">
-        <button class="profile-tab active" data-tab="overview"> Genel Bakış</button>
-        <button class="profile-tab" data-tab="history"> Oyun Geçmişi</button>
-        <button class="profile-tab" data-tab="account"> Hesap Ayarları</button>
+        <button class="profile-tab active" data-tab="overview" data-i18n="profile.overview"> Genel Bakış</button>
+        <button class="profile-tab" data-tab="history" data-i18n="profile.history"> Oyun Geçmişi</button>
+        <button class="profile-tab" data-tab="account" data-i18n="profile.accountSettings"> Hesap Ayarları</button>
     </div>
     <div id="tab-content">
         <div class="tab-panel active" id="overview-panel">
@@ -22,6 +22,7 @@
                             <button 
                                 id="edit-avatar-btn"
                                 class="absolute bottom-0 right-0 bg-violet-600 hover:bg-violet-700 text-white rounded-full p-2 shadow-lg transition-all"
+                                data-i18n-title="profile.changePhoto"
                                 title="Fotoğrafı Değiştir"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -37,8 +38,8 @@
                         >
                     </div>
                     <div class="mt-4">
-                        <h2 id="profile-username" class="text-2xl font-bold text-white mb-2">Oyuncu</h2>
-                        <p id="profile-level" class="text-violet-300 text-sm">Seviye 1</p>
+                        <h2 id="profile-username" class="text-2xl font-bold text-white mb-2" data-i18n="profile.player">Oyuncu</h2>
+                        <p id="profile-level" class="text-violet-300 text-sm" data-i18n="profile.level">Seviye 1</p>
                     </div>
                 </div>
                 <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4" id="stats-grid-container">
@@ -47,17 +48,17 @@
         </div>
         <div class="tab-panel" id="history-panel">
             <div class="stat-card">
-                <h3 class="text-lg font-bold text-white mb-4"> Son Oyunlar</h3>
+                <h3 class="text-lg font-bold text-white mb-4" data-i18n="profile.recentGames"> Son Oyunlar</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-white text-sm">
                         <thead>
                             <tr class="border-b border-white/20">
-                                <th class="py-3 px-4 text-left">Tarih</th>
-                                <th class="py-3 px-4 text-left">Rakip</th>
-                                <th class="py-3 px-4 text-left">Mod</th>
-                                <th class="py-3 px-4 text-left">Skor</th>
-                                <th class="py-3 px-4 text-left">Sonuç</th>
-                                <th class="py-3 px-4 text-left">Süre</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.date">Tarih</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.opponent">Rakip</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.mode">Mod</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.score">Skor</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.result">Sonuç</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.duration">Süre</th>
                             </tr>
                         </thead>
                         <tbody id="game-history-table">
@@ -71,65 +72,65 @@
         <div class="tab-panel" id="account-panel">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="card">
-                    <h3 class="text-lg font-semibold text-slate-100 mb-4"> Hesap Bilgileri</h3>
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4" data-i18n="profile.accountInfo"> Hesap Bilgileri</h3>
                     <div class="space-y-4" id="account-info-form">
                         <div>
-                            <label class="block text-slate-300 mb-2">Kullanıcı Adı</label>
+                            <label class="block text-slate-300 mb-2" data-i18n="profile.displayName">Kullanıcı Adı</label>
                             <input type="text" name="displayName" id="displayName" class="input w-full">
                         </div>
                         <div>
-                            <label class="block text-slate-300 mb-2">E-posta</label>
-                            <input type="email" name="email" id="email" class="input w-full">
+                            <label class="block text-slate-300 mb-2" data-i18n="profile.email">E-posta</label>
+                            <input type="email" name="email" id="email" class="input w-full bg-slate-700/50 cursor-not-allowed opacity-70" readonly>
                         </div>
-                        <button type="button" class="btn w-full" id="update-account-info"> Bilgileri Güncelle</button>
+                        <button type="button" class="btn w-full" id="update-account-info" data-i18n="profile.updateInfo"> Bilgileri Güncelle</button>
                     </div>
                 </div>
                 <div class="card">
-                    <h3 class="text-lg font-semibold text-slate-100 mb-4"> Güvenlik Ayarları</h3>
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4" data-i18n="profile.security"> Güvenlik Ayarları</h3>
                     <div class="space-y-4" id="security-settings-form">
                         <div>
                             <label class="flex items-center justify-between">
-                                <span class="text-slate-300">İki Faktörlü Doğrulama</span>
+                                <span class="text-slate-300" data-i18n="profile.twoFactor">İki Faktörlü Doğrulama</span>
                                 <input type="checkbox" class="w-5 h-5 text-violet-500">
                             </label>
-                            <p class="text-slate-400 text-sm mt-1">Hesabınızı extra güvenlik katmanıyla koruyun</p>
+                            <p class="text-slate-400 text-sm mt-1" data-i18n="profile.twoFactorDesc">Hesabınızı extra güvenlik katmanıyla koruyun</p>
                         </div>
                         <div>
                             <label class="flex items-center justify-between">
-                                <span class="text-slate-300">E-posta Bildirimleri</span>
+                                <span class="text-slate-300" data-i18n="profile.emailNotifications">E-posta Bildirimleri</span>
                                 <input type="checkbox" checked class="w-5 h-5 text-violet-500">
                             </label>
-                            <p class="text-slate-400 text-sm mt-1">Oyun güncellemeleri ve etkinlik bildirimleri</p>
+                            <p class="text-slate-400 text-sm mt-1" data-i18n="profile.emailNotificationsDesc">Oyun güncellemeleri ve etkinlik bildirimleri</p>
                         </div>
                         <div>
                             <label class="flex items-center justify-between">
-                                <span class="text-slate-300">Profil Görünürlüğü</span>
+                                <span class="text-slate-300" data-i18n="profile.profileVisibility">Profil Görünürlüğü</span>
                                 <select class="input">
-                                    <option value="public">Herkese Açık</option>
-                                    <option value="friends">Sadece Arkadaşlar</option>
-                                    <option value="private">Özel</option>
+                                    <option value="public" data-i18n="profile.public">Herkese Açık</option>
+                                    <option value="friends" data-i18n="profile.friendsOnly">Sadece Arkadaşlar</option>
+                                    <option value="private" data-i18n="profile.private">Özel</option>
                                 </select>
                             </label>
                         </div>
-                        <button class="btn w-full"> Şifre Değiştir</button>
+                        <button class="btn w-full" data-i18n="profile.changePassword"> Şifre Değiştir</button>
                     </div>
                 </div>
                 <div class="card border-rose-600 bg-rose-900/20 lg:col-span-2">
-                    <h3 class="text-lg font-semibold text-rose-300 mb-4"> Tehlikeli Bölge</h3>
+                    <h3 class="text-lg font-semibold text-rose-300 mb-4" data-i18n="profile.dangerZone"> Tehlikeli Bölge</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-4">
-                            <h4 class="text-rose-200 font-medium">Hesap İşlemleri</h4>
+                            <h4 class="text-rose-200 font-medium" data-i18n="profile.accountActions">Hesap İşlemleri</h4>
                             <div class="space-y-2">
-                                <button class="btn bg-rose-700 hover:bg-rose-600 w-full text-sm"> Tüm Verileri Sıfırla</button>
-                                <button class="btn bg-rose-800 hover:bg-rose-700 w-full text-sm"> Veri Dışa Aktar</button>
+                                <button class="btn bg-rose-700 hover:bg-rose-600 w-full text-sm" data-i18n="profile.resetData"> Tüm Verileri Sıfırla</button>
+                                <button class="btn bg-rose-800 hover:bg-rose-700 w-full text-sm" data-i18n="profile.exportData"> Veri Dışa Aktar</button>
                             </div>
                         </div>
                         <div class="space-y-4">
-                            <h4 class="text-rose-200 font-medium">Hesap Silme</h4>
-                            <p class="text-rose-200 text-sm">
+                            <h4 class="text-rose-200 font-medium" data-i18n="profile.deleteAccount">Hesap Silme</h4>
+                            <p class="text-rose-200 text-sm" data-i18n="profile.deleteWarning">
                                 Hesabınızı silmek geri alınamaz bir işlemdir. Tüm verileriniz kalıcı olarak silinecektir.
                             </p>
-                            <button class="btn btn-danger w-full"> Hesabı Kalıcı Olarak Sil</button>
+                            <button class="btn btn-danger w-full" data-i18n="profile.deletePermanent"> Hesabı Kalıcı Olarak Sil</button>
                         </div>
                     </div>
                 </div>

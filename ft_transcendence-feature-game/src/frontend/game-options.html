@@ -1,7 +1,7 @@
 <div class="max-w-6xl mx-auto space-y-8">
     <!-- Game Modes -->
     <div class="card animate-fade-in">
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow" data-i18n="gameOptions.selectMode">
             Oyun Modunu Seç
         </h1>
 
@@ -27,8 +27,8 @@
                                     transparent 10px);"></div>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Modern Pong Deneyimi</h3>
-                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Modern tasarım, özel modlar, kişiselleştirilebilir oyun ortamı ile Pong oyna!</p>
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4" data-i18n="gameOptions.modernPong">Modern Pong Deneyimi</h3>
+                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base" data-i18n="gameOptions.modernDesc">Modern tasarım, özel modlar, kişiselleştirilebilir oyun ortamı ile Pong oyna!</p>
                     </div>
                 </div>
             </div>
@@ -37,8 +37,8 @@
             <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300" data-game-mode="nostalgia">
                 <div class="flex items-center gap-4 sm:gap-6">
                     <div class="flex-1">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Nostalji Pong Deneyimi</h3>
-                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">3D Oyun Kutusunda 1974 Pong tasarımı ile Nostalji Pong Oyna! </p>
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4" data-i18n="gameOptions.nostalgiaPong">Nostalji Pong Deneyimi</h3>
+                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base" data-i18n="gameOptions.nostalgiaDesc">3D Oyun Kutusunda 1974 Pong tasarımı ile Nostalji Pong Oyna! </p>
                     </div>
                     <div class="relative w-24 h-16 rounded-md border border-white/10 bg-black overflow-hidden shadow-lg ml-auto">
                         <div class="absolute left-1 top-3 w-2 h-6 bg-white"></div>
@@ -72,8 +72,8 @@
                         <div class="absolute inset-x-1 bottom-1 h-px bg-white/10"></div>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Turnuva</h3>
-                        <p class="text-white/80 mb-3 sm:text-base">Eleme tablosuna adını yaz, kupayı kapmak için turları birer birer geç. Pong turnuva deneyimi sayesinde arkadaşların ile rekabetin keyfini çıkar!</p>
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4" data-i18n="gameOptions.tournament">Turnuva</h3>
+                        <p class="text-white/80 mb-3 sm:text-base" data-i18n="gameOptions.tournamentDesc">Eleme tablosuna adını yaz, kupayı kapmak için turları birer birer geç. Pong turnuva deneyimi sayesinde arkadaşların ile rekabetin keyfini çıkar!</p>
                     </div>
                 </div>
             </div>
@@ -81,23 +81,23 @@
     </div>
     <div class="card animate-fade-in mt-8 hidden" data-game-mode-settings="nostalgia">
         <div class="flex items-center gap-3 mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-purple-400" tabindex="-1">Nostalji Pong Ayarları</h2>
+            <h2 class="text-xl sm:text-2xl font-bold text-purple-400" tabindex="-1" data-i18n="gameOptions.nostalgiaSettings">Nostalji Pong Ayarları</h2>
         </div>
 
         <div class="space-y-6">
             <!-- Oyun Modu Seçimi -->
             <div class="pr-6 pl-6 rounded-lg" id="nostalgia-mode-selector">
-                <h3 class="text-lg font-bold text-white mb-4">Oyuncu Sayısı</h3>
+                <h3 class="text-lg font-bold text-white mb-4" data-i18n="gameOptions.playerCount">Oyuncu Sayısı</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <button class="nostalgia-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-nostalgia-mode="1v1">
                         <span class="text-2xl">👥</span>
-                        <span class="text-sm">2 Kişilik Pong</span>
-                        <span class="text-xs text-slate-300">(İnsan vs İnsan)</span>
+                        <span class="text-sm" data-i18n="gameOptions.twoPlayer">2 Kişilik Pong</span>
+                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsHuman">(İnsan vs İnsan)</span>
                     </button>
                     <button class="nostalgia-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-nostalgia-mode="1vAI">
                         <span class="text-2xl">🤖</span>
-                        <span class="text-sm">Tek Kişilik Pong</span>
-                        <span class="text-xs text-slate-300">(İnsan vs AI)</span>
+                        <span class="text-sm" data-i18n="gameOptions.singlePlayer">Tek Kişilik Pong</span>
+                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsAI">(İnsan vs AI)</span>
                     </button>
                 </div>
             </div>
@@ -160,30 +160,31 @@
             <!-- Başlat Butonu -->
             <button id="start-nostalgia-btn"
                 class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-4 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
+                disabled
+                data-i18n="gameOptions.startGame">
                 OYUNU BAŞLAT
             </button>
         </div>
     </div>
     <div class="card animate-fade-in mt-8 hidden" data-game-mode-settings="modern">
         <div class="flex items-center gap-3 mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-cyan-400" tabindex="-1">Modern Pong Ayarları</h2>
+            <h2 class="text-xl sm:text-2xl font-bold text-cyan-400" tabindex="-1" data-i18n="gameOptions.modernSettings">Modern Pong Ayarları</h2>
         </div>
 
         <div class="space-y-6">
             <!-- Oyun Modu Seçimi -->
             <div class="pr-6 pl-6 rounded-lg" id="modern-mode-selector">
-                <h3 class="text-lg font-bold text-white mb-4">Oyuncu Sayısı</h3>
+                <h3 class="text-lg font-bold text-white mb-4" data-i18n="gameOptions.playerCount">Oyuncu Sayısı</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <button class="modern-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-modern-mode="1v1">
                         <span class="text-2xl">👥</span>
-                        <span class="text-sm">2 Kişilik Pong</span>
-                        <span class="text-xs text-slate-300">(İnsan vs İnsan)</span>
+                        <span class="text-sm" data-i18n="gameOptions.twoPlayer">2 Kişilik Pong</span>
+                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsHuman">(İnsan vs İnsan)</span>
                     </button>
                     <button class="modern-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-modern-mode="1vAI">
                         <span class="text-2xl">🤖</span>
-                        <span class="text-sm">Tek Kişilik Pong</span>
-                        <span class="text-xs text-slate-300">(İnsan vs AI)</span>
+                        <span class="text-sm" data-i18n="gameOptions.singlePlayer">Tek Kişilik Pong</span>
+                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsAI">(İnsan vs AI)</span>
                     </button>
                 </div>
             </div>
@@ -269,7 +270,8 @@
             <!-- Başlat Butonu -->
             <button id="start-modern-btn"
                 class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-4 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
+                disabled
+                data-i18n="gameOptions.startGame">
                 OYUNU BAŞLAT
             </button>
         </div>
