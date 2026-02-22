@@ -33,24 +33,20 @@ export class ThemeManager {
         } else {
             this.setupTheme();
         }
-
+        
         let isRefreshing = false; // Çakışmaları önlemek için kilit
 
-
+        
         setInterval(async () => {
             const expiresAt = localStorage.getItem('expiresAt');
             const refreshToken = localStorage.getItem('refreshToken');
-            const unauthorizedPages = ['/register', '/reset-password', '/login'];
 
             if (!expiresAt) {
-                // Auth sayfalarında token gerekmez - gereksiz API çağrısı yapma
-                if (unauthorizedPages.includes(window.location.pathname)) {
-                    return;
-                }
-                console.log("Token bulunamadı. Oturum kontrolü yapılıyor...");
+                console.log("Token bulunamadı.");
                 let response = await Api.get('/api/users/me');
                 console.log('Auth check response:', response);
-                if (!response.success) {
+                let unauthorizedPages = ['/register', '/reset-password', '/login'];
+                if (!response.success && !unauthorizedPages.includes(window.location.pathname)) {
                     window.location.href = '/login';
                 }
                 return;
@@ -58,9 +54,14 @@ export class ThemeManager {
 
             const now = Date.now();
             const expiresTimestamp = new Date(expiresAt).getTime();
-            const timeLeftMs = expiresTimestamp - now;
+            const timeLeftMs = expiresTimestamp - now; // Kalan milisaniye
 
+            // Zamanı formatla (Dakika:Saniye)
+            const minutes = Math.floor(timeLeftMs / 60000);
+            const seconds = Math.floor((timeLeftMs % 60000) / 1000);
+            const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             const howMany = 14 * 60 * 1000;
+            console.log(`Token Bitiş Zamanı: ${new Date(expiresAt).toLocaleString()}, Kalan Süre: ${formattedTimeLeft}`);
             if (timeLeftMs < howMany && !isRefreshing && refreshToken) {
                 try {
                     isRefreshing = true;
@@ -83,8 +84,8 @@ export class ThemeManager {
                     isRefreshing = false;
                 }
             }
-        }, 30000); // 30 saniyede bir kontrol et (1s → 30s)
-
+        }, 1000);
+        
     }
 
     private setupTheme(): void {
@@ -458,7 +459,7 @@ class App {
     private async renderNostalgia(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.GAME_NOSTALGIA);
         await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_NOSTALGIA, false);
-
+        
         // 3D Pong oyununu başlat
         this.delayedExecution(async () => {
             const { Pong3DGame } = await import('./3D-game/pong3d');
@@ -684,7 +685,7 @@ class App {
         }
 
         if (avatarEl && user.avatarUrl) {
-            avatarEl.src = "https://localhost" + user.avatarUrl;
+            avatarEl.src = "https://localhost:3000" + user.avatarUrl;
             // Eğer avatarUrl yoksa varsayılan Dicebear linki HTML'de kalacaktır.
         }
 
@@ -902,6 +903,20 @@ class App {
         await this.loadTemplate('login', false);
 
         this.delayedExecution(() => {
+             const intraBtn = document.getElementById('guest-login-btn');
+        if (intraBtn) {
+            intraBtn.addEventListener('click', async () => {
+                try {
+                const response = await Api.get('/api/oauth/42');
+                const authUrl = response.data?.authUrl || response.data?.url || response.data;
+                if (authUrl) {
+                    window.location.href = authUrl;
+                }
+            } catch (err) {
+                console.error('Intra OAuth error:', err);
+            }
+            });
+        }
             const form = document.getElementById('login-form') as HTMLFormElement | null;
             if (!form) return;
             form.addEventListener('submit', async (e) => {
@@ -928,6 +943,7 @@ class App {
             });
         }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
+
 
     private async renderRegister(): Promise<void> {
         await this.loadTemplate('register', false);
