@@ -873,11 +873,109 @@ class App {
         this.delayedExecution(() => {
             const form = document.getElementById('register-form') as HTMLFormElement | null;
             if (!form) return;
+
+            // Kullanım koşulları modal işlevleri
+            const termsLink = document.getElementById('terms-link');
+            const termsModal = document.getElementById('terms-modal');
+            const termsClose = document.getElementById('terms-close');
+            const termsAccept = document.getElementById('terms-accept');
+
+            if (termsLink && termsModal) {
+                termsLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    termsModal.classList.remove('hidden');
+                    termsModal.classList.add('flex');
+                });
+
+                termsClose?.addEventListener('click', () => {
+                    termsModal.classList.add('hidden');
+                    termsModal.classList.remove('flex');
+                });
+
+                termsAccept?.addEventListener('click', () => {
+                    termsModal.classList.add('hidden');
+                    termsModal.classList.remove('flex');
+                    const checkbox = form.querySelector('input[type="checkbox"]') as HTMLInputElement;
+                    if (checkbox) checkbox.checked = true;
+                });
+
+                termsModal.addEventListener('click', (e) => {
+                    if (e.target === termsModal) {
+                        termsModal.classList.add('hidden');
+                        termsModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            // Şifre validasyonu
+            const passwordInput = document.getElementById('password') as HTMLInputElement;
+            const passwordError = document.getElementById('password-error');
+            const reqLength = document.getElementById('req-length');
+            const reqLowercase = document.getElementById('req-lowercase');
+            const reqUppercase = document.getElementById('req-uppercase');
+            const reqNumber = document.getElementById('req-number');
+            const reqSpecial = document.getElementById('req-special');
+
+            const updateRequirement = (el: HTMLElement | null, valid: boolean) => {
+                if (!el) return;
+                const icon = el.querySelector('.req-icon');
+                if (valid) {
+                    el.classList.remove('text-slate-500', 'text-red-400');
+                    el.classList.add('text-green-400');
+                    if (icon) icon.textContent = '✓';
+                } else {
+                    el.classList.remove('text-green-400', 'text-red-400');
+                    el.classList.add('text-slate-500');
+                    if (icon) icon.textContent = '○';
+                }
+            };
+
+            const validatePassword = (pw: string) => {
+                const checks = {
+                    length: pw.length >= 8,
+                    lowercase: /[a-z]/.test(pw),
+                    uppercase: /[A-Z]/.test(pw),
+                    number: /[0-9]/.test(pw),
+                    special: /[^a-zA-Z0-9]/.test(pw),
+                };
+                updateRequirement(reqLength, checks.length);
+                updateRequirement(reqLowercase, checks.lowercase);
+                updateRequirement(reqUppercase, checks.uppercase);
+                updateRequirement(reqNumber, checks.number);
+                updateRequirement(reqSpecial, checks.special);
+                return checks.length && checks.lowercase && checks.uppercase && checks.number && checks.special;
+            };
+
+            if (passwordInput) {
+                passwordInput.addEventListener('input', () => {
+                    validatePassword(passwordInput.value);
+                    if (passwordError) {
+                        passwordError.classList.add('hidden');
+                        passwordError.textContent = '';
+                    }
+                });
+            }
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 let displayName = (document.getElementById('displayName') as HTMLInputElement).value;
                 let email = (document.getElementById('email') as HTMLInputElement).value;
                 let password = (document.getElementById('password') as HTMLInputElement).value;
+
+                // Frontend şifre politikası kontrolü
+                if (!validatePassword(password)) {
+                    if (passwordError) {
+                        passwordError.textContent = 'Şifre politikasına uygun değil. Lütfen tüm gereksinimleri karşılayın.';
+                        passwordError.classList.remove('hidden');
+                    }
+                    if (password.length < 8 && reqLength) { reqLength.classList.remove('text-slate-500'); reqLength.classList.add('text-red-400'); }
+                    if (!/[a-z]/.test(password) && reqLowercase) { reqLowercase.classList.remove('text-slate-500'); reqLowercase.classList.add('text-red-400'); }
+                    if (!/[A-Z]/.test(password) && reqUppercase) { reqUppercase.classList.remove('text-slate-500'); reqUppercase.classList.add('text-red-400'); }
+                    if (!/[0-9]/.test(password) && reqNumber) { reqNumber.classList.remove('text-slate-500'); reqNumber.classList.add('text-red-400'); }
+                    if (!/[^a-zA-Z0-9]/.test(password) && reqSpecial) { reqSpecial.classList.remove('text-slate-500'); reqSpecial.classList.add('text-red-400'); }
+                    return;
+                }
+
                 try {
                     await Api.post('/api/auth/register', { displayName, email, password });
                     alert('Kayıt başarılı. Giriş sayfasına yönlendiriliyorsunuz.');

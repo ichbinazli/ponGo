@@ -35,9 +35,8 @@ export class ThemeManager {
             this.setupTheme();
         }
         
-        let isRefreshing = false; // Çakışmaları önlemek için kilit
+        let isRefreshing = false;
 
-        
         setInterval(async () => {
             const expiresAt = localStorage.getItem('expiresAt');
             const refreshToken = localStorage.getItem('refreshToken');
@@ -55,9 +54,8 @@ export class ThemeManager {
 
             const now = Date.now();
             const expiresTimestamp = new Date(expiresAt).getTime();
-            const timeLeftMs = expiresTimestamp - now; // Kalan milisaniye
+            const timeLeftMs = expiresTimestamp - now;
 
-            // Zamanı formatla (Dakika:Saniye)
             const minutes = Math.floor(timeLeftMs / 60000);
             const seconds = Math.floor((timeLeftMs % 60000) / 1000);
             const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -86,7 +84,6 @@ export class ThemeManager {
                 }
             }
         }, 1000);
-        
     }
 
     private setupTheme(): void {
@@ -99,16 +96,13 @@ export class ThemeManager {
             return;
         }
 
-        // Apply saved theme
         this.applyTheme(this.isDarkMode);
-
-        // Setup click event
         this.toggleButton.addEventListener('click', () => this.toggleTheme());
     }
 
     private loadThemePreference(): boolean {
         const savedTheme = localStorage.getItem('theme');
-        return savedTheme !== 'light'; // Default to dark mode
+        return savedTheme !== 'light';
     }
 
     private saveThemePreference(isDark: boolean): void {
@@ -206,7 +200,6 @@ class App {
         this.apiClient = new APIClient();
         this.router = new Router();
         this.i18n = I18n.getInstance();
-        // Initialize theme manager (removing unused variable warning)
         ThemeManager.getInstance();
         this.init();
     }
@@ -222,7 +215,6 @@ class App {
 
     private async preloadTemplates(): Promise<void> {
         const templates = Object.values(CONSTANTS.TEMPLATES);
-        // also include auth templates
         templates.push('login', 'register', 'reset-password');
         await TemplateLoader.preloadTemplates(templates).catch(console.error);
     }
@@ -426,7 +418,6 @@ class App {
         });
     }
 
-
     // Page Renderers
     private async renderHome(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.HOME);
@@ -450,7 +441,6 @@ class App {
         await this.loadTemplate(CONSTANTS.TEMPLATES.GAME, false);
         const scoreboard = document.getElementById('scoreboard');
         if (scoreboard) scoreboard.scrollIntoView({ block: 'start', behavior: 'auto' });
-        // Lazy-load game engine after template is in the DOM so UI refs resolve
         const { initGameEngine } = await import('./game/gameEngine');
         initGameEngine();
     }
@@ -465,7 +455,6 @@ class App {
         this.updateActiveNavLink(CONSTANTS.ROUTES.GAME_NOSTALGIA);
         await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_NOSTALGIA, false);
         
-        // 3D Pong oyununu başlat
         this.delayedExecution(async () => {
             const { Pong3DGame } = await import('./3D-game/pong3d');
             const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
@@ -483,7 +472,6 @@ class App {
 
     private async renderLeaderboard(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.LEADERBOARD);
-
         this.renderPage(this.createResponsiveContainer(this.createLoadingSpinner()));
 
         try {
@@ -542,10 +530,9 @@ class App {
     }
 
     private initProfilePhotoUpload(): void {
-        // Elementi bulana kadar bekle
         const checkAndInit = () => {
-            const addPhotoBtn = document.getElementById('edit-avatar-btn'); // ← DEĞİŞTİ
-            const photoUpload = document.getElementById('avatar-upload') as HTMLInputElement; // ← DEĞİŞTİ
+            const addPhotoBtn = document.getElementById('edit-avatar-btn');
+            const photoUpload = document.getElementById('avatar-upload') as HTMLInputElement;
             const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement;
 
             if (!addPhotoBtn || !photoUpload || !profileAvatar) {
@@ -616,6 +603,7 @@ class App {
             this.delayedExecution(() => {
                 this.setupProfileTabs();
                 this.initProfilePhotoUpload();
+                this.setupDangerZone();
             }, CONSTANTS.TIMEOUTS.DOM_READY);
 
             const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
@@ -638,20 +626,16 @@ class App {
         }
     }
 
-
-
     private async fillProfileData(stats: any): Promise<void> {
         if (!stats.success) return;
 
         const statsData = stats.data;
         let user = JSON.parse(localStorage.getItem('user') || '{}');
 
-        // 1. Maç Geçmişini Doldur
         let response = await Api.get('/api/stats/recent-matches?limit=10');
         if (response.success) {
             const tableBody = document.getElementById('game-history-table');
             if (tableBody) {
-                // Tabloyu her seferinde sıfırlamak istersen: tableBody.innerHTML = '';
                 response.data.matches.forEach((item: any) => {
                     const isPlayer1 = item.player1_id === user.id;
                     const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
@@ -681,7 +665,6 @@ class App {
             }
         }
 
-        // 2. Profil Bilgilerini Güncelle (HTML yapısını bozmadan)
         const usernameEl = document.getElementById('profile-username');
         const avatarEl = document.getElementById('profile-avatar') as HTMLImageElement;
 
@@ -691,10 +674,8 @@ class App {
 
         if (avatarEl && user.avatarUrl) {
             avatarEl.src = "https://localhost:3000" + user.avatarUrl;
-            // Eğer avatarUrl yoksa varsayılan Dicebear linki HTML'de kalacaktır.
         }
 
-        // 3. İstatistik Kartlarını Güncelle
         const statsGridContainer = document.getElementById('stats-grid-container');
         if (statsGridContainer) {
             statsGridContainer.innerHTML = `
@@ -725,6 +706,7 @@ class App {
         `;
         }
     }
+
     private setupProfileTabs(): void {
         const tabs = document.querySelectorAll('.profile-tab');
         const panels = document.querySelectorAll('.tab-panel');
@@ -743,6 +725,87 @@ class App {
         });
     }
 
+    private setupDangerZone(): void {
+        // Tüm Verileri Sıfırla
+        const resetBtn = document.querySelector('[data-i18n="profile.resetData"]') as HTMLButtonElement;
+        if (resetBtn) {
+            resetBtn.addEventListener('click', async () => {
+                const confirmed = confirm(this.i18n.t('confirm.resetData'));
+                if (!confirmed) return;
+
+                try {
+                    const response = await Api.post('/api/gdpr/anonymize', {});
+                    if (response.success) {
+                        alert(this.i18n.t('alert.resetDataSuccess'));
+                        localStorage.clear();
+                        Api.setAuthToken('');
+                        this.router.navigate('/login');
+                    } else {
+                        alert(this.i18n.t('alert.resetDataFailed'));
+                    }
+                } catch (err) {
+                    console.error('Reset data error:', err);
+                    alert(this.i18n.t('alert.resetDataFailed'));
+                }
+            });
+        }
+
+        // Veri Dışa Aktar
+        const exportBtn = document.querySelector('[data-i18n="profile.exportData"]') as HTMLButtonElement;
+        if (exportBtn) {
+            exportBtn.addEventListener('click', async () => {
+                try {
+                    const response = await Api.get('/api/gdpr/export');
+                    if (response.success) {
+                        const dataStr = JSON.stringify(response.data, null, 2);
+                        const blob = new Blob([dataStr], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'my-data-export.json';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        alert(this.i18n.t('alert.exportSuccess'));
+                    } else {
+                        alert(this.i18n.t('alert.exportFailed'));
+                    }
+                } catch (err) {
+                    console.error('Export data error:', err);
+                    alert(this.i18n.t('alert.exportFailed'));
+                }
+            });
+        }
+
+        // Hesabı Kalıcı Olarak Sil
+        const deleteBtn = document.querySelector('[data-i18n="profile.deletePermanent"]') as HTMLButtonElement;
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', async () => {
+                const confirmed = confirm(this.i18n.t('confirm.deleteAccount'));
+                if (!confirmed) return;
+
+                const doubleConfirm = confirm(this.i18n.t('confirm.deleteAccountFinal'));
+                if (!doubleConfirm) return;
+
+                try {
+                    const response = await Api.delete('/api/gdpr/delete');
+                    if (response.success) {
+                        alert(this.i18n.t('alert.deleteSuccess'));
+                        localStorage.clear();
+                        Api.setAuthToken('');
+                        this.router.navigate('/login');
+                    } else {
+                        alert(this.i18n.t('alert.deleteFailed'));
+                    }
+                } catch (err) {
+                    console.error('Delete account error:', err);
+                    alert(this.i18n.t('alert.deleteFailed'));
+                }
+            });
+        }
+    }
+
     private async renderSettings(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.SETTINGS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.SETTINGS);
@@ -750,7 +813,6 @@ class App {
         this.delayedExecution(() => {
             const langSelect = document.getElementById('language-select') as HTMLSelectElement | null;
             if (langSelect) {
-                // Set current language as selected
                 langSelect.value = this.i18n.getLanguage();
                 
                 langSelect.addEventListener('change', () => {
@@ -783,9 +845,9 @@ class App {
     }
 
     private async renderFriends(): Promise<void> {
-        let friends = await Api.get('/api/friends'); // Just to simulate API call
+        let friends = await Api.get('/api/friends');
         console.log(friends);
-        let pending = await Api.get('/api/friends/requests/pending'); // Just to simulate API call
+        let pending = await Api.get('/api/friends/requests/pending');
         console.log(pending);
         this.updateActiveNavLink(CONSTANTS.ROUTES.FRIENDS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.FRIENDS);
@@ -921,20 +983,21 @@ class App {
         await this.loadTemplate('login', false);
 
         this.delayedExecution(() => {
-             const intraBtn = document.getElementById('guest-login-btn');
-        if (intraBtn) {
-            intraBtn.addEventListener('click', async () => {
-                try {
-                const response = await Api.get('/api/oauth/42');
-                const authUrl = response.data?.authUrl || response.data?.url || response.data;
-                if (authUrl) {
-                    window.location.href = authUrl;
-                }
-            } catch (err) {
-                console.error('Intra OAuth error:', err);
+            const intraBtn = document.getElementById('guest-login-btn');
+            if (intraBtn) {
+                intraBtn.addEventListener('click', async () => {
+                    try {
+                        const response = await Api.get('/api/oauth/42');
+                        const authUrl = response.data?.authUrl || response.data?.url || response.data;
+                        if (authUrl) {
+                            window.location.href = authUrl;
+                        }
+                    } catch (err) {
+                        console.error('Intra OAuth error:', err);
+                    }
+                });
             }
-            });
-        }
+
             const form = document.getElementById('login-form') as HTMLFormElement | null;
             if (!form) return;
             form.addEventListener('submit', async (e) => {
@@ -962,18 +1025,116 @@ class App {
         }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 
-
     private async renderRegister(): Promise<void> {
         await this.loadTemplate('register', false);
 
         this.delayedExecution(() => {
             const form = document.getElementById('register-form') as HTMLFormElement | null;
             if (!form) return;
+
+            // Kullanım koşulları modal işlevleri
+            const termsLink = document.getElementById('terms-link');
+            const termsModal = document.getElementById('terms-modal');
+            const termsClose = document.getElementById('terms-close');
+            const termsAccept = document.getElementById('terms-accept');
+
+            if (termsLink && termsModal) {
+                termsLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    termsModal.classList.remove('hidden');
+                    termsModal.classList.add('flex');
+                });
+
+                termsClose?.addEventListener('click', () => {
+                    termsModal.classList.add('hidden');
+                    termsModal.classList.remove('flex');
+                });
+
+                termsAccept?.addEventListener('click', () => {
+                    termsModal.classList.add('hidden');
+                    termsModal.classList.remove('flex');
+                    const checkbox = form.querySelector('input[type="checkbox"]') as HTMLInputElement;
+                    if (checkbox) checkbox.checked = true;
+                });
+
+                termsModal.addEventListener('click', (e) => {
+                    if (e.target === termsModal) {
+                        termsModal.classList.add('hidden');
+                        termsModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            // Şifre validasyonu
+            const passwordInput = document.getElementById('password') as HTMLInputElement;
+            const passwordError = document.getElementById('password-error');
+            const reqLength = document.getElementById('req-length');
+            const reqLowercase = document.getElementById('req-lowercase');
+            const reqUppercase = document.getElementById('req-uppercase');
+            const reqNumber = document.getElementById('req-number');
+            const reqSpecial = document.getElementById('req-special');
+
+            const updateRequirement = (el: HTMLElement | null, valid: boolean) => {
+                if (!el) return;
+                const icon = el.querySelector('.req-icon');
+                if (valid) {
+                    el.classList.remove('text-slate-500', 'text-red-400');
+                    el.classList.add('text-green-400');
+                    if (icon) icon.textContent = '✓';
+                } else {
+                    el.classList.remove('text-green-400', 'text-red-400');
+                    el.classList.add('text-slate-500');
+                    if (icon) icon.textContent = '○';
+                }
+            };
+
+            const validatePassword = (pw: string) => {
+                const checks = {
+                    length: pw.length >= 8,
+                    lowercase: /[a-z]/.test(pw),
+                    uppercase: /[A-Z]/.test(pw),
+                    number: /[0-9]/.test(pw),
+                    special: /[^a-zA-Z0-9]/.test(pw),
+                };
+                updateRequirement(reqLength, checks.length);
+                updateRequirement(reqLowercase, checks.lowercase);
+                updateRequirement(reqUppercase, checks.uppercase);
+                updateRequirement(reqNumber, checks.number);
+                updateRequirement(reqSpecial, checks.special);
+                return checks.length && checks.lowercase && checks.uppercase && checks.number && checks.special;
+            };
+
+            if (passwordInput) {
+                passwordInput.addEventListener('input', () => {
+                    validatePassword(passwordInput.value);
+                    if (passwordError) {
+                        passwordError.classList.add('hidden');
+                        passwordError.textContent = '';
+                    }
+                });
+            }
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 let displayName = (document.getElementById('displayName') as HTMLInputElement).value;
                 let email = (document.getElementById('email') as HTMLInputElement).value;
                 let password = (document.getElementById('password') as HTMLInputElement).value;
+
+                // Frontend şifre politikası kontrolü
+                if (!validatePassword(password)) {
+                    if (passwordError) {
+                        passwordError.textContent = this.i18n.t('register.pwError');
+                        passwordError.classList.remove('hidden');
+                    }
+                    // Karşılanmayan gereksinimleri kırmızı yap
+                    if (password.length < 8 && reqLength) { reqLength.classList.remove('text-slate-500'); reqLength.classList.add('text-red-400'); }
+                    if (!/[a-z]/.test(password) && reqLowercase) { reqLowercase.classList.remove('text-slate-500'); reqLowercase.classList.add('text-red-400'); }
+                    if (!/[A-Z]/.test(password) && reqUppercase) { reqUppercase.classList.remove('text-slate-500'); reqUppercase.classList.add('text-red-400'); }
+                    if (!/[0-9]/.test(password) && reqNumber) { reqNumber.classList.remove('text-slate-500'); reqNumber.classList.add('text-red-400'); }
+                    if (!/[^a-zA-Z0-9]/.test(password) && reqSpecial) { reqSpecial.classList.remove('text-slate-500'); reqSpecial.classList.add('text-red-400'); }
+                    return;
+                }
+
                 try {
                     await Api.post('/api/auth/register', { displayName, email, password });
                     alert(this.i18n.t('alert.registerSuccess'));

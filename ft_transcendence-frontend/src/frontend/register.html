@@ -54,6 +54,26 @@
                    text-white placeholder-slate-400 focus:outline-none
                    focus:ring-2 focus:ring-purple-500 transition"
           />
+          <!-- Şifre hata mesajı -->
+          <p id="password-error" class="text-red-400 text-xs mt-2 hidden"></p>
+          <!-- Şifre gereksinimleri -->
+          <ul id="password-requirements" class="mt-3 space-y-1 text-xs">
+            <li id="req-length" class="flex items-center gap-2 text-slate-500">
+              <span class="req-icon">○</span> En az 8 karakter
+            </li>
+            <li id="req-lowercase" class="flex items-center gap-2 text-slate-500">
+              <span class="req-icon">○</span> En az bir küçük harf
+            </li>
+            <li id="req-uppercase" class="flex items-center gap-2 text-slate-500">
+              <span class="req-icon">○</span> En az bir büyük harf
+            </li>
+            <li id="req-number" class="flex items-center gap-2 text-slate-500">
+              <span class="req-icon">○</span> En az bir rakam
+            </li>
+            <li id="req-special" class="flex items-center gap-2 text-slate-500">
+              <span class="req-icon">○</span> En az bir özel karakter
+            </li>
+          </ul>
         </div>
         <label class="flex items-center text-sm text-slate-300">
           <input
@@ -62,8 +82,49 @@
             class="mr-2 rounded border-white/20 bg-white/5 text-purple-500
                    focus:ring-purple-500 focus:ring-offset-0"
           />
-          Kullanım koşullarını kabul ediyorum
+          <span>
+            <a href="#" id="terms-link" class="text-purple-400 hover:text-purple-300 underline transition">
+              Kullanım koşullarını
+            </a> kabul ediyorum
+          </span>
         </label>
+
+        <!-- Kullanım Koşulları Modal -->
+        <div id="terms-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div class="bg-slate-900 border border-white/20 rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between p-6 border-b border-white/10">
+              <h3 class="text-xl font-bold text-white">Kullanım Koşulları</h3>
+              <button id="terms-close" type="button" class="text-slate-400 hover:text-white transition text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto text-sm text-slate-300 space-y-4 flex-1">
+              <h4 class="text-white font-semibold text-base">1. Genel Koşullar</h4>
+              <p>Bu platformu kullanarak aşağıdaki koşulları kabul etmiş olursunuz. Platform, ft_transcendence projesi kapsamında eğitim amaçlı geliştirilmiştir.</p>
+
+              <h4 class="text-white font-semibold text-base">2. Hesap Güvenliği</h4>
+              <p>Hesabınızın güvenliğinden siz sorumlusunuz. Şifrenizi kimseyle paylaşmamalı ve güçlü bir şifre kullanmalısınız. Hesabınızda gerçekleşen tüm etkinliklerden siz sorumlusunuz.</p>
+
+              <h4 class="text-white font-semibold text-base">3. Kullanıcı Davranışları</h4>
+              <p>Platformda diğer kullanıcılara karşı saygılı olmanız beklenir. Hakaret, spam, hile veya kötüye kullanım gibi davranışlar hesabınızın askıya alınmasına neden olabilir.</p>
+
+              <h4 class="text-white font-semibold text-base">4. Gizlilik</h4>
+              <p>Kişisel verileriniz güvenli bir şekilde saklanır. E-posta adresiniz ve kullanıcı bilgileriniz üçüncü taraflarla paylaşılmaz. Verilerinizi istediğiniz zaman silme hakkına sahipsiniz.</p>
+
+              <h4 class="text-white font-semibold text-base">5. Oyun Kuralları</h4>
+              <p>Oyunlarda adil oyun ilkelerine uymanız gerekmektedir. Hile programları veya üçüncü parti yazılımlar kullanmak yasaktır.</p>
+
+              <h4 class="text-white font-semibold text-base">6. Sorumluluk Reddi</h4>
+              <p>Bu platform "olduğu gibi" sunulmaktadır. Eğitim amaçlı bir proje olup, herhangi bir garanti verilmemektedir. Platform yöneticileri, hizmet kesintileri veya veri kayıplarından sorumlu tutulamaz.</p>
+
+              <h4 class="text-white font-semibold text-base">7. Değişiklikler</h4>
+              <p>Bu koşullar önceden haber verilmeksizin güncellenebilir. Platformu kullanmaya devam etmeniz, güncellenmiş koşulları kabul ettiğiniz anlamına gelir.</p>
+            </div>
+            <div class="p-6 border-t border-white/10">
+              <button id="terms-accept" type="button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-[1.02] active:scale-[0.98]">
+                Anladım, Kabul Ediyorum
+              </button>
+            </div>
+          </div>
+        </div>
         <button
           type="submit"
           class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold
