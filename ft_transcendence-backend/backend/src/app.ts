@@ -8,6 +8,7 @@ import { join } from 'path';
 import { env } from './config/env.js';
 import { initializeDatabase, closeDatabase } from './database/index.js';
 import { registerJwtPlugin } from './services/jwt.service.js';
+import { metricsRegistry, httpRequestsTotal, httpRequestDurationSeconds } from './services/metrics.service.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { userRoutes } from './routes/user.routes.js';
 import { friendRoutes } from './routes/friend.routes.js';
@@ -83,6 +84,23 @@ const registerPlugins = async (server: FastifyInstance): Promise<void> => {
 
     // JWT authentication
     await registerJwtPlugin(server);
+
+    // Prometheus HTTP metrics hooks
+    server.addHook('onRequest', async (request, _reply) => {
+        (request as any).startTime = Date.now();
+    });
+
+    server.addHook('onResponse', async (request, reply) => {
+        const duration = (Date.now() - ((request as any).startTime ?? Date.now())) / 1000;
+        const route = request.routerPath ?? request.url ?? 'unknown';
+        const labels = {
+            method: request.method,
+            route,
+            status_code: String(reply.statusCode),
+        };
+        httpRequestsTotal.inc(labels);
+        httpRequestDurationSeconds.observe(labels, duration);
+    });
 };
 
 // Register routes
@@ -94,6 +112,12 @@ const registerRoutes = async (server: FastifyInstance): Promise<void> => {
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
         };
+    });
+
+    // Prometheus metrics endpoint
+    server.get('/metrics', async (_request, reply) => {
+        reply.header('Content-Type', metricsRegistry.contentType);
+        return metricsRegistry.metrics();
     });
 
     // API root

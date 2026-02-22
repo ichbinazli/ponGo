@@ -48,6 +48,9 @@ scrape_configs:
 
   # Backend servisi (Fastify /metrics endpoint)
   - job_name: 'backend'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
     metrics_path: '/metrics'
     static_configs:
       - targets: ['backend:3000']
