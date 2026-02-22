@@ -144,9 +144,9 @@ export class MatchHistoryModel {
             .prepare(
                 `SELECT 
         mh.*,
-        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.display_name, 'Misafir') as player1_display_name,
         COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
-        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.display_name, 'Misafir') as player2_display_name,
         COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
@@ -170,9 +170,9 @@ export class MatchHistoryModel {
             .prepare(
                 `SELECT 
         mh.*,
-        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.display_name, 'Misafir') as player1_display_name,
         COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
-        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.display_name, 'Misafir') as player2_display_name,
         COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
@@ -198,9 +198,9 @@ export class MatchHistoryModel {
             .prepare(
                 `SELECT 
         mh.*,
-        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.display_name, 'Misafir') as player1_display_name,
         COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
-        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.display_name, 'Misafir') as player2_display_name,
         COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
@@ -259,9 +259,9 @@ export class MatchHistoryModel {
             .prepare(
                 `SELECT 
         mh.*,
-        COALESCE(p1.display_name, 'Unknown') as player1_display_name,
+        COALESCE(p1.display_name, 'Misafir') as player1_display_name,
         COALESCE(p1.avatar_url, 'default-avatar.png') as player1_avatar_url,
-        COALESCE(p2.display_name, 'Unknown') as player2_display_name,
+        COALESCE(p2.display_name, 'Misafir') as player2_display_name,
         COALESCE(p2.avatar_url, 'default-avatar.png') as player2_avatar_url,
         w.display_name as winner_display_name
       FROM match_history mh
