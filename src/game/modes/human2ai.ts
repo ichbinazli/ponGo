@@ -6,7 +6,6 @@ let aiTimer = 0;
 type DifficultyLevel = 'easy' | 'medium' | 'hard';
 
 type DifficultyConfig = {
-    decisionIntervalMs: number;
     delayMinMs: number;
     delayMaxMs: number;
     errorCenter: number;
@@ -14,23 +13,19 @@ type DifficultyConfig = {
 };
 
 const DIFFICULTY_CONFIG: Record<DifficultyLevel, DifficultyConfig> = {
-    // Current (old) values preserved for hard
     hard: {
-        decisionIntervalMs: 1000,
         delayMinMs: 0,
         delayMaxMs: 300,
         errorCenter: 0.4,
         errorSpread: 40,
     },
     medium: {
-        decisionIntervalMs: 1200,
         delayMinMs: 100,
         delayMaxMs: 500,
         errorCenter: 0.3,
         errorSpread: 70,
     },
     easy: {
-        decisionIntervalMs: 1500,
         delayMinMs: 200,
         delayMaxMs: 800,
         errorCenter: 0.2,
@@ -38,20 +33,20 @@ const DIFFICULTY_CONFIG: Record<DifficultyLevel, DifficultyConfig> = {
     },
 };
 
-let currentDifficulty: DifficultyLevel = 'hard';
-let currentConfig: DifficultyConfig = DIFFICULTY_CONFIG.hard;
+let currentDifficulty: DifficultyLevel = 'medium';
+let currentConfig: DifficultyConfig = DIFFICULTY_CONFIG.medium;
 
-export function update(deltaTime: number) {
+export function update(deltaMs: number) {
     const refs = getUIRefs();
     if (!refs) return;
 
     const { paddle1 } = refs;
     hydrateDifficulty();
-    aiTimer += deltaTime;
+    aiTimer += deltaMs;
 
-    if (aiTimer >= currentConfig.decisionIntervalMs) {
+    if (aiTimer >= 1000) {
         aiTimer = 0;
-        aiDecision(); // FSM çalışır
+        aiDecision();
     }
 
     paddleCenter = paddles.paddle1Y + paddle1.clientHeight / 2;
@@ -111,7 +106,6 @@ function aiDecisionCore() {
 
     const boardCenterY = gameBoard.clientHeight / 2;
     const error = (Math.random() - currentConfig.errorCenter) * currentConfig.errorSpread;
-   // console.log('AI Error:', error);
 
     if (ball.velocityX > 0) {
         aiMode = 'IDLE';

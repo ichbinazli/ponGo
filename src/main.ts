@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
 import './styles.css';
 import { Router } from './core/Router';
 import { APIClient, LeaderboardEntry } from './api/APIClient';
 import { TemplateLoader } from './utils/templateLoader';
 import Api from './api/apiLibrary';
 import { initGameOptions } from './game/gameOptionManager';
+import { initTournament } from './game/tournament';
 
 // ============================================================================
 // THEME MANAGER
@@ -194,6 +197,7 @@ const CONSTANTS = {
 class App {
     private router: Router;
     private apiClient: APIClient;
+    private pongGameInstance: any = null;
 
     constructor() {
         this.apiClient = new APIClient();
@@ -317,7 +321,15 @@ class App {
         }
     }
 
+    private cleanupPongGame(): void {
+        if (this.pongGameInstance) {
+            this.pongGameInstance.dispose();
+            this.pongGameInstance = null;
+        }
+    }
+
     private async loadTemplate(templateName: string, wrapInContainer: boolean = true): Promise<void> {
+        this.cleanupPongGame();
         try {
             const content = await TemplateLoader.loadTemplate(templateName);
             const finalContent = wrapInContainer
@@ -431,10 +443,24 @@ class App {
         
         // 3D Pong oyununu başlat
         this.delayedExecution(async () => {
+            // Eğer kullanıcı bu sayfa yüklenmeden başka yere gittiyse oyunu başlatma
+            if (window.location.pathname !== CONSTANTS.ROUTES.GAME_NOSTALGIA) {
+                return;
+            }
+
             const { Pong3DGame } = await import('./3D-game/pong3d');
+            
+            // Tekrar kontrol, async import süresince rota değişmiş olabilir
+            if (window.location.pathname !== CONSTANTS.ROUTES.GAME_NOSTALGIA) {
+                return;
+            }
+
+            // Varsa eski instance'ı temizle
+            this.cleanupPongGame();
+
             const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
             if (canvas) {
-                new Pong3DGame(canvas);
+                this.pongGameInstance = new Pong3DGame(canvas);
             }
         }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
@@ -442,7 +468,7 @@ class App {
     private async renderTournament(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.TOURNAMENT);
         await this.loadTemplate(CONSTANTS.TEMPLATES.TOURNAMENT, false);
-        initGameOptions();
+        initTournament();
     }
 
     private async renderLeaderboard(): Promise<void> {
@@ -615,7 +641,6 @@ class App {
         if (response.success) {
             const tableBody = document.getElementById('game-history-table');
             if (tableBody) {
-                // Tabloyu her seferinde sıfırlamak istersen: tableBody.innerHTML = '';
                 response.data.matches.forEach((item: any) => {
                     const isPlayer1 = item.player1_id === user.id;
                     const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
@@ -633,12 +658,12 @@ class App {
 
                     tableBody.innerHTML += `
                     <tr class="border-b border-white/10 hover:bg-white/5">
-                        <td class="py-3 px-4">${matchDate}</td>
-                        <td class="py-3 px-4">${opponentName}</td>
-                        <td class="py-3 px-4 capitalize">${item.game_type}</td>
-                        <td class="py-3 px-4">${playerScore} - ${opponentScore}</td>
-                        <td class="py-3 px-4">${result}</td>
-                        <td class="py-3 px-4">${durationStr}</td>
+                        <td class="py-3 px-4 text-left">${matchDate}</td>
+                        <td class="py-3 px-4 text-left">${opponentName}</td>
+                        <td class="py-3 px-4 text-left capitalize">${item.game_mode}</td>
+                        <td class="py-3 px-4 text-left">${playerScore} - ${opponentScore}</td>
+                        <td class="py-3 px-4 text-left">${result}</td>
+                        <td class="py-3 px-4 text-left">${durationStr}</td>
                     </tr>
                 `;
                 });

@@ -2,9 +2,9 @@
 import { initUI, ui } from './ui';
 import { initGameObjects, keysPressedHuman, keysPressedAI, paddles, ball, gameState, scores, playersInfo } from './types';
 import { update } from './modes/human2ai';
-import { initFreezeUI, initPowerupUI, hydratePowerups, isFrozen, streaks, freezeUsed, updatePowerupBoard, clearFreeze, clearMega, freezeState, freezeUI, updateFreeze, updateMega, maybeApplyFreeze, maybeApplyMegaPaddle, basePaddleHeights } from './powerUps';
+import { initFreezeUI, initPowerupUI, hydratePowerups, isFrozen, streaks, freezeUsed, megaEarned, updatePowerupBoard, clearFreeze, clearMega, freezeState, freezeUI, updateFreeze, updateMega, maybeApplyFreeze, maybeApplyMegaPaddle, basePaddleHeights } from './powerUps';
 import { initGameOverUI, gameOverUI, hideGameOverModal } from './gameOver';
-// import { saveMatch, MatchPayload } from './apiCalls';
+import { saveMatch, MatchPayload } from './apiCalls';
 
 const DEFAULT_WINNING_SCORE = 5;
 let winningScore = DEFAULT_WINNING_SCORE;
@@ -14,6 +14,8 @@ let gameFinished = false;
 let lastTime = performance.now();
 let spaceHintDismissed = false;
 let spaceToggleBound = false;
+const FIXED_FRAME_MS = 1000 / 60;
+const MAX_FRAME_FACTOR = 2;
 
 export function initGameEngine(): void {
     if (animationId !== null) {
@@ -40,25 +42,33 @@ export function initGameEngine(): void {
 }
 
 function isKeyPressed(key: 'w' | 's') {
-    return gameState.gameMode === 'h2ai'
+    return gameState.matchType === 'h2ai'
         ? keysPressedAI[key]
         : keysPressedHuman[key];
 }
 
-function movePoddle1() {
+function movePoddle1(deltaTime: number) {
     if (isFrozen('player1')) return;
     if (isKeyPressed('w') && paddles.paddle1Y > 0)
-        paddles.paddle1Y -= paddles.paddleSpeed;
+        paddles.paddle1Y -= paddles.paddleSpeed * deltaTime;
     if (isKeyPressed('s') && paddles.paddle1Y < ui.gameBoard.clientHeight - ui.paddle1.clientHeight)
-        paddles.paddle1Y += paddles.paddleSpeed;
+        paddles.paddle1Y += paddles.paddleSpeed * deltaTime;
+    paddles.paddle1Y = Math.min(
+        Math.max(paddles.paddle1Y, 0),
+        ui.gameBoard.clientHeight - ui.paddle1.clientHeight
+    );
 }
 
-function movePoddle2() {
+function movePoddle2(deltaTime: number) {
     if (isFrozen('player2')) return;
     if (keysPressedHuman['ArrowUp'] && paddles.paddle2Y > 0)
-        paddles.paddle2Y -= paddles.paddleSpeed;
+        paddles.paddle2Y -= paddles.paddleSpeed * deltaTime;
     if (keysPressedHuman['ArrowDown'] && paddles.paddle2Y < ui.gameBoard.clientHeight - ui.paddle2.clientHeight)
-        paddles.paddle2Y += paddles.paddleSpeed;
+        paddles.paddle2Y += paddles.paddleSpeed * deltaTime;
+    paddles.paddle2Y = Math.min(
+        Math.max(paddles.paddle2Y, 0),
+        ui.gameBoard.clientHeight - ui.paddle2.clientHeight
+    );
 }
 
 function updateScoreboard() {
@@ -99,6 +109,8 @@ export function resetMatchState() {
     streaks.player2 = 0;
     freezeUsed.player1 = false;
     freezeUsed.player2 = false;
+    megaEarned.player1 = false;
+    megaEarned.player2 = false;
     clearFreeze();
     clearMega('player1');
     clearMega('player2');
@@ -135,19 +147,44 @@ function stopGame() {
     }
 }
 
-// function saveMatchResult() {
-//     const matchPayload: MatchPayload = {
-//         player1_id: null,
-//         player2_id: playersInfo.player2_id,
-//         player1_score: scores.player1,
-//         player2_score: scores.player2,
-//         game_type: gameState.gameMode,
-//         duration_seconds: 0,
-//         started_at: new Date().toISOString(),
-//     };
-//     console.log('started_at: ', new Date().toISOString());
-//     saveMatch(matchPayload);
-// }
+function saveMatchResult() {
+    const gameMode = sessionStorage.getItem('gameMode') || 'modern';
+    const aiDifficulty = sessionStorage.getItem('aiDifficulty') || null;
+    if (playersInfo.mainPlayer_side === 'left') {
+        playersInfo.mainPlayer_score = scores.player1;
+        playersInfo.otherPlayer_score = scores.player2;
+        playersInfo.mainPlayer_power_up_freeze = freezeUsed.player1;
+        playersInfo.mainPlayer_power_up_mega = megaEarned.player1;
+        playersInfo.otherPlayer_power_up_freeze = freezeUsed.player2;
+        playersInfo.otherPlayer_power_up_mega = megaEarned.player2;
+    } else {
+        playersInfo.mainPlayer_score = scores.player2;
+        playersInfo.otherPlayer_score = scores.player1;
+        playersInfo.mainPlayer_power_up_freeze = freezeUsed.player2;
+        playersInfo.mainPlayer_power_up_mega = megaEarned.player2;
+        playersInfo.otherPlayer_power_up_freeze = freezeUsed.player1;
+        playersInfo.otherPlayer_power_up_mega = megaEarned.player1;
+    }
+    const matchPayload: MatchPayload = {
+        player1_id: playersInfo.mainPlayer_id,
+        player2_id: playersInfo.otherPlayer_id,
+        player1_name: playersInfo.mainPlayer_name,
+        player2_name: playersInfo.otherPlayer_name,
+        player1_score: playersInfo.mainPlayer_score,
+        player2_score: playersInfo.otherPlayer_score,
+        game_mode: gameMode,
+        match_type: gameState.matchType,
+        aiDifficultly: aiDifficulty,
+        winning_score: winningScore,
+        player1_power_up_freeze: playersInfo.mainPlayer_power_up_freeze,
+        player1_power_up_mega: playersInfo.mainPlayer_power_up_mega,
+        player2_power_up_freeze: playersInfo.otherPlayer_power_up_freeze,
+        player2_power_up_mega: playersInfo.otherPlayer_power_up_mega,
+        started_at: new Date().toISOString(),
+    };
+    console.log('started_at: ', new Date().toISOString());
+    saveMatch(matchPayload);
+}
 
 
 function finishGame(winner: 'player1' | 'player2') {
@@ -157,7 +194,7 @@ function finishGame(winner: 'player1' | 'player2') {
     clearMega('player1');
     clearMega('player2');
     centerBallAndStop();
-    //saveMatchResult();
+    saveMatchResult();
     showGameOverModal(winner);
 }
 
@@ -175,17 +212,19 @@ function syncPositions() {
 function gameLoop(time: number) {
     if (!gameRunning) return;
 
-    movePoddle2();
-    movePoddle1();
+    const elapsedMs = time - lastTime;
+    const deltaTime = Math.min(elapsedMs / FIXED_FRAME_MS, MAX_FRAME_FACTOR);
+    lastTime = time;
 
-    if (gameState.gameMode === 'h2ai') {
-        const deltaTime = time - lastTime;
-        lastTime = time;
-        update(deltaTime);
+    movePoddle2(deltaTime);
+    movePoddle1(deltaTime);
+
+    if (gameState.matchType === 'h2ai') {
+        update(elapsedMs);
     }
 
-    ball.x += ball.velocityX;
-    ball.y += ball.velocityY;
+    ball.x += ball.velocityX * deltaTime;
+    ball.y += ball.velocityY * deltaTime;
 
     const now = performance.now();
     updateFreeze(now);
@@ -214,18 +253,27 @@ function gameLoop(time: number) {
     const paddle2Top = paddles.paddle2Y;
     const paddle2Bottom = paddles.paddle2Y + ui.paddle2.clientHeight;
 
+    const ballCenterY = ball.y + ui.ball.clientHeight / 2;
     const hitPaddle1 = ballRight >= paddle1Left && ballLeft <= paddle1Right && ballBottom >= paddle1Top && ballTop <= paddle1Bottom;
     if (hitPaddle1) {
         ball.velocityX *= -1;
-        const deltaY = ball.y - (paddles.paddle1Y + ui.paddle1.clientHeight / 2);
+        const deltaY = ballCenterY - (paddles.paddle1Y + ui.paddle1.clientHeight / 2);
         ball.velocityY = deltaY * 0.3;
+        if (ballBottom >= ui.gameBoard.clientHeight - ui.ball.clientHeight && ball.velocityY > 0)
+            ball.velocityY = -Math.abs(ball.velocityY);
+        if (ballTop <= 0 && ball.velocityY < 0)
+            ball.velocityY = Math.abs(ball.velocityY);
     }
 
     const hitPaddle2 = ballRight >= paddle2Left && ballLeft <= paddle2Right && ballBottom >= paddle2Top && ballTop <= paddle2Bottom;
     if (hitPaddle2) {
         ball.velocityX *= -1;
-        const deltaY = ball.y - (paddles.paddle2Y + ui.paddle2.clientHeight / 2);
+        const deltaY = ballCenterY - (paddles.paddle2Y + ui.paddle2.clientHeight / 2);
         ball.velocityY = deltaY * 0.3;
+        if (ballBottom >= ui.gameBoard.clientHeight - ui.ball.clientHeight && ball.velocityY > 0)
+            ball.velocityY = -Math.abs(ball.velocityY);
+        if (ballTop <= 0 && ball.velocityY < 0)
+            ball.velocityY = Math.abs(ball.velocityY);
     }
 
 
@@ -316,19 +364,28 @@ function setPlayerNames() {
         ? (singlePlayer || storedPlayer2 || 'Player 2')
         : (storedPlayer2 || 'Player 2');
 
-    gameState.gameMode = isAiMatch ? 'h2ai' : 'h2h';
+    gameState.matchType = isAiMatch ? 'h2ai' : 'h2h';
 
-    playersInfo.player1_name = player1Name;
-    playersInfo.player2_name = player2Name;
-    if (isAiMatch){
-        playersInfo.player1_id = 1;
+    const mainPlayerSide = sessionStorage.getItem('playerSide') || 'right';
+    playersInfo.mainPlayer_side = mainPlayerSide === 'left' ? 'left' : 'right';
+    playersInfo.mainPlayer_id = JSON.parse(localStorage.getItem('user') || '{}').id || 0;
+    if( mainPlayerSide === 'left') {
+        playersInfo.mainPlayer_name = player1Name;
+        playersInfo.otherPlayer_name = player2Name;
     } else {
-        playersInfo.player1_id = 0;
+        playersInfo.mainPlayer_name = player2Name;
+        playersInfo.otherPlayer_name = player1Name;
     }
 
-    const storedPlayer1Id = JSON.parse(localStorage.getItem('user') || '{}').id || 0;
-
-    playersInfo.player2_id = storedPlayer1Id;
+    if (isAiMatch){
+        playersInfo.otherPlayer_id = 1;
+    } else {
+        const invitedUserId = sessionStorage.getItem('invitedUserId');
+        if (invitedUserId) 
+            playersInfo.otherPlayer_id = parseInt(invitedUserId, 0);
+        else
+            playersInfo.otherPlayer_id = null;
+    }
 
     if (ui.player1Name) ui.player1Name.textContent = player1Name;
     if (ui.player2Name) ui.player2Name.textContent = player2Name;
