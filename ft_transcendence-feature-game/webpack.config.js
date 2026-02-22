@@ -96,6 +96,14 @@ module.exports = (env, argv) => {
           cert: fs.readFileSync(path.join(__dirname, 'certs/cert.pem')),
         },
       },
+      proxy: [
+        {
+          context: ['/api', '/uploads'],
+          target: 'https://localhost:3000',
+          secure: false,
+          changeOrigin: true,
+        },
+      ],
     },
     devtool: isProduction ? 'source-map' : 'eval-source-map',
   };

@@ -5,7 +5,7 @@ class Api {
     private baseURL: string;
 
     constructor() {
-        this.baseURL = 'https://localhost:3000';
+        this.baseURL = '';  // Webpack proxy üzerinden git → /api/* → https://localhost:3000
         this.axiosInstance = axios.create({
             baseURL: this.baseURL,
             headers: {

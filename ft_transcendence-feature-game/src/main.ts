@@ -34,10 +34,10 @@ export class ThemeManager {
         } else {
             this.setupTheme();
         }
-        
+
         let isRefreshing = false; // Çakışmaları önlemek için kilit
 
-        
+
         setInterval(async () => {
             const expiresAt = localStorage.getItem('expiresAt');
             const refreshToken = localStorage.getItem('refreshToken');
@@ -86,7 +86,7 @@ export class ThemeManager {
                 }
             }
         }, 1000);
-        
+
     }
 
     private setupTheme(): void {
@@ -464,7 +464,7 @@ class App {
     private async renderNostalgia(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.GAME_NOSTALGIA);
         await this.loadTemplate(CONSTANTS.TEMPLATES.GAME_NOSTALGIA, false);
-        
+
         // 3D Pong oyununu başlat
         this.delayedExecution(async () => {
             const { Pong3DGame } = await import('./3D-game/pong3d');
@@ -690,7 +690,7 @@ class App {
         }
 
         if (avatarEl && user.avatarUrl) {
-            avatarEl.src = "https://localhost:3000" + user.avatarUrl;
+            avatarEl.src = user.avatarUrl;
             // Eğer avatarUrl yoksa varsayılan Dicebear linki HTML'de kalacaktır.
         }
 
@@ -746,18 +746,103 @@ class App {
     private async renderSettings(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.SETTINGS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.SETTINGS);
-        
+
         this.delayedExecution(() => {
+            // Dil seçimi
             const langSelect = document.getElementById('language-select') as HTMLSelectElement | null;
             if (langSelect) {
-                // Set current language as selected
                 langSelect.value = this.i18n.getLanguage();
-                
                 langSelect.addEventListener('change', () => {
                     const newLang = langSelect.value as Language;
                     this.i18n.setLanguage(newLang);
                 });
             }
+
+            // 2FA yardımcı fonksiyonları
+            const badge = document.getElementById('twofa-status-badge')!;
+            const enableBtn = document.getElementById('twofa-enable-btn')!;
+            const disableBtn = document.getElementById('twofa-disable-btn')!;
+            const codeSection = document.getElementById('twofa-code-section')!;
+            const pwSection = document.getElementById('twofa-password-section')!;
+
+            const setEnabled = (enabled: boolean) => {
+                badge.textContent = enabled ? '🟢 Aktif' : '🔴 Pasif';
+                badge.className = enabled
+                    ? 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-900 text-emerald-300'
+                    : 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-900 text-red-300';
+                enableBtn.classList.toggle('hidden', enabled);
+                disableBtn.classList.toggle('hidden', !enabled);
+                codeSection.classList.add('hidden');
+                pwSection.classList.add('hidden');
+            };
+
+            // Mevcut durum
+            Api.get('/api/2fa/status').then((res: any) => {
+                if (res?.success) setEnabled(res.data.enabled);
+            }).catch(() => {
+                badge.textContent = '⚠️ Yüklenemedi';
+            });
+
+            // Etkinleştir → setup (kod gönder)
+            enableBtn?.addEventListener('click', async () => {
+                enableBtn.textContent = '⏳ Gönderiliyor...';
+                enableBtn.setAttribute('disabled', 'true');
+                const res = await Api.post('/api/2fa/setup', {});
+                enableBtn.removeAttribute('disabled');
+                enableBtn.textContent = '✅ 2FA\'yı Etkinleştir';
+                if (res?.success) {
+                    codeSection.classList.remove('hidden');
+                    (document.getElementById('twofa-code-input') as HTMLInputElement)?.focus();
+                } else {
+                    alert(res?.message || 'Kod gönderilemedi.');
+                }
+            });
+
+            // Onayla → confirm
+            document.getElementById('twofa-confirm-btn')?.addEventListener('click', async () => {
+                const code = (document.getElementById('twofa-code-input') as HTMLInputElement)?.value.trim();
+                if (code.length !== 6) { alert('Lütfen 6 haneli kodu girin.'); return; }
+                const res = await Api.post('/api/2fa/confirm', { code });
+                if (res?.success) {
+                    alert('2FA başarıyla etkinleştirildi!');
+                    setEnabled(true);
+                } else {
+                    alert(res?.message || 'Geçersiz ya da süresi dolmuş kod.');
+                }
+            });
+
+            // Setup iptal
+            document.getElementById('twofa-cancel-setup-btn')?.addEventListener('click', () => {
+                codeSection.classList.add('hidden');
+                (document.getElementById('twofa-code-input') as HTMLInputElement).value = '';
+            });
+
+            // Devre dışı bırak → şifre iste
+            disableBtn?.addEventListener('click', () => {
+                pwSection.classList.remove('hidden');
+                (document.getElementById('twofa-password-input') as HTMLInputElement)?.focus();
+            });
+
+            // Disable onayla
+            document.getElementById('twofa-disable-confirm-btn')?.addEventListener('click', async () => {
+                const password = (document.getElementById('twofa-password-input') as HTMLInputElement)?.value;
+                if (!password) { alert('Lütfen şifrenizi girin.'); return; }
+                const res = await Api.post('/api/2fa/disable', { password });
+                if (res?.success) {
+                    alert('2FA devre dışı bırakıldı.');
+                    setEnabled(false);
+                    (document.getElementById('twofa-password-input') as HTMLInputElement).value = '';
+                } else {
+                    alert(res?.message || 'Geçersiz şifre ya da işlem başarısız.');
+                }
+            });
+
+            // Disable iptal
+            document.getElementById('twofa-cancel-disable-btn')?.addEventListener('click', () => {
+                pwSection.classList.add('hidden');
+                (document.getElementById('twofa-password-input') as HTMLInputElement).value = '';
+            });
+
         }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 
@@ -921,36 +1006,70 @@ class App {
         await this.loadTemplate('login', false);
 
         this.delayedExecution(() => {
-             const intraBtn = document.getElementById('guest-login-btn');
-        if (intraBtn) {
-            intraBtn.addEventListener('click', async () => {
-                try {
-                const response = await Api.get('/api/oauth/42');
-                const authUrl = response.data?.authUrl || response.data?.url || response.data;
-                if (authUrl) {
-                    window.location.href = authUrl;
-                }
-            } catch (err) {
-                console.error('Intra OAuth error:', err);
+            // 42 Intra OAuth butonu
+            const intraBtn = document.getElementById('guest-login-btn');
+            if (intraBtn) {
+                intraBtn.addEventListener('click', async () => {
+                    try {
+                        const response = await Api.get('/api/oauth/42');
+                        const authUrl = response.data?.authUrl || response.data?.url || response.data;
+                        if (authUrl) window.location.href = authUrl;
+                    } catch (err) {
+                        console.error('Intra OAuth error:', err);
+                    }
+                });
             }
-            });
-        }
+
+            // 2FA paneli için geçici bilgiler
+            let pendingUserId: number | null = null;
+            let pendingEmail: string = '';
+            let pendingPassword: string = '';
+
+            // ─── 2FA adımını göster ───
+            const showTwoFactorStep = () => {
+                document.getElementById('login-form')?.classList.add('hidden');
+                document.getElementById('twofa-step')?.classList.remove('hidden');
+                (document.getElementById('twofa-login-code') as HTMLInputElement)?.focus();
+            };
+
+            // ─── Giriş formunu geri göster ───
+            const showLoginForm = () => {
+                document.getElementById('twofa-step')?.classList.add('hidden');
+                document.getElementById('login-form')?.classList.remove('hidden');
+                (document.getElementById('twofa-login-code') as HTMLInputElement).value = '';
+                pendingUserId = null;
+            };
+
+            // ─── Token kaydet ve ana sayfaya yönlendir ───
+            const completeLogin = async (res: any) => {
+                localStorage.setItem('accessToken', res.data.tokens.accessToken);
+                localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+                localStorage.setItem('expiresAt', res.data.tokens.expiresAt);
+                localStorage.setItem('user', JSON.stringify(res.data.user));
+                await Api.setAuthToken(res.data.tokens.accessToken);
+                alert(this.i18n.t('alert.loginSuccess'));
+                this.router.navigate('/home');
+            };
+
+            // ─── Login Formu Submit ───
             const form = document.getElementById('login-form') as HTMLFormElement | null;
             if (!form) return;
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const email = (document.getElementById('email') as HTMLInputElement).value;
-                const password = (document.getElementById('password') as HTMLInputElement).value;
+                pendingEmail = (document.getElementById('email') as HTMLInputElement).value;
+                pendingPassword = (document.getElementById('password') as HTMLInputElement).value;
                 try {
-                    const res = await Api.post('/api/auth/login', { email, password });
-                    if (res && res.data && res.data.tokens) {
-                        localStorage.setItem('accessToken', res.data.tokens.accessToken);
-                        localStorage.setItem('refreshToken', res.data.tokens.refreshToken);
-                        localStorage.setItem('expiresAt', res.data.tokens.expiresAt);
-                        localStorage.setItem('user', JSON.stringify(res.data.user));
-                        await Api.setAuthToken(res.data.tokens.accessToken);
-                        alert(this.i18n.t('alert.loginSuccess'));
-                        this.router.navigate('/home');
+                    const res = await Api.post('/api/auth/login', { email: pendingEmail, password: pendingPassword });
+
+                    // Backend 2FA gerektiriyor ve kodu e-postaya zaten gönderdi
+                    if (res?.data?.requires2FA && res.data.userId) {
+                        pendingUserId = res.data.userId;
+                        showTwoFactorStep();
+                        return;
+                    }
+
+                    if (res?.data?.tokens) {
+                        await completeLogin(res);
                     } else {
                         alert(this.i18n.t('alert.loginFailed'));
                     }
@@ -959,6 +1078,40 @@ class App {
                     alert(this.i18n.t('alert.loginError'));
                 }
             });
+
+            // ─── 2FA Doğrula ───
+            document.getElementById('twofa-login-verify-btn')?.addEventListener('click', async () => {
+                if (!pendingUserId) return;
+                const code = (document.getElementById('twofa-login-code') as HTMLInputElement)?.value.trim();
+                if (code.length !== 6) { alert('Lütfen 6 haneli kodu girin.'); return; }
+
+                // Backend: tekrar login, ama bu sefer twoFactorCode ile
+                const res = await Api.post('/api/auth/login', {
+                    email: pendingEmail,
+                    password: pendingPassword,
+                    twoFactorCode: code,
+                });
+
+                if (res?.data?.tokens) {
+                    await completeLogin(res);
+                } else {
+                    alert(res?.message || 'Geçersiz ya da süresi dolmuş kod.');
+                }
+            });
+
+            // ─── Kodu tekrar gönder ───
+            document.getElementById('twofa-login-resend-btn')?.addEventListener('click', async () => {
+                if (!pendingUserId) return;
+                // Backend'e email+password ile tekrar istek at → kodu tekrar gönderir
+                await Api.post('/api/auth/login', { email: pendingEmail, password: pendingPassword });
+                alert('Kod tekrar gönderildi.');
+            });
+
+            // ─── Geri dön ───
+            document.getElementById('twofa-login-back-btn')?.addEventListener('click', () => {
+                showLoginForm();
+            });
+
         }, CONSTANTS.TIMEOUTS.DOM_READY);
     }
 
