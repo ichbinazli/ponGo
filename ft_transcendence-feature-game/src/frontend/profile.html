@@ -39,13 +39,97 @@
                     </div>
                     <div class="mt-4">
                         <h2 id="profile-username" class="text-2xl font-bold text-white mb-2" data-i18n="profile.player">Oyuncu</h2>
-                        <p id="profile-level" class="text-violet-300 text-sm" data-i18n="profile.level">Seviye 1</p>
                     </div>
                 </div>
                 <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4" id="stats-grid-container">
                 </div>
             </div>
+
+            <!-- ============ DASHBOARD SECTION (inside Overview) ============ -->
+            <div class="mt-10" id="dashboard-section">
+                <!-- Section Divider -->
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent"></div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span data-i18n="dashboard.title">Performans Dashboard</span>
+                    </h2>
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent"></div>
+                </div>
+
+                <!-- Charts Row 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Win/Loss Doughnut -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                            <span data-i18n="dashboard.winLossChart">Kazanma / Kaybetme Dağılımı</span>
+                        </h3>
+                        <div class="flex justify-center" style="max-height: 280px;">
+                            <canvas id="dash-winloss-chart"></canvas>
+                        </div>
+                        <div id="dash-winloss-legend" class="flex justify-center gap-6 mt-4 text-sm"></div>
+                    </div>
+
+                    <!-- Performance Line Chart (last 10 games) -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-violet-400 inline-block"></span>
+                            <span data-i18n="dashboard.performanceChart">Son Maçlar Performansı</span>
+                        </h3>
+                        <div style="max-height: 280px;">
+                            <canvas id="dash-performance-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Points Scored vs Against Bar Chart -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                            <span data-i18n="dashboard.pointsChart">Son Maçlarda Atılan / Yenilen Puan</span>
+                        </h3>
+                        <div style="max-height: 280px;">
+                            <canvas id="dash-points-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Game Mode Distribution Polar Area Chart -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-pink-400 inline-block"></span>
+                            <span data-i18n="dashboard.gameModeChart">Oyun Modu Dağılımı</span>
+                        </h3>
+                        <div class="flex justify-center" style="max-height: 280px;">
+                            <canvas id="dash-gamemode-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Streak & Performance Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="stat-card text-center">
+                        <p class="text-xs text-white/50 uppercase tracking-wider mb-2" data-i18n="dashboard.currentStreak">Mevcut Seri</p>
+                        <p id="dash-current-streak" class="text-4xl font-extrabold text-orange-400">0</p>
+                        <p id="dash-streak-type" class="text-sm text-white/60 mt-1">-</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-xs text-white/50 uppercase tracking-wider mb-2" data-i18n="dashboard.bestStreak">En İyi Galibiyet Serisi</p>
+                        <p id="dash-best-streak" class="text-4xl font-extrabold text-amber-400">0</p>
+                        <p class="text-sm text-white/60 mt-1" data-i18n="dashboard.consecutive">Ardışık Galibiyet</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-xs text-white/50 uppercase tracking-wider mb-2" data-i18n="dashboard.pointsPerGame">Maç Başı Puan</p>
+                        <p id="dash-points-per-game" class="text-4xl font-extrabold text-teal-400">0</p>
+                        <p class="text-sm text-white/60 mt-1" data-i18n="dashboard.average">Ortalama</p>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ============ END DASHBOARD SECTION ============ -->
         </div>
+
         <div class="tab-panel" id="history-panel">
             <div class="stat-card">
                 <h3 class="text-lg font-bold text-white mb-4" data-i18n="profile.recentGames"> Son Oyunlar</h3>

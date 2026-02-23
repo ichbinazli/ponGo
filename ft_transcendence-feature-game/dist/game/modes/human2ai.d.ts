@@ -1,2 +1,2 @@
-export declare function update(deltaTime: number): void;
+export declare function update(deltaMs: number): void;
 //# sourceMappingURL=human2ai.d.ts.map

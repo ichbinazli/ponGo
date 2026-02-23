@@ -44,6 +44,7 @@
   "dependencies": {
     "@babylonjs/core": "^8.51.2",
     "@babylonjs/loaders": "^8.51.2",
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "chart.js": "^4.5.1"
   }
 }

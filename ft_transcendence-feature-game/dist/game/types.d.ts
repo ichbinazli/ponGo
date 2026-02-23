@@ -21,13 +21,22 @@ export declare const scores: {
     player1: number;
     player2: number;
 };
-export declare const playersInfo: {
-    player1_name: string;
-    player2_name: string;
-    player1_id: number;
-    player2_id: number;
-};
+interface PlayersInfo {
+    mainPlayer_name: string;
+    otherPlayer_name: string;
+    mainPlayer_id: number | null;
+    otherPlayer_id: number | null;
+    mainPlayer_score: number;
+    otherPlayer_score: number;
+    mainPlayer_side: 'left' | 'right';
+    mainPlayer_power_up_freeze: boolean;
+    mainPlayer_power_up_mega: boolean;
+    otherPlayer_power_up_freeze: boolean;
+    otherPlayer_power_up_mega: boolean;
+}
+export declare const playersInfo: PlayersInfo;
 export declare const gameState: {
-    gameMode: "h2h" | "h2ai";
+    matchType: "h2h" | "h2ai";
 };
+export {};
 //# sourceMappingURL=types.d.ts.map

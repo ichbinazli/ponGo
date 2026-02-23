@@ -1,7 +1,7 @@
 <div class="max-w-6xl mx-auto space-y-8">
     <!-- Game Modes -->
     <div class="card animate-fade-in">
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow" data-i18n="gameOptions.selectMode">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-6 sm:mb-8 text-shadow">
             Oyun Modunu Seç
         </h1>
 
@@ -27,8 +27,8 @@
                                     transparent 10px);"></div>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4" data-i18n="gameOptions.modernPong">Modern Pong Deneyimi</h3>
-                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base" data-i18n="gameOptions.modernDesc">Modern tasarım, özel modlar, kişiselleştirilebilir oyun ortamı ile Pong oyna!</p>
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Modern Pong Deneyimi</h3>
+                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Modern tasarım, özel modlar, kişiselleştirilebilir oyun ortamı ile Pong oyna!</p>
                     </div>
                 </div>
             </div>
@@ -37,8 +37,8 @@
             <div class="stat-card hover:scale-105 cursor-pointer transition-all duration-300" data-game-mode="nostalgia">
                 <div class="flex items-center gap-4 sm:gap-6">
                     <div class="flex-1">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4" data-i18n="gameOptions.nostalgiaPong">Nostalji Pong Deneyimi</h3>
-                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base" data-i18n="gameOptions.nostalgiaDesc">3D Oyun Kutusunda 1974 Pong tasarımı ile Nostalji Pong Oyna! </p>
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Nostalji Pong Deneyimi</h3>
+                        <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">3D Oyun Kutusunda 1974 Pong tasarımı ile Nostalji Pong Oyna! </p>
                     </div>
                     <div class="relative w-24 h-16 rounded-md border border-white/10 bg-black overflow-hidden shadow-lg ml-auto">
                         <div class="absolute left-1 top-3 w-2 h-6 bg-white"></div>
@@ -72,8 +72,8 @@
                         <div class="absolute inset-x-1 bottom-1 h-px bg-white/10"></div>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4" data-i18n="gameOptions.tournament">Turnuva</h3>
-                        <p class="text-white/80 mb-3 sm:text-base" data-i18n="gameOptions.tournamentDesc">Eleme tablosuna adını yaz, kupayı kapmak için turları birer birer geç. Pong turnuva deneyimi sayesinde arkadaşların ile rekabetin keyfini çıkar!</p>
+                        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Turnuva</h3>
+                        <p class="text-white/80 mb-3 sm:text-base">Eleme tablosuna adını yaz, kupayı kapmak için turları birer birer geç. Pong turnuva deneyimi sayesinde arkadaşların ile rekabetin keyfini çıkar!</p>
                     </div>
                 </div>
             </div>
@@ -81,41 +81,75 @@
     </div>
     <div class="card animate-fade-in mt-8 hidden" data-game-mode-settings="nostalgia">
         <div class="flex items-center gap-3 mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-purple-400" tabindex="-1" data-i18n="gameOptions.nostalgiaSettings">Nostalji Pong Ayarları</h2>
+            <h2 class="text-xl sm:text-2xl font-bold text-purple-400" tabindex="-1">Nostalji Pong Ayarları</h2>
         </div>
 
         <div class="space-y-6">
             <!-- Oyun Modu Seçimi -->
             <div class="pr-6 pl-6 rounded-lg" id="nostalgia-mode-selector">
-                <h3 class="text-lg font-bold text-white mb-4" data-i18n="gameOptions.playerCount">Oyuncu Sayısı</h3>
+                <h3 class="text-lg font-bold text-white mb-4">Oyuncu Sayısı</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <button class="nostalgia-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-nostalgia-mode="1v1">
-                        <span class="text-2xl">👥</span>
-                        <span class="text-sm" data-i18n="gameOptions.twoPlayer">2 Kişilik Pong</span>
-                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsHuman">(İnsan vs İnsan)</span>
+                        <span class="text-sm">2 Kişilik Pong</span>
+                        <span class="text-xs text-slate-300">(İnsan vs İnsan)</span>
                     </button>
                     <button class="nostalgia-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-nostalgia-mode="1vAI">
-                        <span class="text-2xl">🤖</span>
-                        <span class="text-sm" data-i18n="gameOptions.singlePlayer">Tek Kişilik Pong</span>
-                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsAI">(İnsan vs AI)</span>
+                        <span class="text-sm">Tek Kişilik Pong</span>
+                        <span class="text-xs text-slate-300">(İnsan vs AI)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="pl-6 pr-6 hidden" id="nostalgia-side-selection-h2h">
+                <div class="flex items-center gap-4 justify-center">
+                    <div class="text-center">
+                        <p class="text-base mb-3">
+                            <span>hangi tarafta oynamak istersin?</span>
+                        </p>
+                        
+                        <p class="text-slate-300 text-xs mb-3">
+                            <span class="text-cyan-400 font-semibold">Sol: W/S</span> - <span class="text-cyan-400 font-semibold">Sağ: Aşağı/Yukarı Ok</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-2 justify-center items-center">
+                    <!-- Sol Taraf Butonu -->
+                    <button class="nostalgia-side-btn w-12 h-12 rounded-lg border-2 border-slate-500 bg-slate-600/30 hover:bg-slate-500/50 text-white font-semibold transition-all duration-300 flex flex-col items-center justify-center gap-1" data-nostalgia-side="left">
+                        <span class="text-xs">SOL</span>
+                    </button>
+
+                    <!-- Toggle Switch -->
+                    <div class="relative inline-block w-14 h-7 bg-slate-700 rounded-full cursor-pointer transition-all duration-300" id="nostalgia-side-toggle">
+                        <div class="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300" style="transition: left 0.3s ease;"></div>
+                    </div>
+
+                    <!-- Sağ Taraf Butonu -->
+                    <button class="nostalgia-side-btn w-12 h-12 rounded-lg border-2 border-slate-500 bg-slate-600/30 hover:bg-slate-500/50 text-white font-semibold transition-all duration-300 flex flex-col items-center justify-center gap-1" data-nostalgia-side="right">
+                        <span class="text-xs">SAĞ</span>
                     </button>
                 </div>
             </div>
 
             <!-- Oyuncu Bilgileri (2 Kişilik) - İlk başta gizli -->
-            <div class="pl-6 pr-6 hidden" id="nostalgia-players-2v2">
+            <div class="pl-6 pr-6 hidden" id="nostalgia-players-h2h">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-300 mb-2">Oyuncu 1 Adı</label>
-                        <input type="text" id="nostalgia-player1-name" placeholder="Oyuncu 1 adını girin..."
-                            class="w-full px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                            maxlength="12">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Sağ Taraftaki Oyuncunun Adı:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="nostalgia-player1-name" placeholder="Sağ taraftaki oyuncunun adını girin..."
+                                class="flex-1 px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                maxlength="12">
+                            <button id="nostalgia-player1-invite-btn" class="invite-btn px-3 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all hidden" title="Arkadaşını davet et">👤</button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-300 mb-2">Oyuncu 2 Adı</label>
-                        <input type="text" id="nostalgia-player2-name" placeholder="Oyuncu 2 adını girin..."
-                            class="w-full px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                            maxlength="12">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Sol Taraftaki Oyuncunun Adı:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="nostalgia-player2-name" placeholder="Sol taraftaki oyuncunun adını girin..."
+                                class="flex-1 px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                maxlength="12">
+                            <button id="nostalgia-player2-invite-btn" class="invite-btn px-3 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all hidden" title="Arkadaşını davet et">👤</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,49 +194,83 @@
             <!-- Başlat Butonu -->
             <button id="start-nostalgia-btn"
                 class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-4 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled
-                data-i18n="gameOptions.startGame">
+                disabled>
                 OYUNU BAŞLAT
             </button>
         </div>
     </div>
     <div class="card animate-fade-in mt-8 hidden" data-game-mode-settings="modern">
         <div class="flex items-center gap-3 mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-cyan-400" tabindex="-1" data-i18n="gameOptions.modernSettings">Modern Pong Ayarları</h2>
+            <h2 class="text-xl sm:text-2xl font-bold text-cyan-400" tabindex="-1">Modern Pong Ayarları</h2>
         </div>
 
         <div class="space-y-6">
             <!-- Oyun Modu Seçimi -->
             <div class="pr-6 pl-6 rounded-lg" id="modern-mode-selector">
-                <h3 class="text-lg font-bold text-white mb-4" data-i18n="gameOptions.playerCount">Oyuncu Sayısı</h3>
+                <h3 class="text-lg font-bold text-white mb-4">Oyuncu Sayısı</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <button class="modern-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-modern-mode="1v1">
-                        <span class="text-2xl">👥</span>
-                        <span class="text-sm" data-i18n="gameOptions.twoPlayer">2 Kişilik Pong</span>
-                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsHuman">(İnsan vs İnsan)</span>
+                        <span class="text-sm">2 Kişilik Pong</span>
+                        <span class="text-xs text-slate-300">(İnsan vs İnsan)</span>
                     </button>
                     <button class="modern-mode-btn bg-slate-700/50 hover:bg-slate-500/50 text-white font-semibold py-4 px-4 rounded-lg transition-all duration-200 flex flex-col items-center gap-2" data-modern-mode="1vAI">
-                        <span class="text-2xl">🤖</span>
-                        <span class="text-sm" data-i18n="gameOptions.singlePlayer">Tek Kişilik Pong</span>
-                        <span class="text-xs text-slate-300" data-i18n="gameOptions.humanVsAI">(İnsan vs AI)</span>
+                        <span class="text-sm">Tek Kişilik Pong</span>
+                        <span class="text-xs text-slate-300">(İnsan vs AI)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Taraf Seçimi (2 Kişilik için) - İlk başta gizli -->
+            <div class="pl-6 pr-6 hidden" id="modern-side-selection-h2h">
+                <div class="flex items-center gap-4 justify-center">
+                    <div class="text-center">
+                        <p class="text-base mb-3">
+                            <span>hangi tarafta oynamak istersin?</span>
+                        </p>
+                        
+                        <p class="text-slate-300 text-xs mb-3">
+                            <span class="text-cyan-400 font-semibold">Sol: W/S</span> - <span class="text-cyan-400 font-semibold">Sağ: Aşağı/Yukarı Ok</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-2 justify-center items-center">
+                    <!-- Sol Taraf Butonu -->
+                    <button class="modern-side-btn w-12 h-12 rounded-lg border-2 border-slate-500 bg-slate-600/30 hover:bg-slate-500/50 text-white font-semibold transition-all duration-300 flex flex-col items-center justify-center gap-1" data-modern-side="left">
+                        <span class="text-xs">SOL</span>
+                    </button>
+
+                    <!-- Toggle Switch -->
+                    <div class="relative inline-block w-14 h-7 bg-slate-700 rounded-full cursor-pointer transition-all duration-300" id="modern-side-toggle">
+                        <div class="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300" style="transition: left 0.3s ease;"></div>
+                    </div>
+
+                    <!-- Sağ Taraf Butonu -->
+                    <button class="modern-side-btn w-12 h-12 rounded-lg border-2 border-slate-500 bg-slate-600/30 hover:bg-slate-500/50 text-white font-semibold transition-all duration-300 flex flex-col items-center justify-center gap-1" data-modern-side="right">
+                        <span class="text-xs">SAĞ</span>
                     </button>
                 </div>
             </div>
 
             <!-- Oyuncu Bilgileri (2 Kişilik) - İlk başta gizli -->
-            <div class="pr-6 pl-6 hidden" id="modern-players-2v2">
+            <div class="pr-6 pl-6 hidden" id="modern-players-h2h">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-300 mb-2">Oyuncu 1 Adı</label>
-                        <input type="text" id="modern-player1-name" placeholder="Oyuncu 1 adını girin..."
-                            class="w-full px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                            maxlength="12">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Sağ Taraftaki Oyuncunun Adı:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="modern-player1-name" placeholder="Sağ taraftaki oyuncunun adını girin..."
+                                class="flex-1 px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                maxlength="12">
+                            <button id="modern-player1-invite-btn" class="invite-btn px-3 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all hidden" title="Arkadaşını davet et">👤</button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-300 mb-2">Oyuncu 2 Adı</label>
-                        <input type="text" id="modern-player2-name" placeholder="Oyuncu 2 adını girin..."
-                            class="w-full px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                            maxlength="12">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Sol Taraftaki Oyuncunun Adı:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="modern-player2-name" placeholder="Sol taraftaki oyuncunun adını girin..."
+                                class="flex-1 px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                maxlength="12">
+                            <button id="modern-player2-invite-btn" class="invite-btn px-3 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all hidden" title="Arkadaşını davet et">👤</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -270,8 +338,7 @@
             <!-- Başlat Butonu -->
             <button id="start-modern-btn"
                 class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-4 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled
-                data-i18n="gameOptions.startGame">
+                disabled>
                 OYUNU BAŞLAT
             </button>
         </div>
@@ -306,6 +373,7 @@
                 <h3 class="text-lg font-bold text-white mb-4">Oyuncu Kayıt</h3>
                 <div class="space-y-4">
                     <div class="flex gap-3 relative">
+                        <button id="tournament-invite-btn" class="invite-btn px-3 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all" title="Arkadaşını davet et">👤</button>
                         <input type="text" placeholder="Takma adınızı girin..." id="player-alias-input"
                             class="flex-1 px-4 py-3 bg-slate-900/60 border border-slate-600 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                             maxlength="20" autocomplete="off">
@@ -320,7 +388,7 @@
                     </div>
 
                     <!-- Player List -->
-                    <div class="space-y-2" id="player-list">
+                    <div class="space-y-3 mb-8" id="player-list">
                         <!-- Players will be added dynamically -->
                     </div>
                 </div>
@@ -351,8 +419,42 @@
             <button id="start-tournament-btn"
                 class="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white font-bold py-4 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled>
-                TURNUVAYI BAŞLAT
+                TURNUVAYI OLUŞTUR
             </button>
+        </div>
+    </div>
+
+    <!-- Invite Modal -->
+    <div id="inviteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+        <div class="bg-slate-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h3 class="text-lg font-bold text-white mb-4">Arkadaşını Davet Et</h3>
+            
+            <!-- Search Input -->
+            <div class="mb-4">
+                <input type="text" id="inviteSearchInput" placeholder="Arkadaşının adını ara..."
+                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+            </div>
+            
+            <!-- Suggestions List -->
+            <div id="inviteSuggestions" class="mb-4 max-h-40 min-h-10 overflow-y-auto">
+                <!-- Suggestions will be populated here -->
+            </div>
+            
+            <!-- Password Input (hidden initially) -->
+            <div id="invitePasswordSection" class="hidden mb-4">
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Şifre</label>
+                <input type="password" id="invitePasswordInput" placeholder="Şifrenizi girin..."
+                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                <div id="invitePasswordError" class="hidden mt-2 text-sm text-rose-200 bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2">
+                    Şifre yanlış. Tekrar deneyin.
+                </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="flex gap-2 justify-end">
+                <button id="inviteCancelBtn" class="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-all">İptal</button>
+                <button id="inviteConfirmBtn" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-all hidden">Onayla</button>
+            </div>
         </div>
     </div>
 

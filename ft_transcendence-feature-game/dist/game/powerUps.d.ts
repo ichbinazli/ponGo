@@ -6,6 +6,10 @@ export declare const freezeUsed: {
     player1: boolean;
     player2: boolean;
 };
+export declare const megaEarned: {
+    player1: boolean;
+    player2: boolean;
+};
 type FreezeState = {
     active: boolean;
     target: 'player1' | 'player2' | null;

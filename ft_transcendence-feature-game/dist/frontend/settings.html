@@ -82,6 +82,62 @@
                     💡 Dil değişikliği anında uygulanır.
                 </div>
             </div>
+        <div class="card mt-4 sm:mt-6">
+            <h3 class="text-lg font-semibold text-slate-100 mb-1">🔐 İki Faktörlü Doğrulama (2FA)</h3>
+            <p class="text-xs text-slate-400 mb-4">Hesabınızı e-posta doğrulama koduyla ekstra güvende tutun.</p>
+
+            <!-- Durum Rozeti -->
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-sm text-slate-300">Durum:</span>
+                <span id="twofa-status-badge" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-700 text-slate-300">
+                    ⏳ Yükleniyor...
+                </span>
+            </div>
+
+            <!-- Etkinleştir Butonu -->
+            <button id="twofa-enable-btn" class="btn w-full hidden bg-emerald-600 hover:bg-emerald-700">
+                ✅ 2FA'yı Etkinleştir
+            </button>
+
+            <!-- Devre Dışı Bırak Butonu -->
+            <button id="twofa-disable-btn" class="btn w-full hidden bg-red-700 hover:bg-red-800">
+                🚫 2FA'yı Devre Dışı Bırak
+            </button>
+
+            <!-- OTP Giriş Alanı (Etkinleştirme) -->
+            <div id="twofa-code-section" class="hidden mt-4 space-y-3">
+                <p class="text-sm text-slate-300">📧 E-postanıza gönderilen 6 haneli kodu girin:</p>
+                <input
+                    type="text"
+                    id="twofa-code-input"
+                    maxlength="6"
+                    placeholder="000000"
+                    class="input w-full text-center text-xl tracking-[0.5em] font-mono"
+                />
+                <button id="twofa-confirm-btn" class="btn w-full">
+                    Onayla ve Etkinleştir
+                </button>
+                <button id="twofa-cancel-setup-btn" class="btn btn-secondary w-full text-sm">
+                    İptal
+                </button>
+            </div>
+
+            <!-- Şifre Giriş Alanı (Devre Dışı Bırakma) -->
+            <div id="twofa-password-section" class="hidden mt-4 space-y-3">
+                <p class="text-sm text-slate-300">🔑 2FA'yı kapatmak için şifrenizi girin:</p>
+                <input
+                    type="password"
+                    id="twofa-password-input"
+                    placeholder="••••••••"
+                    class="input w-full"
+                />
+                <button id="twofa-disable-confirm-btn" class="btn w-full bg-red-700 hover:bg-red-800">
+                    Devre Dışı Bırak
+                </button>
+                <button id="twofa-cancel-disable-btn" class="btn btn-secondary w-full text-sm">
+                    İptal
+                </button>
+            </div>
         </div>
     </div>
 </div>
