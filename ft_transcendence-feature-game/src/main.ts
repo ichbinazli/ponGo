@@ -379,21 +379,46 @@ class App {
 
     private createPodiumCard(player: any, index: number): string {
         const trophyImages = ['/image/1.svg', '/image/2.svg', '/image/3.svg'];
-        const gradients = ['from-yellow-400 to-yellow-600', 'from-gray-300 to-gray-500', 'from-orange-400 to-orange-600'];
         const positionKeys = ['leaderboard.first', 'leaderboard.second', 'leaderboard.third'];
 
+        const cardConfigs = [
+            {
+                bg: 'linear-gradient(135deg, #1a1207 0%, #2d1f0a 30%, #1a1207 100%)',
+                border: '#ca8a04',
+                glow: '0 0 30px rgba(234,179,8,0.35), 0 0 60px rgba(234,179,8,0.15)',
+                titleColor: 'text-yellow-400',
+                badge: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/40',
+            },
+            {
+                bg: 'linear-gradient(135deg, #0f1318 0%, #1a2030 30%, #0f1318 100%)',
+                border: '#94a3b8',
+                glow: '0 0 30px rgba(148,163,184,0.3), 0 0 60px rgba(148,163,184,0.1)',
+                titleColor: 'text-slate-200',
+                badge: 'bg-slate-500/20 text-slate-200 border border-slate-400/40',
+            },
+            {
+                bg: 'linear-gradient(135deg, #1a0f07 0%, #2d1a0a 30%, #1a0f07 100%)',
+                border: '#c2410c',
+                glow: '0 0 30px rgba(249,115,22,0.35), 0 0 60px rgba(249,115,22,0.15)',
+                titleColor: 'text-orange-400',
+                badge: 'bg-orange-500/20 text-orange-300 border border-orange-500/40',
+            },
+        ];
+        const c = cardConfigs[index];
+
         return `
-            <div class="podium-card bg-gradient-to-br ${gradients[index]} p-4 sm:p-6 rounded-xl text-center transform hover:scale-105 transition-all duration-300">
-                <div class="mb-2 sm:mb-4 flex justify-center"><img src="${trophyImages[index]}" alt="${this.i18n.t(positionKeys[index])}" class="w-16 h-16 sm:w-24 sm:h-24 object-contain"></div>
-                <div class="flex justify-center mb-2 sm:mb-3">
-                    ${this.renderAvatarHtml({ id: player.id, display_name: player.name, avatar_url: player.avatar_url }, 'w-14 h-14 sm:w-18 sm:h-18', 'text-lg sm:text-xl')}
+            <div class="podium-card relative overflow-hidden rounded-2xl text-center transform hover:scale-105 transition-all duration-300 p-5 sm:p-8"
+                 style="background: ${c.bg}; border: 2px solid ${c.border}; box-shadow: ${c.glow};">
+                <div class="mb-4 sm:mb-5 flex justify-center">
+                    <img src="${trophyImages[index]}" alt="${this.i18n.t(positionKeys[index])}" class="w-20 h-20 sm:w-28 sm:h-28 object-contain drop-shadow-2xl">
                 </div>
-                <h3 class="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">${this.i18n.t(positionKeys[index])}</h3>
-                <div class="text-white/90 mb-2 sm:mb-4">
-                    <h4 class="text-base sm:text-lg font-semibold">${player.name}</h4>
-                    <p class="text-xs sm:text-sm">${player.score.toLocaleString()} puan</p>
-                    <p class="text-xs">%${player.winRate} kazanma oranı</p>
+                <div class="flex justify-center mb-3 sm:mb-4">
+                    ${this.renderAvatarHtml({ id: player.id, display_name: player.name, avatar_url: player.avatar_url }, 'w-14 h-14 sm:w-18 sm:h-18 ring-2 ring-white/20', 'text-lg sm:text-xl')}
                 </div>
+                <span class="inline-block ${c.badge} text-xs font-bold px-3 py-1 rounded-full mb-2">${this.i18n.t(positionKeys[index])}</span>
+                <h4 class="text-lg sm:text-xl font-bold text-white mb-1">${player.name}</h4>
+                <p class="${c.titleColor} text-xl sm:text-2xl font-extrabold mb-1">${player.score.toLocaleString()}</p>
+                <p class="text-xs text-slate-400">%${player.winRate} kazanma oranı</p>
             </div>
         `;
     }
