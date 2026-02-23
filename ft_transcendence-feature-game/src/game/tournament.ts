@@ -11,6 +11,7 @@ interface Match {
     player2: Player;
     winner?: Player;
     round: number;
+    matchOrder?: number;
 }
 
 
@@ -101,22 +102,35 @@ async function createFirstRound() {
 
     matches = [];
 
-    for (let i = 0; i < shuffledPlayers.length; i += 2) {
-        if (i + 1 < shuffledPlayers.length) {
-            matches.push({
-                player1: shuffledPlayers[i],
-                player2: shuffledPlayers[i + 1],
-                round: 1
-            });
-        }
+    // Round 1: eşleşebilen çiftler
+    for (let i = 0; i + 1 < shuffledPlayers.length; i += 2) {
+        matches.push({
+            player1: shuffledPlayers[i],
+            player2: shuffledPlayers[i + 1],
+            round: 1
+        });
     }
 
-    const tournamentMathches: TournamentMatch[] = matches.map((match, index) => ({
-        round: match.round,
-        matchOrder: index + 1,
-        participant1Alias: match.player1.alias,
-        participant2Alias: match.player2.alias
-    }));
+
+    let round1Order = 1;
+    const tournamentMathches: TournamentMatch[] = matches.map((match) => {
+        if (match.round === 1) {
+            return {
+                round: match.round,
+                matchOrder: round1Order++,
+                participant1Alias: match.player1.alias,
+                participant2Alias: match.player2 ? match.player2.alias : null
+            };
+        } else {
+            // Round 2+ bye maçı
+            return {
+                round: match.round,
+                matchOrder: match.matchOrder ?? 1,
+                participant1Alias: match.player1.alias,
+                participant2Alias: null
+            };
+        }
+    });
 
 
     const playerCount = tournamentPlayers.length as PlayerCount;

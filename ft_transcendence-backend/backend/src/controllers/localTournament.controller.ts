@@ -352,41 +352,26 @@ export const recordMatchResult = async (
         // Otomatik İlerletme: Kazananı sonraki round'a ata
         // =============================================
         // Bye (dışarıda kalan) oyuncu desteği:
-        //   Tek sayılı katılımcı varsa bir maçın participant2_id'si NULL'dır.
-        //   Bu maçtaki participant1 "bye" oyuncusudur — elenmemiş ama maç oynamamış.
-        //   Sonraki roundda önce bye oyuncuyla eşleştir; yoksa normal bracket ilerl.
+        //   Tek sayılı katılımcı varsa frontend, o oyuncuyu daha önceden bir sonraki
+        //   round'a (round=2) sadece participant1 dolu olarak ekler.
+        //   Burada o bekleyen maçı bulur ve kazananı participant2 olarak yerleştiririz.
         const currentRound = match.round;
         const currentMatchOrder = match.match_order;
         const nextRound = currentRound + 1;
 
-        // Aynı rounddaki maçları al
-        const currentRoundMatches = tournamentModel.getMatchesByRound(match.tournament_id, currentRound);
-
-        // Bu roundda bye maç (participant2_id = NULL) var mı?
-        const byeMatch = currentRoundMatches.find(
-            m => m.participant2_id === null && m.id !== matchId
-        );
-
         // Sonraki round maçlarını al
         const nextRoundMatches = tournamentModel.getMatchesByRound(match.tournament_id, nextRound);
 
-        if (byeMatch && byeMatch.participant1_id !== null) {
-            // Bye oyuncusu var: kazananı ve bye oyuncusunu sonraki roundda eşleştir
-            const byeParticipantId = byeMatch.participant1_id;
+        // Sonraki roundda bye maçı var mı?
+        // Bye maçı: participant1_id dolu (bye oyuncusu orada bekliyor), participant2_id NULL
+        // (Tek sayıda oyuncuda frontend bu maçı başlangıçta oluşturur)
+        const nextRoundByeMatch = nextRoundMatches.find(
+            m => m.participant1_id !== null && m.participant2_id === null && m.status === 'pending'
+        );
 
-            // Sonraki roundda bir maç bul (pending olan ilk maç)
-            const pendingNextMatch = nextRoundMatches.find(
-                m => m.participant1_id === null || m.participant2_id === null
-            );
-
-            if (pendingNextMatch) {
-                if (pendingNextMatch.participant1_id === null) {
-                    tournamentModel.setMatchParticipant(pendingNextMatch.id, 1, byeParticipantId);
-                    tournamentModel.setMatchParticipant(pendingNextMatch.id, 2, winnerParticipantId);
-                } else {
-                    tournamentModel.setMatchParticipant(pendingNextMatch.id, 2, winnerParticipantId);
-                }
-            }
+        if (nextRoundByeMatch) {
+            // Bye oyuncusu sonraki roundda bekliyor; kazananı participant2 olarak yerleştir
+            tournamentModel.setMatchParticipant(nextRoundByeMatch.id, 2, winnerParticipantId);
         } else {
             // Normal bracket ilerletme
             const nextMatchOrder = Math.ceil(currentMatchOrder / 2);
