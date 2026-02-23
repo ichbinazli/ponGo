@@ -4,7 +4,7 @@ import { initGameObjects, keysPressedHuman, keysPressedAI, paddles, ball, gameSt
 import { update } from './modes/human2ai';
 import { initFreezeUI, initPowerupUI, hydratePowerups, isFrozen, streaks, freezeUsed, megaEarned, updatePowerupBoard, clearFreeze, clearMega, freezeState, freezeUI, updateFreeze, updateMega, maybeApplyFreeze, maybeApplyMegaPaddle, basePaddleHeights } from './powerUps';
 import { initGameOverUI, gameOverUI, hideGameOverModal } from './gameOver';
-import { saveMatch, MatchPayload } from './apiCalls';
+import { saveMatch, MatchPayload, tournamentMatchSave, TournamentMatchSavePayload } from './apiCalls';
 
 const DEFAULT_WINNING_SCORE = 5;
 let winningScore = DEFAULT_WINNING_SCORE;
@@ -14,6 +14,7 @@ let gameFinished = false;
 let lastTime = performance.now();
 let spaceHintDismissed = false;
 let spaceToggleBound = false;
+let matchStartTime = 0;
 const FIXED_FRAME_MS = 1000 / 60;
 const MAX_FRAME_FACTOR = 2;
 
@@ -131,8 +132,10 @@ export function startGame() {
     showScoreboard();
 
     gameRunning = true;
-    if (ball.velocityX === 0 && ball.velocityY === 0)
+    if (ball.velocityX === 0 && ball.velocityY === 0) {
         resetBall(Math.random() > 0.5);
+        matchStartTime = Date.now();
+    }
     lastTime = performance.now();
     animationId = requestAnimationFrame(gameLoop);
 }
@@ -194,8 +197,42 @@ function finishGame(winner: 'player1' | 'player2') {
     clearMega('player1');
     clearMega('player2');
     centerBallAndStop();
-    saveMatchResult();
-    showGameOverModal(winner);
+
+    if (gameState.gameMode === 'tournament') {
+        // Save match result info for tournament page to pick up
+        sessionStorage.setItem('tournamentMatchWinner', winner);
+        sessionStorage.setItem('tournamentMatchScoreP1', String(scores.player1));
+        sessionStorage.setItem('tournamentMatchScoreP2', String(scores.player2));
+
+        const matchId = parseInt(sessionStorage.getItem('currentMatchId') || '0');
+        const winnerParticipantId = winner === 'player1'
+            ? parseInt(sessionStorage.getItem('player1_id') || '0')
+            : parseInt(sessionStorage.getItem('player2_id') || '0');
+        const durationSeconds = Math.round((Date.now() - matchStartTime) / 1000);
+
+        const payload: TournamentMatchSavePayload = {
+            participant1Score: scores.player1,
+            participant2Score: scores.player2,
+            winnerParticipantId,
+            durationSeconds,
+            winningScore,
+            gameMode: 'tournament',
+        };
+
+        tournamentMatchSave(matchId, payload).then(response => {
+            if (response) {
+                sessionStorage.setItem('tournamentMatchApiResponse', JSON.stringify(response));
+            }
+        }).catch(err => {
+            console.error('Tournament match save failed:', err);
+        }).finally(() => {
+            window.history.replaceState({}, '', '/tournament');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+        });
+    } else {
+        saveMatchResult();
+        showGameOverModal(winner);
+    }
 }
 
 function syncPositions() {

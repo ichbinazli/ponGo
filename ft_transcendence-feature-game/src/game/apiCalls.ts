@@ -154,3 +154,22 @@ export async function tournamentAddGuest(tournamentId: number, alias: string) {
         console.error('Add guest API failed!', error);
     }
 }
+
+export interface TournamentMatchSavePayload {
+    participant1Score: number;
+    participant2Score: number;
+    winnerParticipantId: number;
+    durationSeconds: number;
+    winningScore: number;
+    gameMode: string;
+}
+
+export async function tournamentMatchSave(matchId: number, data: TournamentMatchSavePayload) {
+    try {
+        const response = await Api.post(`/api/local-tournament/match/${matchId}/result`, data);
+        console.log('Tournament match save API response:', response);
+        return response;
+    } catch (error) {
+        console.error('Tournament match save API failed!', error);
+    }
+}

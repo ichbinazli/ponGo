@@ -101,7 +101,6 @@ export function setupGameModeSelection(): void {
             sessionStorage.setItem('gameMode', mode);
             const href = link.getAttribute('href');
             if (href) {
-                // Router yölendir
                 window.location.href = href;
             }
         });
@@ -537,6 +536,7 @@ export function setupTournamentFunctionality(): void {
         tournamentPlayers.push(player);
         renderPlayers();
         playerInput.value = '';
+        playerInput.removeAttribute('data-user-id');
         updatePlayerCount();
         playerInput.focus();
     };
@@ -602,10 +602,16 @@ export function setupTournamentFunctionality(): void {
             alert('En az 3 oyuncu gereklidir!');
             return;
         }
+        const winScoreSelect = document.getElementById('tournament-win-score') as HTMLSelectElement | null;
+        const winScoreParsed = winScoreSelect ? parseInt(winScoreSelect.value, 10) : NaN;
+        const winScoreToStore = !Number.isNaN(winScoreParsed) && winScoreParsed > 0
+            ? winScoreParsed.toString()
+            : '10';
 
         // Turnuva verilerini sessionStorage'a kaydet
         sessionStorage.setItem('gameMode', 'tournament');
         sessionStorage.setItem('tournamentPlayers', JSON.stringify(tournamentPlayers));
+        sessionStorage.setItem('winningScore', winScoreToStore);
 
         navigateTo('/tournament');
     };
@@ -901,7 +907,7 @@ function initInviteModal() {
                     return;
                 }
 
-                filteredUsers.forEach((user: { id: number; displayName: string, avatar_url: string}) => {
+                filteredUsers.forEach((user: { id: number; displayName: string, avatar_url: string }) => {
                     const div = document.createElement('div');
                     div.className = 'p-2 hover:bg-slate-600 cursor-pointer rounded flex items-center';
                     const img = document.createElement('img');

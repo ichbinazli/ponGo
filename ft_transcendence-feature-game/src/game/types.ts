@@ -72,6 +72,7 @@ if (matchType !== 'h2h' && matchType !== 'h2ai') {
 
 export const gameState = {
     matchType: matchType as 'h2h' | 'h2ai',
+    gameMode: sessionStorage.getItem('gameMode') || 'modern' as 'modern' | 'nostalgia' | 'tournament',
 }
 
 // Kullanıcı tarafını belirle (varsayılan: sağ taraf)
