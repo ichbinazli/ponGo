@@ -21,6 +21,11 @@ export const freezeUsed = {
     player2: false,
 };
 
+export const megaEarned = {
+    player1: false,
+    player2: false,
+};
+
 type FreezeState = {
     active: boolean;
     target: 'player1' | 'player2' | null;
@@ -236,6 +241,8 @@ export function maybeApplyMegaPaddle(player: 'player1' | 'player2', now: number)
 
     state.active = true;
     state.expiresAt = now + 7000;
+
+    megaEarned[player] = true;
 
     const paddleEl = player === 'player1' ? ui.paddle1 : ui.paddle2;
     const baseHeight = player === 'player1' ? basePaddleHeights.player1 : basePaddleHeights.player2;

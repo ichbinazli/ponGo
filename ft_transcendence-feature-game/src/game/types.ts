@@ -12,7 +12,7 @@ export const paddles = {
 export const ball = {
     x: 0,
     y: 0,
-    speed: 7,
+    speed: 6,
     velocityX: 0,
     velocityY: 0,
 }
@@ -29,12 +29,40 @@ export const scores = {
     player2: 0,
 }
 
-export const playersInfo = {
-    player1_name: '',
-    player2_name: '',
-    player1_id: 0,
-    player2_id: 0,
+// export const playersInfo = {
+//     player1_name: '',
+//     player2_name: '',
+//     player1_id: 0,
+//     player2_id: 0,
+// }
+
+interface PlayersInfo {
+    mainPlayer_name: string;
+    otherPlayer_name: string;
+    mainPlayer_id: number | null;
+    otherPlayer_id: number | null;
+    mainPlayer_score: number;
+    otherPlayer_score: number;
+    mainPlayer_side: 'left' | 'right';
+    mainPlayer_power_up_freeze: boolean;
+    mainPlayer_power_up_mega: boolean;
+    otherPlayer_power_up_freeze: boolean;
+    otherPlayer_power_up_mega: boolean;
 }
+
+export const playersInfo: PlayersInfo = {
+    mainPlayer_name: '',
+    otherPlayer_name: '',
+    mainPlayer_id: null,
+    otherPlayer_id: null,
+    mainPlayer_score: 0,
+    otherPlayer_score: 0,
+    mainPlayer_side: 'right',
+    mainPlayer_power_up_freeze: false,
+    mainPlayer_power_up_mega: false,
+    otherPlayer_power_up_freeze: false,
+    otherPlayer_power_up_mega: false,
+};
 
 let matchType = sessionStorage.getItem('matchType');
 if (matchType !== 'h2h' && matchType !== 'h2ai') {
@@ -43,11 +71,33 @@ if (matchType !== 'h2h' && matchType !== 'h2ai') {
 }
 
 export const gameState = {
-    gameMode: matchType as 'h2h' | 'h2ai',
+    matchType: matchType as 'h2h' | 'h2ai',
 }
+
+// Kullanıcı tarafını belirle (varsayılan: sağ taraf)
+let userIsOnLeftSide = sessionStorage.getItem('playerSide') === 'left';
 
 document.addEventListener('keydown', (event) => {
     maybePreventScroll(event);
+    
+    // Tuş kontrollerini kullanıcı tarafına göre filtrele
+    const matchType = sessionStorage.getItem('matchType');
+    const isAiMatch = matchType === 'h2ai';
+    
+    if (isAiMatch) {
+        // AI maçında taraf kontrolü
+        userIsOnLeftSide = sessionStorage.getItem('playerSide') === 'left';
+        
+        // Kullanıcı sol tarafta ise W/S tuşlarını kullan, ok tuşlarını reddet
+        if (userIsOnLeftSide) {
+            if (['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+        }
+        // Kullanıcı sağ tarafta ise ok tuşlarını kullan, W/S tuşlarını reddet
+        else {
+            if (['w', 'W', 's', 'S'].includes(event.key)) return;
+        }
+    }
+    
     keysPressedHuman[event.key] = true;
 });
 

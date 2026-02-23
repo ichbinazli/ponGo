@@ -1,8 +1,11 @@
+/* eslint-disable no-console */
 /* eslint-disable no-undef */
 /**
  * Game Option Manager
  * Tüm oyun seçeneği yönetimini burada yapıyoruz
  */
+
+import { searchUser, verifyPassword } from './apiCalls';
 
 type GameMode = 'modern' | 'nostalgia' | 'tournament';
 
@@ -110,24 +113,29 @@ export function setupGameModeSelection(): void {
  */
 export function setupNostalgiaMode(): void {
     const modeButtons = document.querySelectorAll<HTMLButtonElement>('.nostalgia-mode-btn');
-    const players2v2Section = document.getElementById('nostalgia-players-2v2');
+    const playersh2hSection = document.getElementById('nostalgia-players-h2h');
     const players1v1Section = document.getElementById('nostalgia-players-1v1');
     const aiSettingsSection = document.getElementById('nostalgia-ai-settings');
+    const sideSelectionSectionh2h = document.getElementById('nostalgia-side-selection-h2h');
     const startButton = document.getElementById('start-nostalgia-btn') as HTMLButtonElement | null;
     let selectedMode: string | undefined;
+    let selectedSide: string = 'right'; // Default olarak sağ taraf
     modeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             selectedMode = btn.dataset.nostalgiaMode;
+            selectedSide = 'right'; // Mod değiştiğinde tarafı sıfırla
 
             modeButtons.forEach(b => b.classList.remove('bg-purple-500', 'ring-2', 'ring-purple-400'));
             btn.classList.add('bg-purple-500', 'ring-2', 'ring-purple-400');
 
             if (selectedMode === '1v1') {
-                if (players2v2Section) players2v2Section.classList.remove('hidden');
+                if (playersh2hSection) playersh2hSection.classList.remove('hidden');
+                if (sideSelectionSectionh2h) sideSelectionSectionh2h.classList.remove('hidden');
                 if (players1v1Section) players1v1Section.classList.add('hidden');
                 if (aiSettingsSection) aiSettingsSection.classList.add('hidden');
             } else if (selectedMode === '1vAI') {
-                if (players2v2Section) players2v2Section.classList.add('hidden');
+                if (playersh2hSection) playersh2hSection.classList.add('hidden');
+                if (sideSelectionSectionh2h) sideSelectionSectionh2h.classList.add('hidden');
                 if (players1v1Section) players1v1Section.classList.remove('hidden');
                 if (aiSettingsSection) aiSettingsSection.classList.remove('hidden');
             }
@@ -135,6 +143,9 @@ export function setupNostalgiaMode(): void {
             if (startButton) {
                 startButton.disabled = false;
             }
+
+            // Taraf seçim butonlarını güncelle
+            updateNostalgiaSideButtons();
         });
     });
 
@@ -148,15 +159,29 @@ export function setupNostalgiaMode(): void {
             sessionStorage.setItem('winningScore', winScoreToStore);
 
             if (selectedMode === '1v1') {
-                const player1Input = (document.getElementById('nostalgia-player1-name') as HTMLInputElement)?.value.trim();
-                const player2Input = (document.getElementById('nostalgia-player2-name') as HTMLInputElement)?.value.trim();
+                const player1InputValue = (document.getElementById('nostalgia-player1-name') as HTMLInputElement)?.value.trim();
+                const player2InputValue = (document.getElementById('nostalgia-player2-name') as HTMLInputElement)?.value.trim();
 
-                const player1 = player1Input || 'Oyuncu 1';
-                const player2 = player2Input || 'Oyuncu 2';
+                const player1 = player1InputValue || 'Oyuncu 1';
+                const player2 = player2InputValue || 'Oyuncu 2';
 
+                let player2Id;
+                let player1Id;
+                if (selectedSide === 'right') {
+                    player2Id = JSON.parse(localStorage.getItem('user') || '{}').id || '';
+                    player1Id = sessionStorage.getItem('invitedUserId') || '';
+                }
+                else {
+                    player1Id = JSON.parse(localStorage.getItem('user') || '{}').id || '';
+                    player2Id = sessionStorage.getItem('invitedUserId') || '';
+                }
                 sessionStorage.setItem('gameMode', 'nostalgia');
+                sessionStorage.setItem('matchType', 'h2h');
                 sessionStorage.setItem('player1', player1);
                 sessionStorage.setItem('player2', player2);
+                sessionStorage.setItem('player1_id', player1Id || '');
+                sessionStorage.setItem('player2_id', player2Id || '');
+                sessionStorage.setItem('playerSide', selectedSide);
                 navigateTo('/nostalgia');
             } else if (selectedMode === '1vAI') {
                 const playerNameInput = (document.getElementById('nostalgia-player-name') as HTMLInputElement)?.value.trim();
@@ -164,10 +189,100 @@ export function setupNostalgiaMode(): void {
                 const aiDifficulty = (document.getElementById('nostalgia-ai-difficulty') as HTMLSelectElement)?.value;
 
                 sessionStorage.setItem('gameMode', 'nostalgia');
+                sessionStorage.setItem('matchType', 'h2ai');
+                sessionStorage.setItem('player1_id', '1'); // AI'yı her zaman player1 yapıyoruz
+                sessionStorage.setItem('player2_id', JSON.parse(localStorage.getItem('user') || '{}').id || '');
                 sessionStorage.setItem('playerName', playerName);
                 sessionStorage.setItem('aiDifficulty', aiDifficulty);
                 navigateTo('/nostalgia');
             }
+        });
+    }
+
+    // Taraf seçim butonları - h2h
+    const sideButtonsh2h = document.querySelectorAll<HTMLButtonElement>('[id="nostalgia-side-selection-h2h"] .nostalgia-side-btn');
+    const sideToggleh2h = document.getElementById('nostalgia-side-toggle');
+
+    // Oyuncu adı inputları
+    const player1Input = document.getElementById('nostalgia-player1-name') as HTMLInputElement | null;
+    const player2Input = document.getElementById('nostalgia-player2-name') as HTMLInputElement | null;
+
+    const updateNostalgiaPlayerNameBySelectedSide = () => {
+        const displayName = getDisplayNameFromLocalStorage();
+        if (!displayName) return;
+
+        const player1InviteBtn = document.getElementById('nostalgia-player1-invite-btn') as HTMLButtonElement;
+        const player2InviteBtn = document.getElementById('nostalgia-player2-invite-btn') as HTMLButtonElement;
+
+        if (selectedSide === 'left') {
+            if (player1Input) player1Input.value = displayName;
+            if (player2Input) player2Input.value = '';
+            if (player1InviteBtn) player1InviteBtn.classList.add('hidden');
+            if (player2InviteBtn) player2InviteBtn.classList.remove('hidden');
+        } else {
+            if (player1Input) player1Input.value = '';
+            if (player2Input) player2Input.value = displayName;
+            if (player1InviteBtn) player1InviteBtn.classList.remove('hidden');
+            if (player2InviteBtn) player2InviteBtn.classList.add('hidden');
+        }
+    };
+
+    const updateNostalgiaSideButtons = () => {
+        // h2h butonlarını güncelle
+        sideButtonsh2h.forEach(btn => {
+            btn.classList.remove('ring-2', 'ring-purple-400', 'bg-purple-500/30');
+            if (btn.dataset.nostalgiaSide === selectedSide) {
+                btn.classList.add('ring-2', 'ring-purple-400', 'bg-purple-500/30');
+            }
+        });
+
+        // h2h toggle'ı güncelle
+        if (sideToggleh2h) {
+            const toggleIndicator = sideToggleh2h.querySelector('div');
+            if (toggleIndicator) {
+                if (selectedSide === 'left') {
+                    toggleIndicator.style.left = '0.25rem';
+                    sideToggleh2h.classList.remove('bg-purple-500/50');
+                    sideToggleh2h.classList.add('bg-slate-700');
+                } else {
+                    toggleIndicator.style.left = 'calc(100% - 1.5rem - 0.25rem)';
+                    sideToggleh2h.classList.add('bg-purple-500/50');
+                    sideToggleh2h.classList.remove('bg-slate-700');
+                }
+            }
+        }
+
+        // Seçili tarafın inputuna oyuncu adını yaz
+        updateNostalgiaPlayerNameBySelectedSide();
+    };
+
+    // h2h butonları
+    sideButtonsh2h.forEach(btn => {
+        btn.addEventListener('click', () => {
+            selectedSide = btn.dataset.nostalgiaSide || 'left';
+            updateNostalgiaSideButtons();
+        });
+    });
+
+    // Invite butonları
+    const player1InviteBtn = document.getElementById('nostalgia-player1-invite-btn') as HTMLButtonElement;
+    const player2InviteBtn = document.getElementById('nostalgia-player2-invite-btn') as HTMLButtonElement;
+
+    if (player1InviteBtn) {
+        player1InviteBtn.addEventListener('click', () => {
+            showInviteModal((user) => {
+                if (player1Input) player1Input.value = user.displayName;
+                player1Input?.setAttribute('data-user-id', user.id.toString());
+            });
+        });
+    }
+
+    if (player2InviteBtn) {
+        player2InviteBtn.addEventListener('click', () => {
+            showInviteModal((user) => {
+                if (player2Input) player2Input.value = user.displayName;
+                player2Input?.setAttribute('data-user-id', user.id.toString());
+            });
         });
     }
 }
@@ -177,24 +292,29 @@ export function setupNostalgiaMode(): void {
  */
 export function setupModernMode(): void {
     const modeButtons = document.querySelectorAll<HTMLButtonElement>('.modern-mode-btn');
-    const players2v2Section = document.getElementById('modern-players-2v2');
+    const playersh2hSection = document.getElementById('modern-players-h2h');
     const players1v1Section = document.getElementById('modern-players-1v1');
     const aiSettingsSection = document.getElementById('modern-ai-settings');
+    const sideSelectionSectionh2h = document.getElementById('modern-side-selection-h2h');
     const startButton = document.getElementById('start-modern-btn') as HTMLButtonElement | null;
     let selectedMode: string | undefined;
+    let selectedSide: string = 'right'; // Default olarak sol taraf
     modeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             selectedMode = btn.dataset.modernMode;
+            selectedSide = 'right'; // Mod değiştiğinde tarafı sıfırla
 
             modeButtons.forEach(b => b.classList.remove('bg-cyan-500', 'ring-2', 'ring-cyan-400'));
             btn.classList.add('bg-cyan-500', 'ring-2', 'ring-cyan-400');
 
             if (selectedMode === '1v1') {
-                if (players2v2Section) players2v2Section.classList.remove('hidden');
+                if (playersh2hSection) playersh2hSection.classList.remove('hidden');
+                if (sideSelectionSectionh2h) sideSelectionSectionh2h.classList.remove('hidden');
                 if (players1v1Section) players1v1Section.classList.add('hidden');
                 if (aiSettingsSection) aiSettingsSection.classList.add('hidden');
             } else if (selectedMode === '1vAI') {
-                if (players2v2Section) players2v2Section.classList.add('hidden');
+                if (playersh2hSection) playersh2hSection.classList.add('hidden');
+                if (sideSelectionSectionh2h) sideSelectionSectionh2h.classList.add('hidden');
                 if (players1v1Section) players1v1Section.classList.remove('hidden');
                 if (aiSettingsSection) aiSettingsSection.classList.remove('hidden');
             }
@@ -202,6 +322,9 @@ export function setupModernMode(): void {
             if (startButton) {
                 startButton.disabled = false;
             }
+
+            // Taraf seçim butonlarını güncelle
+            updateSideButtons();
         });
     });
 
@@ -221,16 +344,24 @@ export function setupModernMode(): void {
             sessionStorage.setItem('winningScore', winScoreToStore);
 
             if (selectedMode === '1v1') {
-                const player1Input = (document.getElementById('modern-player1-name') as HTMLInputElement)?.value.trim();
-                const player2Input = (document.getElementById('modern-player2-name') as HTMLInputElement)?.value.trim();
+                const player1InputValue = (document.getElementById('modern-player1-name') as HTMLInputElement)?.value.trim();
+                const player2InputValue = (document.getElementById('modern-player2-name') as HTMLInputElement)?.value.trim();
 
-                const player1 = player1Input || 'Oyuncu 1';
-                const player2 = player2Input || 'Oyuncu 2';
+                const player1 = player1InputValue || 'Oyuncu 1';
+                const player2 = player2InputValue || 'Oyuncu 2';
+
+                const player1Element = document.getElementById('modern-player1-name') as HTMLInputElement;
+                const player2Element = document.getElementById('modern-player2-name') as HTMLInputElement;
+                const player1Id = player1Element ? player1Element.getAttribute('data-user-id') : null;
+                const player2Id = player2Element ? player2Element.getAttribute('data-user-id') : null;
 
                 sessionStorage.setItem('gameMode', 'modern');
                 sessionStorage.setItem('matchType', 'h2h');
                 sessionStorage.setItem('player1', player1);
                 sessionStorage.setItem('player2', player2);
+                sessionStorage.setItem('player1_id', player1Id || '');
+                sessionStorage.setItem('player2_id', player2Id || '');
+                sessionStorage.setItem('playerSide', selectedSide);
                 sessionStorage.setItem('powerups', JSON.stringify(powerups));
                 navigateTo('/game');
             } else if (selectedMode === '1vAI') {
@@ -242,9 +373,99 @@ export function setupModernMode(): void {
                 sessionStorage.setItem('matchType', 'h2ai');
                 sessionStorage.setItem('playerName', playerName);
                 sessionStorage.setItem('aiDifficulty', aiDifficulty);
+                sessionStorage.setItem('playerSide', selectedSide);
                 sessionStorage.setItem('powerups', JSON.stringify(powerups));
                 navigateTo('/game');
             }
+        });
+    }
+
+
+    // Taraf seçim butonları - h2h
+    const sideButtonsh2h = document.querySelectorAll<HTMLButtonElement>('[id="modern-side-selection-h2h"] .modern-side-btn');
+    const sideToggleh2h = document.getElementById('modern-side-toggle');
+
+    // Oyuncu adı inputları
+    const player1Input = document.getElementById('modern-player1-name') as HTMLInputElement | null;
+    const player2Input = document.getElementById('modern-player2-name') as HTMLInputElement | null;
+
+    const updatePlayerNameBySelectedSide = () => {
+        const displayName = getDisplayNameFromLocalStorage();
+        if (!displayName) return;
+
+        const player1InviteBtn = document.getElementById('modern-player1-invite-btn') as HTMLButtonElement;
+        const player2InviteBtn = document.getElementById('modern-player2-invite-btn') as HTMLButtonElement;
+
+        if (selectedSide === 'left') {
+            if (player1Input) player1Input.value = displayName;
+            if (player2Input) player2Input.value = '';
+            if (player1InviteBtn) player1InviteBtn.classList.add('hidden');
+            if (player2InviteBtn) player2InviteBtn.classList.remove('hidden');
+        } else {
+            if (player1Input) player1Input.value = '';
+            if (player2Input) player2Input.value = displayName;
+            if (player1InviteBtn) player1InviteBtn.classList.remove('hidden');
+            if (player2InviteBtn) player2InviteBtn.classList.add('hidden');
+        }
+    };
+
+    const updateSideButtons = () => {
+        // h2h butonlarını güncelle
+        sideButtonsh2h.forEach(btn => {
+            btn.classList.remove('ring-2', 'ring-cyan-400', 'bg-cyan-500/30');
+            if (btn.dataset.modernSide === selectedSide) {
+                btn.classList.add('ring-2', 'ring-cyan-400', 'bg-cyan-500/30');
+            }
+        });
+
+        // h2h toggle'ı güncelle
+        if (sideToggleh2h) {
+            const toggleIndicator = sideToggleh2h.querySelector('div');
+            if (toggleIndicator) {
+                if (selectedSide === 'left') {
+                    toggleIndicator.style.left = '0.25rem';
+                    sideToggleh2h.classList.remove('bg-cyan-500/50');
+                    sideToggleh2h.classList.add('bg-slate-700');
+                } else {
+                    toggleIndicator.style.left = 'calc(100% - 1.5rem - 0.25rem)';
+                    sideToggleh2h.classList.add('bg-cyan-500/50');
+                    sideToggleh2h.classList.remove('bg-slate-700');
+                }
+            }
+        }
+
+        // Seçili tarafın inputuna oyuncu adını yaz
+        updatePlayerNameBySelectedSide();
+    };
+
+    // h2h butonları
+    sideButtonsh2h.forEach(btn => {
+        btn.addEventListener('click', () => {
+            selectedSide = btn.dataset.modernSide || 'left';
+            updateSideButtons();
+        });
+    });
+
+    // Invite butonları
+    const player1InviteBtn = document.getElementById('modern-player1-invite-btn') as HTMLButtonElement;
+    const player2InviteBtn = document.getElementById('modern-player2-invite-btn') as HTMLButtonElement;
+
+    if (player1InviteBtn) {
+        player1InviteBtn.addEventListener('click', () => {
+            showInviteModal((user) => {
+                if (player1Input) player1Input.value = user.displayName;
+                // Burada user.id'yi sakla, belki data attribute ile
+                player1Input?.setAttribute('data-user-id', user.id.toString());
+            });
+        });
+    }
+
+    if (player2InviteBtn) {
+        player2InviteBtn.addEventListener('click', () => {
+            showInviteModal((user) => {
+                if (player2Input) player2Input.value = user.displayName;
+                player2Input?.setAttribute('data-user-id', user.id.toString());
+            });
         });
     }
 }
@@ -253,8 +474,26 @@ export function setupModernMode(): void {
  * Tournament modu setup
  */
 export function setupTournamentFunctionality(): void {
-    let tournamentPlayers: Array<{ id: number, alias: string, number: number }> = [];
+    let tournamentPlayers: Array<{ participantId: number, alias: string, number: number, userId?: number }> = [];
     const maxPlayers = 8;
+
+    // Default olarak mevcut kullanıcıyı ekle
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            if (user.displayName) {
+                tournamentPlayers.push({
+                    participantId: Date.now(),
+                    alias: user.displayName,
+                    number: 1,
+                    userId: user.id
+                });
+            }
+        } catch (error) {
+            console.error('Error parsing user from localStorage:', error);
+        }
+    }
 
     const addPlayer = () => {
         const playerInput = document.getElementById('player-alias-input') as HTMLInputElement;
@@ -284,11 +523,16 @@ export function setupTournamentFunctionality(): void {
             return;
         }
 
-        const player = {
-            id: Date.now(),
+        const player: { participantId: number; alias: string; number: number; userId?: number } = {
+            participantId: Date.now(),
             alias: alias,
             number: tournamentPlayers.length + 1
         };
+
+        const userIdAttr = playerInput.getAttribute('data-user-id');
+        if (userIdAttr) {
+            player.userId = parseInt(userIdAttr);
+        }
 
         tournamentPlayers.push(player);
         renderPlayers();
@@ -298,7 +542,7 @@ export function setupTournamentFunctionality(): void {
     };
 
     const removePlayer = (playerId: number) => {
-        const index = tournamentPlayers.findIndex(p => p.id === playerId);
+        const index = tournamentPlayers.findIndex(p => p.participantId === playerId);
         if (index > -1) {
             tournamentPlayers.splice(index, 1);
             tournamentPlayers.forEach((player, idx) => {
@@ -320,18 +564,20 @@ export function setupTournamentFunctionality(): void {
 
         tournamentPlayers.forEach((player) => {
             const playerElement = document.createElement('div');
-            playerElement.className = 'player-item';
+            playerElement.className = 'flex items-center justify-between bg-slate-700/50 p-3 rounded-lg mb-2';
             playerElement.innerHTML = `
-                <span class="player-number">#${player.number}</span>
-                <span class="player-alias">${player.alias}</span>
-                <button class="remove-player-btn" data-player-id="${player.id}">
+                <div class="flex items-center">
+                    <span class="player-number text-cyan-400 font-bold mr-3">#${player.number}</span>
+                    <span class="player-alias text-white">${player.alias}</span>
+                </div>
+                <button class="remove-player-btn text-red-400 hover:text-red-300 transition-colors" data-player-id="${player.participantId}">
                     🗑️
                 </button>
             `;
 
             const removeBtn = playerElement.querySelector('.remove-player-btn');
             if (removeBtn) {
-                removeBtn.addEventListener('click', () => removePlayer(player.id));
+                removeBtn.addEventListener('click', () => removePlayer(player.participantId));
             }
 
             playerList.appendChild(playerElement);
@@ -352,18 +598,40 @@ export function setupTournamentFunctionality(): void {
     };
 
     const startTournament = () => {
-        if (tournamentPlayers.length < 2) {
-            alert('En az 2 oyuncu gereklidir!');
+        if (tournamentPlayers.length < 3) {
+            alert('En az 3 oyuncu gereklidir!');
             return;
         }
 
-        alert(`Turnuva ${tournamentPlayers.length} oyuncu ile başlatılıyor!`);
+        // Turnuva verilerini sessionStorage'a kaydet
+        sessionStorage.setItem('gameMode', 'tournament');
+        sessionStorage.setItem('tournamentPlayers', JSON.stringify(tournamentPlayers));
+
+        navigateTo('/tournament');
     };
 
     const setupEventListeners = () => {
         const playerInput = document.getElementById('player-alias-input') as HTMLInputElement;
         const addPlayerBtn = document.getElementById('add-player-btn');
         const startTournamentBtn = document.getElementById('start-tournament-btn');
+        const tournamentInviteBtn = document.getElementById('tournament-invite-btn') as HTMLButtonElement;
+
+        if (tournamentInviteBtn) {
+            tournamentInviteBtn.addEventListener('click', () => {
+                showInviteModal((user) => {
+                    if (playerInput) playerInput.value = user.displayName;
+                    playerInput?.setAttribute('data-user-id', user.id.toString());
+                    addPlayer();
+                }, (user) => {
+                    return !tournamentPlayers.some((player) => {
+                        if (player.userId && player.userId === user.id) {
+                            return true;
+                        }
+                        return player.alias.toLowerCase() === user.displayName.toLowerCase();
+                    });
+                });
+            });
+        }
 
         if (addPlayerBtn) {
             addPlayerBtn.addEventListener('click', () => {
@@ -391,6 +659,9 @@ export function setupTournamentFunctionality(): void {
     };
 
     setTimeout(setupEventListeners, 100);
+    // Başlangıçta render et
+    renderPlayers();
+    updatePlayerCount();
 }
 Object.values(GAME_MODE_CONFIG).forEach((config) => {
     const modeDiv = document.querySelector(config.divSelector) as HTMLElement;
@@ -407,7 +678,50 @@ function resetGameOptionState(): void {
     document.querySelectorAll<HTMLButtonElement>('.modern-mode-btn, .nostalgia-mode-btn').forEach(btn => {
         btn.classList.remove('bg-cyan-500', 'ring-2', 'ring-cyan-400', 'bg-purple-500', 'ring-2', 'ring-purple-400');
     });
-    
+
+    // Taraf seçim butonlarından seçili durumunu kaldır (h2h)
+    document.querySelectorAll<HTMLButtonElement>('.modern-side-btn, .nostalgia-side-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-cyan-400', 'bg-cyan-500/30', 'ring-2', 'ring-purple-400', 'bg-purple-500/30');
+    });
+
+    // Taraf seçim butonlarından seçili durumunu kaldır (1v1)
+    document.querySelectorAll<HTMLButtonElement>('.modern-side-btn-1v1').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-cyan-400', 'bg-cyan-500/30');
+    });
+
+    // Toggle'ı sıfırla (h2h)
+    const sideToggleh2h = document.getElementById('modern-side-toggle');
+    if (sideToggleh2h) {
+        const toggleIndicator = sideToggleh2h.querySelector('div');
+        if (toggleIndicator) {
+            toggleIndicator.style.left = '0.25rem';
+        }
+        sideToggleh2h.classList.remove('bg-cyan-500/50');
+        sideToggleh2h.classList.add('bg-slate-700');
+    }
+
+    // Toggle'ı sıfırla (nostalgia h2h)
+    const nostalgiaSideToggleh2h = document.getElementById('nostalgia-side-toggle');
+    if (nostalgiaSideToggleh2h) {
+        const toggleIndicator = nostalgiaSideToggleh2h.querySelector('div');
+        if (toggleIndicator) {
+            toggleIndicator.style.left = '0.25rem';
+        }
+        nostalgiaSideToggleh2h.classList.remove('bg-purple-500/50');
+        nostalgiaSideToggleh2h.classList.add('bg-slate-700');
+    }
+
+    // Toggle'ı sıfırla (1v1)
+    const sideToggle1v1 = document.getElementById('modern-side-toggle-1v1');
+    if (sideToggle1v1) {
+        const toggleIndicator = sideToggle1v1.querySelector('div');
+        if (toggleIndicator) {
+            toggleIndicator.style.left = '0.25rem';
+        }
+        sideToggle1v1.classList.remove('bg-cyan-500/50');
+        sideToggle1v1.classList.add('bg-slate-700');
+    }
+
     // Start buttonlarını disabled yap
     const startButtons = document.querySelectorAll<HTMLButtonElement>(
         '#start-modern-btn, #start-nostalgia-btn, #start-tournament-btn'
@@ -415,20 +729,19 @@ function resetGameOptionState(): void {
     startButtons.forEach(btn => {
         btn.disabled = true;
     });
-    
+
     // Tüm ayar bölümlerini gizle
     document.querySelectorAll<HTMLDivElement>('[data-game-mode-settings]').forEach(el => {
         el.classList.add('hidden');
     });
-    
-    // Oyuncu bilgisi bölümlerini gizle
+
+    // Oyuncu bilgisi ve taraf seçim bölümlerini gizle
     document.querySelectorAll<HTMLDivElement>(
-        '#modern-players-2v2, #modern-players-1v1, #nostalgia-players-2v2, #nostalgia-players-1v1'
+        '#modern-players-h2h, #modern-players-1v1, #modern-side-selection-h2h, #nostalgia-players-h2h, #nostalgia-players-1v1, #nostalgia-side-selection-h2h'
     ).forEach(el => {
         if (el) el.classList.add('hidden');
     });
 }
-
 
 export function initGameOptions(): void {
     console.log('Game Options başlatılıyor...');
@@ -438,29 +751,51 @@ export function initGameOptions(): void {
     setupModernMode();
     setupTournamentFunctionality();
     sessionStorage.clear();
-    
+
     // localStorage'dan kullanıcı adını al ve AI input'larını doldur
     fillPlayerNameInputs();
-    
+
+    // Side selection metinlerini güncelle
+    updateSideSelectionTexts();
+
+    // Invite modal'ı başlat
+    initInviteModal();
+
     console.log('Game Options başarıyla başlatıldı');
+}
+
+function getDisplayNameFromLocalStorage(): string | null {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) return null;
+
+        const user = JSON.parse(userStr);
+        const displayName = user?.displayName;
+
+        return displayName;
+    } catch (error) {
+        console.error('localStorage okunamadı:', error);
+        return null;
+    }
+
 }
 
 function fillPlayerNameInputs(): void {
     try {
         const userStr = localStorage.getItem('user');
         if (!userStr) return;
-        
+
         const user = JSON.parse(userStr);
         const displayName = user?.displayName;
-        
+
         if (!displayName) return;
-        
+
         // Modern mod AI oyuncu input'u
         const modernPlayerInput = document.getElementById('modern-player-name') as HTMLInputElement | null;
         if (modernPlayerInput) {
             modernPlayerInput.value = displayName;
         }
-        
+
         // Nostalgia mod AI oyuncu input'u
         const nostalgiaPlayerInput = document.getElementById('nostalgia-player-name') as HTMLInputElement | null;
         if (nostalgiaPlayerInput) {
@@ -470,4 +805,230 @@ function fillPlayerNameInputs(): void {
         console.error('localStorage displayName okunamadı:', error);
     }
 }
+
+function updateSideSelectionTexts(): void {
+    const displayName = getDisplayNameFromLocalStorage();
+    const userName = displayName || 'Hesap sahibi';
+
+    // Modern side selection text
+    const modernSideText = document.querySelector('#modern-side-selection-h2h p span');
+    if (modernSideText) {
+        modernSideText.textContent = `${userName}, hangi tarafta oynamak istersin?`;
+    }
+
+    // Nostalgia side selection text
+    const nostalgiaSideText = document.querySelector('#nostalgia-side-selection-h2h p span');
+    if (nostalgiaSideText) {
+        nostalgiaSideText.textContent = `${userName}, hangi tarafta oynamak istersin?`;
+    }
+}
+
+// Invite Modal
+// const fakeUsers = [
+//     { id: 1, displayName: 'Alice' },
+//     { id: 2, displayName: 'Bob' },
+//     { id: 3, displayName: 'Charlie' },
+//     { id: 4, displayName: 'David' },
+//     { id: 5, displayName: 'Eve' }
+// ];
+
+let inviteCallback: ((user: { id: number; displayName: string }) => void) | null = null;
+let inviteFilter: ((user: { id: number; displayName: string }) => boolean) | null = null;
+let selectedInviteUser: { id: number; displayName: string } | null = null;
+let inviteSearchTimer: number | null = null;
+let inviteSearchSeq = 0;
+
+function initInviteModal() {
+    const modal = document.getElementById('inviteModal') as HTMLDivElement;
+    const searchInput = document.getElementById('inviteSearchInput') as HTMLInputElement;
+    const suggestionsDiv = document.getElementById('inviteSuggestions') as HTMLDivElement;
+    const passwordSection = document.getElementById('invitePasswordSection') as HTMLDivElement;
+    const passwordInput = document.getElementById('invitePasswordInput') as HTMLInputElement;
+    const passwordError = document.getElementById('invitePasswordError') as HTMLDivElement;
+    const cancelBtn = document.getElementById('inviteCancelBtn') as HTMLButtonElement;
+    const confirmBtn = document.getElementById('inviteConfirmBtn') as HTMLButtonElement;
+
+    const clearPasswordError = () => {
+        if (passwordError) {
+            passwordError.classList.add('hidden');
+        }
+        passwordInput.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+    };
+
+    passwordInput.addEventListener('input', clearPasswordError);
+
+    // Search input event
+    searchInput.addEventListener('input', async () => {
+        const query = searchInput.value.trim();
+        passwordSection.classList.add('hidden');
+        confirmBtn.classList.add('hidden');
+        selectedInviteUser = null;
+        clearPasswordError();
+        suggestionsDiv.classList.remove('hidden');
+
+        if (inviteSearchTimer) {
+            window.clearTimeout(inviteSearchTimer);
+        }
+
+        if (query.length === 0) {
+            inviteSearchSeq++;
+            suggestionsDiv.innerHTML = '';
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+
+        inviteSearchTimer = window.setTimeout(async () => {
+            const requestId = ++inviteSearchSeq;
+
+            try {
+                const users = await searchUser(query);
+                if (requestId !== inviteSearchSeq) return;
+
+                suggestionsDiv.innerHTML = '';
+
+                const filteredUsers = users.filter((user: { id: number; displayName: string, avatar_url: string }) => {
+                    if (user.id === JSON.parse(localStorage.getItem('user') || '{}').id) {
+                        return false;
+                    }
+                    if (inviteFilter && !inviteFilter(user)) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (filteredUsers.length === 0 && query.length > 1) {
+                    suggestionsDiv.innerHTML = '<div class="p-2 text-slate-400 text-sm">Eşleşme bulunamadı.</div>';
+                    return;
+                }
+
+                filteredUsers.forEach((user: { id: number; displayName: string, avatar_url: string}) => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 hover:bg-slate-600 cursor-pointer rounded flex items-center';
+                    const img = document.createElement('img');
+                    img.src = "https://localhost:3000/uploads/avatars/" + user.avatar_url;
+                    img.className = 'w-6 h-6 rounded-full mr-2';
+                    div.appendChild(img);
+                    const span = document.createElement('span');
+                    span.textContent = user.displayName;
+                    div.appendChild(span);
+                    div.addEventListener('click', () => {
+                        selectedInviteUser = user;
+                        searchInput.value = user.displayName;
+                        suggestionsDiv.innerHTML = '';
+                        suggestionsDiv.classList.add('hidden');
+                        passwordSection.classList.remove('hidden');
+                        confirmBtn.classList.remove('hidden');
+                        clearPasswordError();
+                        passwordInput.focus();
+                    });
+                    suggestionsDiv.appendChild(div);
+                });
+            } catch (error) {
+                if (requestId !== inviteSearchSeq) return;
+                suggestionsDiv.innerHTML = '<div class="p-2 text-slate-400 text-sm">Arama hatasi.</div>';
+                console.error('User search failed:', error);
+            }
+        }, 200);
+    });
+
+    // Cancel button
+    cancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        searchInput.value = '';
+        suggestionsDiv.innerHTML = '';
+        suggestionsDiv.classList.add('hidden');
+        passwordSection.classList.add('hidden');
+        confirmBtn.classList.add('hidden');
+        passwordInput.value = '';
+        clearPasswordError();
+        selectedInviteUser = null;
+        inviteCallback = null;
+        inviteFilter = null;
+        if (inviteSearchTimer) {
+            window.clearTimeout(inviteSearchTimer);
+        }
+    });
+
+    // Confirm button
+    confirmBtn.addEventListener('click', async () => {
+        if (!selectedInviteUser) return;
+
+        const password = passwordInput.value;
+        // Fake API call
+        const isValid = await verifyPassword(selectedInviteUser.id, password);
+        if (isValid) {
+            if (inviteCallback) {
+                inviteCallback(selectedInviteUser);
+            }
+            sessionStorage.setItem('invitedUserId', selectedInviteUser.id.toString());
+            modal.classList.add('hidden');
+            searchInput.value = '';
+            suggestionsDiv.innerHTML = '';
+            suggestionsDiv.classList.add('hidden');
+            passwordSection.classList.add('hidden');
+            confirmBtn.classList.add('hidden');
+            passwordInput.value = '';
+            clearPasswordError();
+            selectedInviteUser = null;
+            inviteCallback = null;
+            inviteFilter = null;
+            if (inviteSearchTimer) {
+                window.clearTimeout(inviteSearchTimer);
+            }
+        } else {
+            if (passwordError) {
+                passwordError.textContent = 'Şifre yanlış. Tekrar deneyin.';
+                passwordError.classList.remove('hidden');
+            }
+            passwordInput.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+    });
+}
+
+// async function fakeValidatePassword(userId: number, password: string): Promise<boolean> {
+//     // Fake API: simulate delay
+//     (void userId); // Kullanılmayan parametre uyarısını önlemek için
+//     await new Promise(resolve => setTimeout(resolve, 500));
+//     return password === 'password'; // Fake validation
+// }
+
+function showInviteModal(
+    callback: (user: { id: number; displayName: string }) => void,
+    filter?: (user: { id: number; displayName: string }) => boolean
+) {
+    inviteCallback = callback;
+    inviteFilter = filter || null;
+    const modal = document.getElementById('inviteModal') as HTMLDivElement;
+    modal.classList.remove('hidden');
+    const searchInput = document.getElementById('inviteSearchInput') as HTMLInputElement;
+    const passwordInput = document.getElementById('invitePasswordInput') as HTMLInputElement;
+    const suggestionsDiv = document.getElementById('inviteSuggestions') as HTMLDivElement;
+    searchInput.focus();
+    suggestionsDiv.classList.add('hidden');
+    suggestionsDiv.innerHTML = '';
+    passwordInput.value = '';
+}
+
+// export function initGameOptions(): void {
+//     console.log('Game Options başlatılıyor...');
+//     resetGameOptionState();
+//     setupGameModeSelection();
+//     setupNostalgiaMode();
+//     setupModernMode();
+//     setupTournamentFunctionality();
+//     sessionStorage.clear();
+
+//     // localStorage'dan kullanıcı adını al ve AI input'larını doldur
+//     fillPlayerNameInputs();
+
+//     // Side selection metinlerini güncelle
+//     updateSideSelectionTexts();
+
+//     // Invite modal'ı başlat
+//     initInviteModal();
+
+//     console.log('Game Options başarıyla başlatıldı');
+// }
 
