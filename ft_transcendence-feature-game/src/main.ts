@@ -9,37 +9,60 @@ import Api from './api/apiLibrary';
 import { initGameOptions } from './game/gameOptionManager';
 import { I18n, Language } from './utils/i18n';
 import { initTournament } from './game/tournament';
+import {
+    Chart,
+    ArcElement,
+    DoughnutController,
+    LineController,
+    LineElement,
+    BarController,
+    BarElement,
+    PolarAreaController,
+    RadialLinearScale,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    Tooltip,
+    Legend,
+    Filler,
+} from 'chart.js';
+
+Chart.register(
+    ArcElement,
+    DoughnutController,
+    LineController,
+    LineElement,
+    BarController,
+    BarElement,
+    PolarAreaController,
+    RadialLinearScale,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    Tooltip,
+    Legend,
+    Filler,
+);
 
 // ============================================================================
-// THEME MANAGER
+// TOKEN REFRESH MANAGER
 // ============================================================================
-export class ThemeManager {
-    private static instance: ThemeManager;
-    private isDarkMode: boolean;
-    private toggleButton: HTMLElement | null = null;
-    private moonIcon: HTMLElement | null = null;
-    private sunIcon: HTMLElement | null = null;
+class TokenRefreshManager {
+    private static instance: TokenRefreshManager;
 
     private constructor() {
-        this.isDarkMode = this.loadThemePreference();
         this.init();
     }
 
-    public static getInstance(): ThemeManager {
-        if (!ThemeManager.instance) {
-            ThemeManager.instance = new ThemeManager();
+    public static getInstance(): TokenRefreshManager {
+        if (!TokenRefreshManager.instance) {
+            TokenRefreshManager.instance = new TokenRefreshManager();
         }
-        return ThemeManager.instance;
+        return TokenRefreshManager.instance;
     }
 
     private async init(): Promise<void> {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setupTheme());
-        } else {
-            this.setupTheme();
-        }
-
-        let isRefreshing = false; // Çakışmaları önlemek için kilit
+        let isRefreshing = false;
 
         setInterval(async () => {
             const expiresAt = localStorage.getItem('expiresAt');
@@ -58,14 +81,9 @@ export class ThemeManager {
 
             const now = Date.now();
             const expiresTimestamp = new Date(expiresAt).getTime();
-            const timeLeftMs = expiresTimestamp - now; // Kalan milisaniye
-
-            // Zamanı formatla (Dakika:Saniye)
-            // const minutes = Math.floor(timeLeftMs / 60000);
-            // const seconds = Math.floor((timeLeftMs % 60000) / 1000);
-            // const formattedTimeLeft = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            const timeLeftMs = expiresTimestamp - now;
             const howMany = 14 * 60 * 1000;
-            // console.log(`Token Bitiş Zamanı: ${new Date(expiresAt).toLocaleString()}, Kalan Süre: ${formattedTimeLeft}`);
+
             if (timeLeftMs < howMany && !isRefreshing && refreshToken) {
                 try {
                     isRefreshing = true;
@@ -89,52 +107,6 @@ export class ThemeManager {
                 }
             }
         }, 1000);
-
-    }
-
-    private setupTheme(): void {
-        this.toggleButton = document.getElementById('theme-toggle-btn');
-        this.moonIcon = document.getElementById('moon-icon');
-        this.sunIcon = document.getElementById('sun-icon');
-
-        if (!this.toggleButton || !this.moonIcon || !this.sunIcon) {
-            console.error('Theme toggle elements not found');
-            return;
-        }
-
-        this.applyTheme(this.isDarkMode);
-        this.toggleButton.addEventListener('click', () => this.toggleTheme());
-    }
-
-    private loadThemePreference(): boolean {
-        const savedTheme = localStorage.getItem('theme');
-        return savedTheme !== 'light';
-    }
-
-    private saveThemePreference(isDark: boolean): void {
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }
-
-    private applyTheme(isDark: boolean): void {
-        if (isDark) {
-            document.body.classList.remove('light-mode');
-            this.moonIcon?.classList.remove('hidden');
-            this.sunIcon?.classList.add('hidden');
-        } else {
-            document.body.classList.add('light-mode');
-            this.moonIcon?.classList.add('hidden');
-            this.sunIcon?.classList.remove('hidden');
-        }
-    }
-
-    private toggleTheme(): void {
-        this.isDarkMode = !this.isDarkMode;
-        this.applyTheme(this.isDarkMode);
-        this.saveThemePreference(this.isDarkMode);
-    }
-
-    public getCurrentTheme(): 'dark' | 'light' {
-        return this.isDarkMode ? 'dark' : 'light';
     }
 }
 
@@ -207,7 +179,10 @@ class App {
         this.apiClient = new APIClient();
         this.router = new Router();
         this.i18n = I18n.getInstance();
-        ThemeManager.getInstance();
+        TokenRefreshManager.getInstance();
+        // Eski light-mode tercihini temizle
+        localStorage.removeItem('theme');
+        document.body.classList.remove('light-mode');
         this.init();
     }
 
@@ -403,13 +378,16 @@ class App {
     }
 
     private createPodiumCard(player: any, index: number): string {
-        const medals = ['🥇', '🥈', '🥉'];
+        const trophyImages = ['/image/1.svg', '/image/2.svg', '/image/3.svg'];
         const gradients = ['from-yellow-400 to-yellow-600', 'from-gray-300 to-gray-500', 'from-orange-400 to-orange-600'];
         const positionKeys = ['leaderboard.first', 'leaderboard.second', 'leaderboard.third'];
 
         return `
             <div class="podium-card bg-gradient-to-br ${gradients[index]} p-4 sm:p-6 rounded-xl text-center transform hover:scale-105 transition-all duration-300">
-                <div class="text-4xl sm:text-6xl mb-2 sm:mb-4">${medals[index]}</div>
+                <div class="mb-2 sm:mb-4 flex justify-center"><img src="${trophyImages[index]}" alt="${this.i18n.t(positionKeys[index])}" class="w-16 h-16 sm:w-24 sm:h-24 object-contain"></div>
+                <div class="flex justify-center mb-2 sm:mb-3">
+                    ${this.renderAvatarHtml({ id: player.id, display_name: player.name, avatar_url: player.avatar_url }, 'w-14 h-14 sm:w-18 sm:h-18', 'text-lg sm:text-xl')}
+                </div>
                 <h3 class="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">${this.i18n.t(positionKeys[index])}</h3>
                 <div class="text-white/90 mb-2 sm:mb-4">
                     <h4 class="text-base sm:text-lg font-semibold">${player.name}</h4>
@@ -519,13 +497,11 @@ class App {
                 tableBody.innerHTML = leaderboard.map((player: LeaderboardEntry, index: number) => `
                     <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
                         <td class="py-2 sm:py-3 px-2 sm:px-4 font-bold">
-                            ${index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
+                            ${index < 3 ? `<img src="/image/${index + 1}.svg" alt="Top ${index + 1}" class="w-6 h-6 sm:w-8 sm:h-8 inline-block">` : `#${index + 1}`}
                         </td>
                         <td class="py-2 sm:py-3 px-2 sm:px-4">
                             <div class="flex items-center space-x-2 sm:space-x-3">
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-400 to-purple-600 rounded-full flex items-center justify-center">
-                                    <span class="text-white font-bold text-xs sm:text-sm">${player.name.charAt(0).toUpperCase()}</span>
-                                </div>
+                                ${this.renderAvatarHtml({ id: player.id, display_name: player.name, avatar_url: player.avatar_url }, 'w-8 h-8 sm:w-10 sm:h-10', 'text-xs sm:text-sm')}
                                 <span class="font-medium text-sm sm:text-base">${player.name}</span>
                             </div>
                         </td>
@@ -537,11 +513,6 @@ class App {
                         player.winRate >= 50 ? 'bg-amber-900 text-amber-300' :
                             'bg-rose-900 text-rose-300'}">
                                 ${player.winRate}%
-                            </span>
-                        </td>
-                        <td class="py-2 sm:py-3 px-2 sm:px-4 hidden lg:table-cell">
-                            <span class="status-${Math.random() > 0.6 ? 'online' : Math.random() > 0.3 ? 'away' : 'offline'} text-xs">
-                                ${Math.random() > 0.6 ? this.i18n.t('leaderboard.online') : Math.random() > 0.3 ? this.i18n.t('leaderboard.away') : this.i18n.t('leaderboard.offline')}
                             </span>
                         </td>
                     </tr>
@@ -630,6 +601,7 @@ class App {
                 this.initProfilePhotoUpload();
                 this.setupDangerZone();
                 this.setupChangePasswordModal();
+                this.setupDashboard(stats);
             }, CONSTANTS.TIMEOUTS.DOM_READY);
 
             const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
@@ -662,6 +634,7 @@ class App {
         if (response.success) {
             const tableBody = document.getElementById('game-history-table');
             if (tableBody) {
+                tableBody.innerHTML = '';
                 response.data.matches.forEach((item: any) => {
                     const isPlayer1 = item.player1_id === user.id;
                     const opponentName = isPlayer1 ? item.player2_display_name : item.player1_display_name;
@@ -971,6 +944,373 @@ class App {
         });
     }
 
+    // ========================================================================
+    // DASHBOARD - Charts & Analytics
+    // ========================================================================
+    private dashboardCharts: Chart[] = [];
+
+    private async setupDashboard(statsResponse: any): Promise<void> {
+        // Destroy any previous chart instances
+        this.dashboardCharts.forEach(c => c.destroy());
+        this.dashboardCharts = [];
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const statsData = statsResponse?.data || {};
+
+        // Fetch recent matches for chart data
+        let matches: any[] = [];
+        try {
+            const resp = await Api.get('/api/stats/recent-matches?limit=20');
+            if (resp.success) {
+                matches = resp.data.matches || [];
+            }
+        } catch (e) {
+            console.error('Dashboard: recent-matches fetch failed', e);
+        }
+
+        // Points per game
+        const ppg = statsData.total_matches > 0
+            ? (statsData.total_points_scored / statsData.total_matches).toFixed(1)
+            : '0';
+        this.setTextContent('dash-points-per-game', ppg);
+
+        // ---- Win/Loss Doughnut Chart ----
+        this.createWinLossDoughnut(statsData);
+
+        // ---- Performance Line Chart (last 10) ----
+        this.createPerformanceLineChart(matches, user);
+
+        // ---- Points Scored vs Against Bar Chart ----
+        this.createPointsBarChart(matches, user);
+
+        // ---- Game Mode Distribution ----
+        this.createGameModeChart(matches);
+
+        // ---- Streak Calculation ----
+        this.calculateStreaks(matches, user);
+    }
+
+    private setTextContent(id: string, text: string): void {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
+
+    private createWinLossDoughnut(statsData: any): void {
+        const canvas = document.getElementById('dash-winloss-chart') as HTMLCanvasElement;
+        if (!canvas) return;
+
+        const wins = statsData.wins ?? 0;
+        const losses = statsData.losses ?? 0;
+        const draws = statsData.draws ?? 0;
+
+        const chart = new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    this.i18n.t('profile.wins'),
+                    this.i18n.t('profile.losses'),
+                    this.i18n.t('profile.draws'),
+                ],
+                datasets: [{
+                    data: [wins, losses, draws],
+                    backgroundColor: [
+                        'rgba(74, 222, 128, 0.85)',
+                        'rgba(248, 113, 113, 0.85)',
+                        'rgba(251, 191, 36, 0.85)',
+                    ],
+                    borderColor: [
+                        'rgba(74, 222, 128, 1)',
+                        'rgba(248, 113, 113, 1)',
+                        'rgba(251, 191, 36, 1)',
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 8,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(139, 92, 246, 0.5)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                    },
+                },
+            },
+        });
+        this.dashboardCharts.push(chart);
+
+        // Custom legend
+        const legendEl = document.getElementById('dash-winloss-legend');
+        if (legendEl) {
+            legendEl.innerHTML = `
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-green-400 inline-block"></span> ${this.i18n.t('profile.wins')}: <strong class="text-green-400">${wins}</strong></span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span> ${this.i18n.t('profile.losses')}: <strong class="text-red-400">${losses}</strong></span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span> ${this.i18n.t('profile.draws')}: <strong class="text-yellow-400">${draws}</strong></span>
+            `;
+        }
+    }
+
+    private createPerformanceLineChart(matches: any[], user: any): void {
+        const canvas = document.getElementById('dash-performance-chart') as HTMLCanvasElement;
+        if (!canvas) return;
+
+        // Use last 10 matches, reverse so oldest is first
+        const last10 = matches.slice(0, 10).reverse();
+
+        const labels = last10.map((_: any, i: number) => `${this.i18n.t('dashboard.match')} ${i + 1}`);
+        const scores = last10.map((m: any) => {
+            return m.player1_id === user.id ? m.player1_score : m.player2_score;
+        });
+        const results = last10.map((m: any) => m.winner_id === user.id ? 1 : (m.winner_id === null ? 0.5 : 0));
+
+        const chart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: this.i18n.t('dashboard.score'),
+                        data: scores,
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: results.map((r: number) =>
+                            r === 1 ? '#4ade80' : r === 0.5 ? '#fbbf24' : '#f87171'
+                        ),
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 9,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
+                    },
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(139, 92, 246, 0.5)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                        callbacks: {
+                            afterLabel: (ctx: any) => {
+                                const r = results[ctx.dataIndex];
+                                return r === 1
+                                    ? `✅ ${this.i18n.t('profile.victory')}`
+                                    : r === 0.5
+                                        ? `➖ ${this.i18n.t('profile.draws')}`
+                                        : `❌ ${this.i18n.t('profile.defeat')}`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        this.dashboardCharts.push(chart);
+    }
+
+    private createPointsBarChart(matches: any[], user: any): void {
+        const canvas = document.getElementById('dash-points-chart') as HTMLCanvasElement;
+        if (!canvas) return;
+
+        const last10 = matches.slice(0, 10).reverse();
+        const labels = last10.map((_: any, i: number) => `${this.i18n.t('dashboard.match')} ${i + 1}`);
+        const scored = last10.map((m: any) =>
+            m.player1_id === user.id ? m.player1_score : m.player2_score
+        );
+        const against = last10.map((m: any) =>
+            m.player1_id === user.id ? m.player2_score : m.player1_score
+        );
+
+        const chart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: this.i18n.t('dashboard.scored'),
+                        data: scored,
+                        backgroundColor: 'rgba(52, 211, 153, 0.7)',
+                        borderColor: 'rgba(52, 211, 153, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    },
+                    {
+                        label: this.i18n.t('dashboard.against'),
+                        data: against,
+                        backgroundColor: 'rgba(248, 113, 113, 0.7)',
+                        borderColor: 'rgba(248, 113, 113, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: 'rgba(255,255,255,0.7)', font: { size: 12 }, usePointStyle: true, pointStyle: 'rectRounded' },
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(139, 92, 246, 0.5)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                    },
+                },
+            },
+        });
+        this.dashboardCharts.push(chart);
+    }
+
+    private createGameModeChart(matches: any[]): void {
+        const canvas = document.getElementById('dash-gamemode-chart') as HTMLCanvasElement;
+        if (!canvas) return;
+
+        // Count game modes
+        const modeCounts: Record<string, number> = {};
+        matches.forEach((m: any) => {
+            const mode = m.game_mode || 'unknown';
+            modeCounts[mode] = (modeCounts[mode] || 0) + 1;
+        });
+
+        const modeLabels = Object.keys(modeCounts).map(m => m.charAt(0).toUpperCase() + m.slice(1));
+        const modeData = Object.values(modeCounts);
+        const modeColors = [
+            'rgba(139, 92, 246, 0.7)',
+            'rgba(236, 72, 153, 0.7)',
+            'rgba(59, 130, 246, 0.7)',
+            'rgba(16, 185, 129, 0.7)',
+            'rgba(245, 158, 11, 0.7)',
+            'rgba(239, 68, 68, 0.7)',
+        ];
+
+        const chart = new Chart(canvas, {
+            type: 'polarArea',
+            data: {
+                labels: modeLabels,
+                datasets: [{
+                    data: modeData,
+                    backgroundColor: modeColors.slice(0, modeLabels.length),
+                    borderColor: modeColors.slice(0, modeLabels.length).map(c => c.replace('0.7', '1')),
+                    borderWidth: 2,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        grid: { color: 'rgba(255,255,255,0.08)' },
+                        ticks: { display: false },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: 'rgba(255,255,255,0.7)', font: { size: 12 }, usePointStyle: true, padding: 16 },
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(139, 92, 246, 0.5)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                    },
+                },
+            },
+        });
+        this.dashboardCharts.push(chart);
+    }
+
+    private calculateStreaks(matches: any[], user: any): void {
+        if (matches.length === 0) return;
+
+        let currentStreak = 0;
+        let currentType: string | null = null;
+        let bestWinStreak = 0;
+        let tempWinStreak = 0;
+
+        for (const m of matches) {
+            const won = m.winner_id === user.id;
+            const draw = m.winner_id === null;
+
+            if (won) {
+                tempWinStreak++;
+                bestWinStreak = Math.max(bestWinStreak, tempWinStreak);
+            } else {
+                tempWinStreak = 0;
+            }
+
+            if (currentType === null) {
+                currentType = won ? 'win' : draw ? 'draw' : 'loss';
+                currentStreak = 1;
+            } else {
+                const thisType = won ? 'win' : draw ? 'draw' : 'loss';
+                if (thisType === currentType) {
+                    currentStreak++;
+                } else {
+                    break; // streak broken
+                }
+            }
+        }
+
+        this.setTextContent('dash-current-streak', String(currentStreak));
+        const streakTypeEl = document.getElementById('dash-streak-type');
+        if (streakTypeEl) {
+            const labels: Record<string, string> = {
+                win: `🔥 ${this.i18n.t('dashboard.winStreak')}`,
+                loss: `❄️ ${this.i18n.t('dashboard.lossStreak')}`,
+                draw: `➖ ${this.i18n.t('dashboard.drawStreak')}`,
+            };
+            streakTypeEl.textContent = currentType ? labels[currentType] || '-' : '-';
+        }
+        this.setTextContent('dash-best-streak', String(bestWinStreak));
+    }
+
     private async renderSettings(): Promise<void> {
         this.updateActiveNavLink(CONSTANTS.ROUTES.SETTINGS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.SETTINGS);
@@ -1096,122 +1436,324 @@ class App {
     }
 
     private async renderFriends(): Promise<void> {
-        let friends = await Api.get('/api/friends');
-        console.log(friends);
-        let pending = await Api.get('/api/friends/requests/pending');
-        console.log(pending);
         this.updateActiveNavLink(CONSTANTS.ROUTES.FRIENDS);
         await this.loadTemplate(CONSTANTS.TEMPLATES.FRIENDS);
         this.loadFriendsData();
     }
 
+    private friendSearchTimeout: ReturnType<typeof setTimeout> | null = null;
+
     private async loadFriendsData(): Promise<void> {
         try {
-            const friendsData = {
-                online: [
-                    { name: 'Oğulcan Durkan', status: 'Oyunda - Classic Pong', initial: 'OD', color: 'from-emerald-400 to-cyan-400' },
-                    { name: 'Ali Kanıberk', status: 'Menüde', initial: 'AK', color: 'from-violet-400 to-purple-400' },
-                    { name: 'Charlie Khan', status: 'Turnuvada', initial: 'CK', color: 'from-amber-400 to-orange-400', inTournament: true }
-                ],
-                offline: [
-                    { name: 'Diana Abla', lastSeen: '3 saat önce çevrimiçiydi', initial: 'DA' },
-                    { name: 'Efe Veli', lastSeen: '1 gün önce çevrimiçiydi', initial: 'EV' },
-                    { name: 'Fatma Yıldız', lastSeen: '2 gün önce çevrimiçiydi', initial: 'FY' },
-                    { name: 'Gökhan Kaya', lastSeen: '1 hafta önce çevrimiçiydi', initial: 'GK' }
-                ],
-                requests: [
-                    { name: 'Fatma Hanım', initial: 'FH', color: 'from-pink-400 to-rose-400' },
-                    { name: 'Gökhan Bey', initial: 'GB', color: 'from-blue-400 to-indigo-400' }
-                ],
-                activity: [
-                    { name: 'Oğulcan Durkan', action: 'Classic Pong\'da yeni rekor kırdı! 🎯', time: '5 dakika önce', color: 'emerald' },
-                    { name: 'Charlie Khan', action: 'Turnuvada final turuna yükseldi 🏆', time: '15 dakika önce', color: 'amber' },
-                    { name: 'Ali Kanıberk', action: 'Yeni başarım kazandı: "Seri Galip" ⭐', time: '1 saat önce', color: 'blue' },
-                    { name: 'Diana Abla', action: '3 maç üst üste kazandı 🔥', time: '3 saat önce', color: 'violet' }
-                ]
-            };
+            // API'den gerçek verileri çek
+            const [friendsRes, pendingRes, sentRes] = await Promise.all([
+                Api.get('/api/friends'),
+                Api.get('/api/friends/requests/pending'),
+                Api.get('/api/friends/requests/sent'),
+            ]);
 
-            this.updateElementById('online-count', `${friendsData.online.length} çevrimiçi`);
-            this.updateElementById('all-friends-count', `${friendsData.online.length + friendsData.offline.length} arkadaş`);
-            this.updateElementById('total-friends', (friendsData.online.length + friendsData.offline.length).toString());
-            this.updateElementById('friend-requests-count', friendsData.requests.length.toString());
+            const friends: any[] = friendsRes?.data?.friends || [];
+            const pendingRequests: any[] = pendingRes?.data?.requests || [];
+            const sentRequests: any[] = sentRes?.data?.requests || [];
 
-            const onlineFriendsContainer = document.getElementById('online-friends-container');
-            if (onlineFriendsContainer) {
-                onlineFriendsContainer.innerHTML = friendsData.online.map(friend => `
-                    <div class="flex items-center justify-between gap-3 p-3 sm:p-4 bg-slate-800/50 rounded-lg hover:bg-slate-800/70 transition-colors">
-                        <div class="flex items-center space-x-3 min-w-0 flex-1">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${friend.color} rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="text-white font-bold text-sm sm:text-base">${friend.initial}</span>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-slate-100 font-medium text-sm sm:text-base truncate">${friend.name}</p>
-                                <p class="text-emerald-400 text-xs sm:text-sm truncate">${friend.status}</p>
-                            </div>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <button class="btn text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2 whitespace-nowrap ${friend.inTournament ? 'opacity-50 cursor-not-allowed' : ''}" 
-                                ${friend.inTournament ? 'disabled' : ''}>
-                                ${friend.inTournament ? '🏆 Turnuvada' : '🎮 Davet Et'}
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
+            // Sayaçları güncelle
+            this.updateElementById('all-friends-count', `${friends.length} ${this.i18n.t('friends.friendLabel')}`);
+            this.updateElementById('friend-requests-count', pendingRequests.length.toString());
+            this.updateElementById('sent-requests-count', sentRequests.length.toString());
 
-            const allFriendsContainer = document.getElementById('all-friends-container');
-            if (allFriendsContainer) {
-                allFriendsContainer.innerHTML = friendsData.offline.map(friend => `
-                    <div class="flex items-center justify-between gap-3 p-3 bg-slate-800/30 rounded-lg hover:bg-slate-800/50 transition-colors">
-                        <div class="flex items-center space-x-3 min-w-0 flex-1">
-                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="text-white text-xs sm:text-sm font-bold">${friend.initial}</span>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-slate-100 text-sm sm:text-base truncate">${friend.name}</p>
-                                <p class="text-slate-500 text-xs truncate">${friend.lastSeen}</p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
+            // Tüm Arkadaşlar
+            this.renderAllFriends(friends);
 
-            const friendRequestsContainer = document.getElementById('friend-requests-container');
-            if (friendRequestsContainer) {
-                friendRequestsContainer.innerHTML = friendsData.requests.map(friend => `
-                    <div class="flex items-center justify-between gap-2 p-2.5 sm:p-3 bg-slate-800/50 rounded-lg hover:bg-slate-800/70 transition-colors">
-                        <div class="flex items-center space-x-2 min-w-0 flex-1">
-                            <div class="w-8 h-8 bg-gradient-to-br ${friend.color} rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="text-white text-xs font-bold">${friend.initial}</span>
-                            </div>
-                            <span class="text-slate-200 text-sm truncate">${friend.name}</span>
-                        </div>
-                        <div class="flex space-x-1.5 flex-shrink-0">
-                            <button class="btn text-xs px-2.5 py-1.5 hover:bg-emerald-600 transition-colors" title="Kabul Et">✓</button>
-                            <button class="btn btn-secondary text-xs px-2.5 py-1.5 hover:bg-red-600 transition-colors" title="Reddet">✗</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
+            // Gelen İstekler
+            this.renderPendingRequests(pendingRequests);
 
-            const friendActivityContainer = document.getElementById('friend-activity-container');
-            if (friendActivityContainer) {
-                friendActivityContainer.innerHTML = friendsData.activity.map(activity => `
-                    <div class="text-sm">
-                        <div class="flex items-center space-x-2 mb-1.5">
-                            <span class="text-${activity.color}-400 text-lg leading-none">●</span>
-                            <span class="text-slate-200 font-medium">${activity.name}</span>
-                        </div>
-                        <p class="text-slate-400 text-xs sm:text-sm pl-6 leading-relaxed">${activity.action}</p>
-                        <p class="text-slate-600 text-xs pl-6 mt-1">${activity.time}</p>
-                    </div>
-                `).join('');
-            }
+            // Gönderilen İstekler
+            this.renderSentRequests(sentRequests);
+
+            // Arama input event listener
+            this.setupFriendSearch();
 
         } catch (error) {
             console.error('Error loading friends data:', error);
             this.showError(CONSTANTS.ERROR_MESSAGES.FRIENDS_LOAD);
         }
+    }
+
+    private getInitials(name: string): string {
+        return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    private getAvatarGradient(id: number): string {
+        const gradients = [
+            'from-emerald-400 to-cyan-400',
+            'from-violet-400 to-purple-400',
+            'from-amber-400 to-orange-400',
+            'from-pink-400 to-rose-400',
+            'from-blue-400 to-indigo-400',
+            'from-teal-400 to-green-400',
+            'from-red-400 to-pink-400',
+            'from-yellow-400 to-amber-400',
+        ];
+        return gradients[id % gradients.length];
+    }
+
+    private renderAvatarHtml(user: any, sizeClass: string = 'w-10 h-10 sm:w-12 sm:h-12', textSize: string = 'text-sm sm:text-base'): string {
+        if (user.avatar_url) {
+            let avatarSrc = user.avatar_url;
+            // Sadece dosya adıysa (tam URL veya /uploads ile başlamıyorsa) prefix ekle
+            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('/')) {
+                avatarSrc = `/uploads/avatars/${avatarSrc}`;
+            }
+            return `<img src="${avatarSrc}" alt="${user.display_name}" class="${sizeClass} rounded-full object-cover flex-shrink-0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <div class="${sizeClass} bg-gradient-to-br ${this.getAvatarGradient(user.id || 0)} rounded-full items-center justify-center flex-shrink-0" style="display:none;">
+                        <span class="text-white font-bold ${textSize}">${this.getInitials(user.display_name || 'U')}</span>
+                    </div>`;
+        }
+        const initials = this.getInitials(user.display_name || 'U');
+        const gradient = this.getAvatarGradient(user.id || 0);
+        return `<div class="${sizeClass} bg-gradient-to-br ${gradient} rounded-full flex items-center justify-center flex-shrink-0">
+            <span class="text-white font-bold ${textSize}">${initials}</span>
+        </div>`;
+    }
+
+    private renderAllFriends(friends: any[]): void {
+        const container = document.getElementById('all-friends-container');
+        if (!container) return;
+
+        if (friends.length === 0) {
+            container.innerHTML = `<p class="text-slate-500 text-sm text-center py-4">${this.i18n.t('friends.noFriends')}</p>`;
+            return;
+        }
+
+        container.innerHTML = friends.map(friend => `
+            <div class="flex items-center justify-between gap-3 p-3 bg-slate-800/30 rounded-lg hover:bg-slate-800/50 transition-colors">
+                <div class="flex items-center space-x-3 min-w-0 flex-1">
+                    ${this.renderAvatarHtml(friend, 'w-8 h-8 sm:w-10 sm:h-10', 'text-xs sm:text-sm')}
+                    <p class="text-slate-100 text-sm sm:text-base truncate">${friend.display_name}</p>
+                </div>
+                <button class="btn btn-secondary text-xs px-2.5 py-1.5 hover:bg-red-600 transition-colors remove-friend-btn flex-shrink-0" data-friend-id="${friend.id}" title="${this.i18n.t('friends.removeFriend')}">✕</button>
+            </div>
+        `).join('');
+
+        this.attachRemoveFriendListeners(container);
+    }
+
+    private renderPendingRequests(requests: any[]): void {
+        const container = document.getElementById('friend-requests-container');
+        if (!container) return;
+
+        if (requests.length === 0) {
+            container.innerHTML = `<p class="text-slate-500 text-xs text-center py-2">${this.i18n.t('friends.noRequests')}</p>`;
+            return;
+        }
+
+        container.innerHTML = requests.map(req => `
+            <div class="flex items-center justify-between gap-2 p-2.5 sm:p-3 bg-slate-800/50 rounded-lg hover:bg-slate-800/70 transition-colors" data-request-id="${req.id}">
+                <div class="flex items-center space-x-2 min-w-0 flex-1">
+                    ${this.renderAvatarHtml(req.from, 'w-8 h-8', 'text-xs')}
+                    <span class="text-slate-200 text-sm truncate">${req.from.display_name}</span>
+                </div>
+                <div class="flex space-x-1.5 flex-shrink-0">
+                    <button class="btn text-xs px-2.5 py-1.5 hover:bg-emerald-600 transition-colors accept-request-btn" data-request-id="${req.id}" title="${this.i18n.t('friends.accept')}">✓</button>
+                    <button class="btn btn-secondary text-xs px-2.5 py-1.5 hover:bg-red-600 transition-colors reject-request-btn" data-request-id="${req.id}" title="${this.i18n.t('friends.reject')}">✗</button>
+                </div>
+            </div>
+        `).join('');
+
+        // Kabul et butonları
+        container.querySelectorAll('.accept-request-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const requestId = (e.currentTarget as HTMLElement).dataset.requestId;
+                if (!requestId) return;
+                try {
+                    await Api.post(`/api/friends/requests/${requestId}/accept`, {});
+                    this.loadFriendsData(); // Sayfayı yenile
+                } catch (err) {
+                    console.error('Accept request error:', err);
+                }
+            });
+        });
+
+        // Reddet butonları
+        container.querySelectorAll('.reject-request-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const requestId = (e.currentTarget as HTMLElement).dataset.requestId;
+                if (!requestId) return;
+                try {
+                    await Api.post(`/api/friends/requests/${requestId}/reject`, {});
+                    this.loadFriendsData();
+                } catch (err) {
+                    console.error('Reject request error:', err);
+                }
+            });
+        });
+    }
+
+    private renderSentRequests(requests: any[]): void {
+        const container = document.getElementById('sent-requests-container');
+        if (!container) return;
+
+        if (requests.length === 0) {
+            container.innerHTML = `<p class="text-slate-500 text-xs text-center py-2">${this.i18n.t('friends.noSentRequests')}</p>`;
+            return;
+        }
+
+        container.innerHTML = requests.map(req => `
+            <div class="flex items-center justify-between gap-2 p-2.5 sm:p-3 bg-slate-800/50 rounded-lg hover:bg-slate-800/70 transition-colors" data-request-id="${req.id}">
+                <div class="flex items-center space-x-2 min-w-0 flex-1">
+                    ${this.renderAvatarHtml(req.to, 'w-8 h-8', 'text-xs')}
+                    <div class="min-w-0 flex-1">
+                        <span class="text-slate-200 text-sm truncate block">${req.to.display_name}</span>
+                        <span class="text-slate-500 text-xs">${this.i18n.t('friends.pending')}</span>
+                    </div>
+                </div>
+                <button class="btn btn-secondary text-xs px-2.5 py-1.5 hover:bg-red-600 transition-colors cancel-request-btn flex-shrink-0" data-request-id="${req.id}" title="${this.i18n.t('friends.cancelRequest')}">✕</button>
+            </div>
+        `).join('');
+
+        container.querySelectorAll('.cancel-request-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const requestId = (e.currentTarget as HTMLElement).dataset.requestId;
+                if (!requestId) return;
+                try {
+                    await Api.delete(`/api/friends/requests/${requestId}`);
+                    this.loadFriendsData();
+                } catch (err) {
+                    console.error('Cancel request error:', err);
+                }
+            });
+        });
+    }
+
+    private attachRemoveFriendListeners(container: HTMLElement): void {
+        container.querySelectorAll('.remove-friend-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const friendId = (e.currentTarget as HTMLElement).dataset.friendId;
+                if (!friendId) return;
+                if (!confirm(this.i18n.t('friends.confirmRemove'))) return;
+                try {
+                    await Api.delete(`/api/friends/${friendId}`);
+                    this.loadFriendsData();
+                } catch (err) {
+                    console.error('Remove friend error:', err);
+                }
+            });
+        });
+    }
+
+    private setupFriendSearch(): void {
+        const input = document.getElementById('friend-search-input') as HTMLInputElement;
+        const dropdown = document.getElementById('search-results-dropdown');
+        const searchIcon = document.getElementById('search-icon');
+        const searchSpinner = document.getElementById('search-spinner');
+        const searchError = document.getElementById('search-error');
+        if (!input || !dropdown) return;
+
+        // Dropdown dışına tıklayınca kapat
+        document.addEventListener('click', (e) => {
+            if (!(e.target as HTMLElement).closest('#search-wrapper')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        input.addEventListener('input', () => {
+            const query = input.value.trim();
+
+            if (this.friendSearchTimeout) {
+                clearTimeout(this.friendSearchTimeout);
+            }
+
+            if (searchError) searchError.classList.add('hidden');
+
+            if (query.length < 2) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            // Debounce: 400ms bekle
+            this.friendSearchTimeout = setTimeout(async () => {
+                try {
+                    // Spinner göster
+                    if (searchIcon) searchIcon.classList.add('hidden');
+                    if (searchSpinner) searchSpinner.classList.remove('hidden');
+
+                    const res = await Api.get(`/api/users/search?q=${encodeURIComponent(query)}`);
+                    const users: any[] = res?.data?.users || [];
+
+                    if (searchIcon) searchIcon.classList.remove('hidden');
+                    if (searchSpinner) searchSpinner.classList.add('hidden');
+
+                    if (users.length === 0) {
+                        dropdown.innerHTML = `<p class="text-slate-500 text-sm p-4 text-center">${this.i18n.t('friends.noResults')}</p>`;
+                        dropdown.classList.remove('hidden');
+                        return;
+                    }
+
+                    dropdown.innerHTML = users.map(user => `
+                        <div class="flex items-center justify-between gap-2 p-3 hover:bg-slate-700/50 cursor-pointer transition-colors search-result-item" data-user-id="${user.id}">
+                            <div class="flex items-center space-x-3 min-w-0 flex-1">
+                                ${this.renderAvatarHtml(user, 'w-8 h-8', 'text-xs')}
+                                <p class="text-slate-100 text-sm truncate">${user.display_name}</p>
+                            </div>
+                            <button class="btn text-xs px-3 py-1.5 whitespace-nowrap send-request-btn" data-user-id="${user.id}">
+                                + ${this.i18n.t('friends.addFriend')}
+                            </button>
+                        </div>
+                    `).join('');
+
+                    dropdown.classList.remove('hidden');
+
+                    // Arkadaş ekleme butonları
+                    dropdown.querySelectorAll('.send-request-btn').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            const userId = parseInt((e.currentTarget as HTMLElement).dataset.userId || '0');
+                            if (!userId) return;
+                            const button = e.currentTarget as HTMLButtonElement;
+                            button.disabled = true;
+                            button.textContent = '...';
+                            try {
+                                const result = await Api.post('/api/friends/requests', { userId });
+                                if (result?.success) {
+                                    button.textContent = '✓ ' + this.i18n.t('friends.requestSent');
+                                    button.classList.remove('btn');
+                                    button.classList.add('text-emerald-400');
+                                    // Gönderilen istekleri yenile
+                                    const sentRes = await Api.get('/api/friends/requests/sent');
+                                    const sentRequests = sentRes?.data?.requests || [];
+                                    this.updateElementById('sent-requests-count', sentRequests.length.toString());
+                                    this.renderSentRequests(sentRequests);
+                                } else {
+                                    const msg = result?.message || this.i18n.t('friends.requestError');
+                                    button.textContent = msg;
+                                    button.classList.add('text-red-400');
+                                    setTimeout(() => {
+                                        button.textContent = '+ ' + this.i18n.t('friends.addFriend');
+                                        button.classList.remove('text-red-400');
+                                        button.classList.add('btn');
+                                        button.disabled = false;
+                                    }, 2000);
+                                }
+                            } catch (err) {
+                                console.error('Send request error:', err);
+                                button.textContent = this.i18n.t('friends.requestError');
+                                button.classList.add('text-red-400');
+                                button.disabled = false;
+                            }
+                        });
+                    });
+
+                } catch (err) {
+                    console.error('Search error:', err);
+                    if (searchIcon) searchIcon.classList.remove('hidden');
+                    if (searchSpinner) searchSpinner.classList.add('hidden');
+                    if (searchError) {
+                        searchError.textContent = this.i18n.t('friends.searchError');
+                        searchError.classList.remove('hidden');
+                    }
+                }
+            }, 400);
+        });
     }
 
     private updateElementById(id: string, content: string): void {

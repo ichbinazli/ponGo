@@ -1,1 +1,1 @@
-{"version":3,"file":"human2ai.d.ts","sourceRoot":"","sources":["../../../src/game/modes/human2ai.ts"],"names":[],"mappings":"AA2CA,wBAAgB,MAAM,CAAC,SAAS,EAAE,MAAM,QAyBvC"}
+{"version":3,"file":"human2ai.d.ts","sourceRoot":"","sources":["../../../src/game/modes/human2ai.ts"],"names":[],"mappings":"AAsCA,wBAAgB,MAAM,CAAC,OAAO,EAAE,MAAM,QAyBrC"}

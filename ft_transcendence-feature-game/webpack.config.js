@@ -63,6 +63,11 @@ module.exports = (env, argv) => {
             from: 'src/3D-game',
             to: '3D-game',
             noErrorOnMissing: true,
+          },
+          {
+            from: 'src/image',
+            to: 'image',
+            noErrorOnMissing: true,
           }
         ],
       }),

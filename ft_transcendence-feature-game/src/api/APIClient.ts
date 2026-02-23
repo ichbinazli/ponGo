@@ -5,7 +5,9 @@ export interface PlayerStats {
 }
 
 export interface LeaderboardEntry {
+    id: number;
     name: string;
+    avatar_url: string;
     score: number;
     gamesPlayed: number;
     winRate: number;
@@ -48,7 +50,9 @@ export class APIClient {
             ];
             
             return mockPlayers.map((name, index) => ({
+                id: index + 1,
                 name,
+                avatar_url: '',
                 score: Math.floor(Math.random() * 5000) + 1000 - (index * 100),
                 gamesPlayed: Math.floor(Math.random() * 200) + 50,
                 winRate: Math.floor(Math.random() * 40) + 60 - (index * 2),
