@@ -911,8 +911,14 @@ function initInviteModal() {
                     const div = document.createElement('div');
                     div.className = 'p-2 hover:bg-slate-600 cursor-pointer rounded flex items-center';
                     const img = document.createElement('img');
-                    img.src = "https://localhost:3000/uploads/avatars/" + user.avatar_url;
+                    // Handle avatar URL - add prefix only if not already a full path
+                    let avatarSrc = user.avatar_url || '/uploads/avatars/default-avatar.png';
+                    if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('/')) {
+                        avatarSrc = `/uploads/avatars/${avatarSrc}`;
+                    }
+                    img.src = avatarSrc;
                     img.className = 'w-6 h-6 rounded-full mr-2';
+                    img.onerror = () => { img.src = '/uploads/avatars/default-avatar.png'; };
                     div.appendChild(img);
                     const span = document.createElement('span');
                     span.textContent = user.displayName;

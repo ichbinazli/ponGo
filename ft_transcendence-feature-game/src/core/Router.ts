@@ -58,7 +58,28 @@ export class Router {
         }
     }
 
-    public init(): void {
+    public async init(): Promise<void> {
+        // İlk yüklemede auth kontrolü yap
+        const unauthorizedPages = ['/register', '/reset-password', '/login', '/auth/callback'];
+        const currentPath = window.location.pathname;
+        
+        // Auth gerektiren sayfalarda önce kontrol et
+        if (!unauthorizedPages.includes(currentPath)) {
+            const response = await Api.get('/api/users/me');
+            if (!response.success) {
+                // Giriş yapılmamış, login'e yönlendir
+                window.history.replaceState({}, '', '/login');
+                this.currentPath = '/login';
+            }
+        }
+        
+        // Navigation visibility
+        if (unauthorizedPages.includes(this.currentPath)) {
+            document.getElementById('navigation')!.style.display = 'none';
+        } else {
+            document.getElementById('navigation')!.style.display = 'block';
+        }
+        
         this.handleRouteChange();
     }
 

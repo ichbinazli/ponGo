@@ -696,8 +696,17 @@ class App {
             usernameEl.textContent = user.displayName || 'Oyuncu';
         }
 
-        if (avatarEl && user.avatarUrl) {
-            avatarEl.src = user.avatarUrl;
+        if (avatarEl) {
+            let avatarSrc = user.avatarUrl || '/uploads/avatars/default-avatar.png';
+            // Sadece dosya adıysa (tam URL veya /uploads ile başlamıyorsa) prefix ekle
+            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('/')) {
+                avatarSrc = `/uploads/avatars/${avatarSrc}`;
+            }
+            avatarEl.src = avatarSrc;
+            avatarEl.onerror = () => {
+                avatarEl.onerror = null; // prevent infinite loop
+                avatarEl.src = '/uploads/avatars/default-avatar.png';
+            };
         }
 
         const statsGridContainer = document.getElementById('stats-grid-container');

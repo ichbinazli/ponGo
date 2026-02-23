@@ -429,8 +429,14 @@ export const searchUsers = async (
         }
 
         const users = userModel.search(query, limit);
+        
+        // Transform avatar_url to full path
+        const usersWithFullAvatarUrl = users.map(user => ({
+            ...user,
+            avatar_url: getAvatarUrl(user.avatar_url || ''),
+        }));
 
-        return reply.send(successResponse({ users }));
+        return reply.send(successResponse({ users: usersWithFullAvatarUrl }));
     } catch (error) {
         request.log.error(error);
         return reply.status(500).send(

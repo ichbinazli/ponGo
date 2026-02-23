@@ -76,8 +76,13 @@ const registerPlugins = async (server: FastifyInstance): Promise<void> => {
     });
 
     // Static files for uploads
+    // Use absolute path if provided, otherwise join with cwd
+    const uploadRoot = env.upload.dir.startsWith('/') 
+        ? env.upload.dir 
+        : join(process.cwd(), env.upload.dir);
+    
     await server.register(fastifyStatic, {
-        root: join(process.cwd(), env.upload.dir),
+        root: uploadRoot,
         prefix: '/uploads/',
         decorateReply: false,
     });

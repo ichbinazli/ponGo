@@ -34,9 +34,13 @@ WORKDIR /app
 # Runtime native deps
 RUN apt-get update && apt-get install -y python3 make g++ wget && rm -rf /var/lib/apt/lists/*
 
-# node_modules builder'dan (native binary glibc ile derlenmiş)
-COPY --from=builder /app/node_modules ./node_modules
+# Copy package files and dist
+COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
+
+# Install production dependencies (rebuilds native modules for this platform)
+RUN npm ci --only=production
+
 RUN mkdir -p uploads/avatars certs logs
 
 # Copy the database files properly (including migrations folder)

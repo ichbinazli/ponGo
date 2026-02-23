@@ -3,7 +3,7 @@
 # Proje yönetimi için kısayol komutları
 # ==============================================================
 
-.PHONY: help setup ssl start stop restart logs clean status build
+.PHONY: help setup ssl start stop restart logs clean status build remove
 
 # Varsayılan: yardım ekranı göster
 help:
@@ -103,6 +103,16 @@ elk-setup:
 # ─────────────────────────────────────────────
 # TEMİZLİK
 # ─────────────────────────────────────────────
+
+remove:
+	@echo "🧹 Tüm container'lar temizleniyor..."
+	@if [ -n "$$(docker ps -aq)" ]; then \
+		docker rm -f $$(docker ps -aq); \
+		echo "✅ Container'lar temizlendi."; \
+	else \
+		echo "ℹ️  Temizlenecek container bulunamadı."; \
+	fi
+	@docker compose down --remove-orphans 2>/dev/null || true
 
 clean:
 	@echo "🧹 Tüm container ve volume'lar temizleniyor..."

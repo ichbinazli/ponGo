@@ -23,8 +23,10 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - nginx_logs:/var/log/nginx
     depends_on:
-      - backend
-      - game
+      backend:
+        condition: service_started
+      game:
+        condition: service_started
     networks:
       - transcendence_network
     restart: unless-stopped
@@ -42,6 +44,8 @@ services:
       context: ./ft_transcendence-backend/backend
       target: production
     container_name: ft_backend
+    ports:
+      - "3000:3000"
     expose:
       - "3000"
     environment:

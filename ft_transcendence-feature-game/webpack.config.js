@@ -55,11 +55,6 @@ module.exports = (env, argv) => {
             noErrorOnMissing: true,
           },
           {
-            from: 'src/frontend/login.html',
-            to: 'login.html',
-            noErrorOnMissing: true,
-          },
-          {
             from: 'src/3D-game',
             to: '3D-game',
             noErrorOnMissing: true,
