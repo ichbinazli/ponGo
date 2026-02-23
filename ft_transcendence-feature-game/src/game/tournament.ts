@@ -11,6 +11,7 @@ interface Match {
     player2: Player | null;
     winner?: Player;
     round: number;
+    matchOrder?: number;
 }
 
 
@@ -90,22 +91,48 @@ async function createFirstRound() {
 
     matches = [];
 
-    for (let i = 0; i < shuffledPlayers.length; i += 2) {
-        if (i + 1 < shuffledPlayers.length) {
-            matches.push({
-                player1: shuffledPlayers[i],
-                player2: shuffledPlayers[i + 1],
-                round: 1
-            });
-        }
+    // Round 1: eşleşebilen çiftler
+    for (let i = 0; i + 1 < shuffledPlayers.length; i += 2) {
+        matches.push({
+            player1: shuffledPlayers[i],
+            player2: shuffledPlayers[i + 1],
+            round: 1
+        });
     }
 
-    const tournamentMathches: TournamentMatch[] = matches.map((match, index) => ({
-        round: match.round,
-        matchOrder: index + 1,
-        participant1Alias: match.player1.alias,
-        participant2Alias: match.player2 ? match.player2.alias : null
-    }));
+    // Tek sayıda oyuncu varsa, kalan oyuncuyu Round 2'ye bye olarak ekle
+    // Bu oyuncu Round 1'deki ilk kazananla Round 2'de eşleşecek
+    if (shuffledPlayers.length % 2 !== 0) {
+        const byePlayer = shuffledPlayers[shuffledPlayers.length - 1];
+        matches.push({
+            player1: byePlayer,
+            player2: null,
+            round: 2,
+            matchOrder: 1  // Round 2'nin ilk maçı olarak rezerve edilir
+        });
+    }
+
+    // Round 1 maçlarına 1'den başlayan sıra numarası ver
+    // Round 2 bye maçı kendi matchOrder'ını zaten taşıyor
+    let round1Order = 1;
+    const tournamentMathches: TournamentMatch[] = matches.map((match) => {
+        if (match.round === 1) {
+            return {
+                round: match.round,
+                matchOrder: round1Order++,
+                participant1Alias: match.player1.alias,
+                participant2Alias: match.player2 ? match.player2.alias : null
+            };
+        } else {
+            // Round 2+ bye maçı
+            return {
+                round: match.round,
+                matchOrder: match.matchOrder ?? 1,
+                participant1Alias: match.player1.alias,
+                participant2Alias: null
+            };
+        }
+    });
 
     const payload: TournamentStartPayload = {
         tournamentId: tournamentId,
