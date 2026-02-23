@@ -1,6 +1,6 @@
-import { createTournament, startTournament, TournamentMatch, TournamentStartPayload, tournamentAddGuest, tournamentAddParticipant} from './apiCalls';
+import { createTournament, startTournament, TournamentMatch, TournamentStartPayload, tournamentAddGuest, tournamentAddParticipant } from './apiCalls';
 
-interface Player{
+interface Player {
     participantId: number;
     userId: number | null;
     alias: string;
@@ -8,7 +8,7 @@ interface Player{
 
 interface Match {
     player1: Player;
-    player2: Player | null;
+    player2: Player;
     winner?: Player;
     round: number;
 }
@@ -27,6 +27,17 @@ let tournamentId: number;
 //6         3           3 maç      1 maç      1 maç
 //7         3           3 maç      2 maç      1 maç
 //8         3           4 maç      2 maç      1 maç
+
+type PlayerCount = 3 | 4 | 5 | 6 | 7 | 8;
+
+const Rounds: Record<PlayerCount, number[]> = {
+    3: [1, 1],
+    4: [2, 1],
+    5: [2, 1, 1],
+    6: [3, 1, 1],
+    7: [3, 2, 1],
+    8: [4, 2, 1]
+};
 
 export async function initTournament() {
     const tournamentRoot = document.getElementById('tournament-bracket');
@@ -54,11 +65,11 @@ export async function initTournament() {
     await initAsync();
 }
 
-async function addPlayersApi(){
+async function addPlayersApi() {
     for (const player of tournamentPlayers) {
         if (player.userId) {
             const res = await tournamentAddParticipant(tournamentId, player.userId, player.alias);
-            if (res?.success) 
+            if (res?.success)
                 player.participantId = res.data.participant.id;
         } else {
             const res = await tournamentAddGuest(tournamentId, player.alias);
@@ -78,11 +89,11 @@ async function initAsync() {
 }
 
 function createTournamentTitle(): string {
-  const today = new Date()
+    const today = new Date()
 
-  const formattedDate = new Intl.DateTimeFormat("tr-TR").format(today)
+    const formattedDate = new Intl.DateTimeFormat("tr-TR").format(today)
 
-  return `${formattedDate} Tarihinde Düzenlenen Turnuva`
+    return `${formattedDate} Tarihinde Düzenlenen Turnuva`
 }
 
 async function createFirstRound() {
@@ -104,13 +115,46 @@ async function createFirstRound() {
         round: match.round,
         matchOrder: index + 1,
         participant1Alias: match.player1.alias,
-        participant2Alias: match.player2 ? match.player2.alias : null
+        participant2Alias: match.player2.alias
     }));
+
+
+    const playerCount = tournamentPlayers.length as PlayerCount;
+    const roundPlan = Rounds[playerCount];
+
+    roundPlan.forEach((matchCount: number, roundIndex: number) => {
+        const roundNumber = roundIndex + 1;
+        if (roundNumber !== 1) {
+            for (let i = 0; i < matchCount; i++) {
+                tournamentMathches.push({
+                    round: roundNumber,
+                    matchOrder: i + 1,
+                });
+            }
+        }
+    });
+
+    roundPlan.forEach((matchCount: number, roundIndex: number) => {
+        const roundNumber = roundIndex + 1;
+        if (roundNumber !== 1) {
+            for (let i = 0; i < matchCount; i++) {
+                matches.push({
+                    round: roundNumber,
+                    player1: { participantId: 0, userId: null, alias: '' },
+                    player2: { participantId: 0, userId: null, alias: '' },
+                });
+            }
+        }
+    });
+        
 
     const payload: TournamentStartPayload = {
         tournamentId: tournamentId,
         matches: tournamentMathches
     }
 
-    startTournament(payload);
+    const res = await startTournament(payload);
+    if (res?.success) {
+        console.log("Matches started: ", res.data.matches);
+    }
 }

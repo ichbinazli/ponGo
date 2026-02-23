@@ -11,8 +11,8 @@ interface UserSearchResult {
 export interface TournamentMatch {
     round: number;
     matchOrder: number;
-    participant1Alias: string;
-    participant2Alias: string | null;
+    participant1Alias?: string;
+    participant2Alias?: string;
 }
 export interface TournamentStartPayload {
     tournamentId: number;
