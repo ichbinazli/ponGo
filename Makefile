@@ -3,7 +3,7 @@
 # Proje yönetimi için kısayol komutları
 # ==============================================================
 
-.PHONY: help setup ssl start stop restart logs clean status build remove
+.PHONY: help setup ssl start stop restart logs clean status build remove sysctl
 
 # Varsayılan: yardım ekranı göster
 help:
@@ -22,8 +22,8 @@ help:
 	@echo "  make build      - Docker image'larını yeniden derle"
 	@echo "  make clean      - Tüm container + volume temizle"
 	@echo "  make elk-setup  - ELK ILM politikasını kur"
+	@echo "  make sysctl     - Elasticsearch kernel ayarlarını yap (sudo)"
 	@echo ""
-	@echo "  Servis Erişim Adresleri:"
 	@echo "  ─────────────────────────────────────────────────────"
 	@echo "  🌐 Uygulama:     https://localhost"
 	@echo "  📊 Kibana:       http://localhost:5601"
@@ -58,6 +58,9 @@ ssl:
 
 start:
 	@echo "🚀 Servisler başlatılıyor..."
+	@docker compose down --remove-orphans 2>/dev/null || true
+	@echo "🔄 Config volume'ları temizleniyor..."
+	@docker volume rm -f transcendence_nginx_conf transcendence_ssl_certs transcendence_prometheus_conf transcendence_grafana_prov transcendence_logstash_conf transcendence_logstash_pipeline transcendence_filebeat_conf transcendence_backend_certs 2>/dev/null || true
 	docker compose up -d
 	@echo ""
 	@echo "✅ Servisler çalışıyor! Durum için: make status"
@@ -88,6 +91,15 @@ logs:
 # Belirli servisin logları (make logs-backend)
 logs-%:
 	docker compose logs -f --tail=100 $*
+
+# ─────────────────────────────────────────────
+# ELASTICSEARCH KERNEL AYARLARI
+# ─────────────────────────────────────────────
+
+sysctl:
+	@echo "🔧 Elasticsearch için kernel parametreleri ayarlanıyor..."
+	@chmod +x scripts/setup-sysctl.sh
+	sudo ./scripts/setup-sysctl.sh
 
 # ─────────────────────────────────────────────
 # ELK KURULUM
