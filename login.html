@@ -1,0 +1,56 @@
+<div class="max-w-6xl mx-auto space-y-8">
+    <div class="animate-fade-in rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-center">
+        <div class="text-sm text-slate-300" data-i18n="tournament.statusLabel">Turnuva Durumu</div>
+        <div id="tournament-status" class="text-base font-semibold text-cyan-400">Hazırlanıyor</div>
+        <div id="tournament-status-detail" class="text-xs text-slate-400">Oyuncular eşleştiriliyor...</div>
+    </div>
+
+    <!-- Tournament Bracket -->
+    <div class="card animate-fade-in">
+        <h2 class="text-xl font-bold text-white mb-6" data-i18n="tournament.bracket">Turnuva Bracket'ı</h2>
+
+        <div id="tournament-bracket" class="space-y-4">
+            <!-- Bracket will be populated here -->
+        </div>
+    </div>
+
+    <!-- Current Match -->
+    <div class="card animate-fade-in hidden" id="current-match-card">
+        <h2 class="text-xl font-bold text-white mb-6" data-i18n="tournament.currentMatch">Şu Anki Maç</h2>
+
+        <div class="text-center">
+            <div class="text-lg text-white mb-4">
+                <span id="player1-name" class="text-cyan-400"></span> vs <span id="player2-name" class="text-purple-400"></span>
+            </div>
+            <div class="text-2xl font-bold text-white mb-4">
+                <span id="player1-score">0</span> - <span id="player2-score">0</span>
+            </div>
+            <button id="start-match-btn" class="btn bg-green-600 hover:bg-green-700" data-i18n="tournament.startMatch">
+                Maçı Başlat
+            </button>
+        </div>
+    </div>
+
+    <!-- Tournament Results -->
+    <div class="card animate-fade-in hidden" id="tournament-results">
+        <h2 class="text-xl font-bold text-white mb-6" data-i18n="tournament.results">🏆 Turnuva Sonuçları</h2>
+
+        <div class="space-y-4">
+            <div class="text-center">
+                <div class="mb-2 flex justify-center"><img src="/image/1.svg" alt="1st" class="w-16 h-16"></div>
+                <div class="text-xl font-bold text-yellow-400" id="winner-name" data-i18n="tournament.winner">Kazanan</div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <div class="text-center">
+                    <div class="mb-2 flex justify-center"><img src="/image/2.svg" alt="2nd" class="w-12 h-12"></div>
+                    <div class="text-lg font-semibold text-gray-300" id="runner-up-name" data-i18n="tournament.runnerUp">İkinci</div>
+                </div>
+                <div class="text-center">
+                    <div class="mb-2 flex justify-center"><img src="/image/3.svg" alt="3rd" class="w-12 h-12"></div>
+                    <div class="text-lg font-semibold text-orange-400" id="third-place-name" data-i18n="tournament.thirdPlace">Üçüncü</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

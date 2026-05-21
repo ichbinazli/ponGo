@@ -1,0 +1,197 @@
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="max-w-md w-full">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">ft_transcendence</h1>
+      <p class="text-slate-400" data-i18n="reset.subtitle">Şifrenizi sıfırlayın</p>
+    </div>
+
+    <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8">
+
+      <!-- Adım Göstergesi -->
+      <div class="flex items-center justify-center mb-8 gap-2">
+        <div id="step-indicator-1" class="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center text-sm font-bold">1</div>
+        <div class="w-8 h-0.5 bg-white/20" id="step-line-1"></div>
+        <div id="step-indicator-2" class="w-8 h-8 rounded-full bg-white/20 text-slate-400 flex items-center justify-center text-sm font-bold">2</div>
+        <div class="w-8 h-0.5 bg-white/20" id="step-line-2"></div>
+        <div id="step-indicator-3" class="w-8 h-8 rounded-full bg-white/20 text-slate-400 flex items-center justify-center text-sm font-bold">3</div>
+      </div>
+
+      <!-- ADIM 1: E-posta Girişi -->
+      <div id="step-email" class="space-y-6">
+        <div class="text-center mb-4">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-white mb-2" data-i18n="reset.title">Şifre Sıfırlama</h2>
+          <p class="text-slate-400 text-sm" data-i18n="reset.emailDesc">E-posta adresinizi girin, size bir doğrulama kodu göndereceğiz.</p>
+        </div>
+
+        <form id="reset-email-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="reset.emailLabel">E-posta Adresi</label>
+            <input
+              type="email"
+              id="reset-email"
+              required
+              placeholder="eposta@ornek.com"
+              class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+            />
+          </div>
+          <p id="email-error" class="text-red-400 text-xs hidden"></p>
+          <button
+            type="submit"
+            id="send-code-btn"
+            class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <span id="send-code-text" data-i18n="reset.sendCode">Doğrulama Kodu Gönder</span>
+            <div id="send-code-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
+          </button>
+        </form>
+      </div>
+
+      <!-- ADIM 2: Kod Doğrulama -->
+      <div id="step-code" class="space-y-6 hidden">
+        <div class="text-center mb-4">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-white mb-2" data-i18n="reset.codeTitle">Doğrulama Kodu</h2>
+          <p class="text-slate-400 text-sm">
+            <span data-i18n="reset.codeSent">Doğrulama kodu gönderildi:</span>
+            <span id="sent-email-display" class="text-purple-400 font-medium"></span>
+          </p>
+        </div>
+
+        <form id="verify-code-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="reset.codeLabel">6 Haneli Kod</label>
+            <div class="flex gap-2 justify-center">
+              <input type="text" maxlength="1" class="code-input w-12 h-14 text-center text-xl font-bold bg-white/5 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" data-index="0" />
+              <input type="text" maxlength="1" class="code-input w-12 h-14 text-center text-xl font-bold bg-white/5 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" data-index="1" />
+              <input type="text" maxlength="1" class="code-input w-12 h-14 text-center text-xl font-bold bg-white/5 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" data-index="2" />
+              <input type="text" maxlength="1" class="code-input w-12 h-14 text-center text-xl font-bold bg-white/5 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" data-index="3" />
+              <input type="text" maxlength="1" class="code-input w-12 h-14 text-center text-xl font-bold bg-white/5 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" data-index="4" />
+              <input type="text" maxlength="1" class="code-input w-12 h-14 text-center text-xl font-bold bg-white/5 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" data-index="5" />
+            </div>
+          </div>
+          <p id="code-error" class="text-red-400 text-xs text-center hidden"></p>
+
+          <div class="flex items-center justify-between text-sm">
+            <button type="button" id="resend-code-btn" class="text-purple-400 hover:text-purple-300 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <span data-i18n="reset.resendCode">Tekrar Gönder</span> (<span id="resend-timer">60</span>s)
+            </button>
+            <button type="button" id="change-email-btn" class="text-slate-400 hover:text-white transition" data-i18n="reset.changeEmail">
+              E-postayı Değiştir
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            id="verify-code-btn"
+            class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            disabled
+          >
+            <span data-i18n="reset.verifyCode">Kodu Doğrula</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- ADIM 3: Yeni Şifre -->
+      <div id="step-password" class="space-y-6 hidden">
+        <div class="text-center mb-4">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-white mb-2" data-i18n="reset.newPasswordTitle">Yeni Şifre Oluştur</h2>
+          <p class="text-slate-400 text-sm" data-i18n="reset.newPasswordDesc">Hesabınız için yeni bir şifre belirleyin.</p>
+        </div>
+
+        <form id="new-password-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="reset.newPassword">Yeni Şifre</label>
+            <input
+              type="password"
+              id="new-password"
+              required
+              placeholder="••••••••"
+              class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+            />
+            <ul class="mt-3 space-y-1 text-xs">
+              <li id="rp-req-length" class="flex items-center gap-2 text-slate-500">
+                <span class="rp-req-icon">○</span> <span data-i18n="register.pwMinLength">En az 8 karakter</span>
+              </li>
+              <li id="rp-req-lowercase" class="flex items-center gap-2 text-slate-500">
+                <span class="rp-req-icon">○</span> <span data-i18n="register.pwLowercase">En az bir küçük harf</span>
+              </li>
+              <li id="rp-req-uppercase" class="flex items-center gap-2 text-slate-500">
+                <span class="rp-req-icon">○</span> <span data-i18n="register.pwUppercase">En az bir büyük harf</span>
+              </li>
+              <li id="rp-req-number" class="flex items-center gap-2 text-slate-500">
+                <span class="rp-req-icon">○</span> <span data-i18n="register.pwNumber">En az bir rakam</span>
+              </li>
+              <li id="rp-req-special" class="flex items-center gap-2 text-slate-500">
+                <span class="rp-req-icon">○</span> <span data-i18n="register.pwSpecial">En az bir özel karakter</span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="reset.confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              required
+              placeholder="••••••••"
+              class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+            />
+            <p id="confirm-error" class="text-red-400 text-xs mt-2 hidden" data-i18n="reset.passwordMismatch">Şifreler eşleşmiyor</p>
+          </div>
+          <p id="password-reset-error" class="text-red-400 text-xs hidden"></p>
+          <button
+            type="submit"
+            id="reset-password-btn"
+            class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            disabled
+          >
+            <span id="reset-btn-text" data-i18n="reset.resetPassword">Şifreyi Sıfırla</span>
+            <div id="reset-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
+          </button>
+        </form>
+      </div>
+
+      <!-- Başarı Ekranı -->
+      <div id="step-success" class="hidden text-center space-y-6">
+        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-white" data-i18n="reset.successTitle">Şifre Başarıyla Sıfırlandı!</h3>
+        <p class="text-slate-400 text-sm" data-i18n="reset.successDesc">Artık yeni şifrenizle giriş yapabilirsiniz.</p>
+        <a
+          href="/login"
+          data-route
+          class="inline-flex items-center justify-center w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-[1.02] active:scale-[0.98]"
+          data-i18n="reset.goToLogin"
+        >
+          Giriş Yapmaya Git
+        </a>
+      </div>
+
+      <!-- Geri dön linki -->
+      <div class="mt-6 text-center">
+        <a href="/login" data-route class="flex items-center justify-center text-slate-400 hover:text-white transition text-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          <span data-i18n="reset.backToLogin">Giriş sayfasına dön</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

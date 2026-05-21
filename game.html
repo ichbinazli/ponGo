@@ -1,0 +1,278 @@
+<div class="card animate-fade-in">
+    <h1 class="text-3xl md:text-4xl font-bold text-white text-center mb-8 text-shadow" data-i18n="profile.title">
+         Oyuncu Profili
+    </h1>
+    <div class="flex flex-wrap justify-center mb-8 space-x-2">
+        <button class="profile-tab active" data-tab="overview" data-i18n="profile.overview"> Genel Bakış</button>
+        <button class="profile-tab" data-tab="history" data-i18n="profile.history"> Oyun Geçmişi</button>
+        <button class="profile-tab" data-tab="account" data-i18n="profile.accountSettings"> Hesap Ayarları</button>
+    </div>
+    <div id="tab-content">
+        <div class="tab-panel active" id="overview-panel">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="text-center lg:col-span-1" id="profile-info-container">
+                    <div class="mb-6">
+                        <div class="relative inline-block">
+                            <img 
+                                id="profile-avatar" 
+                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" 
+                                alt="Profil Fotoğrafı" 
+                                class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg mx-auto"
+                            >
+                            <button 
+                                id="edit-avatar-btn"
+                                class="absolute bottom-0 right-0 bg-violet-600 hover:bg-violet-700 text-white rounded-full p-2 shadow-lg transition-all"
+                                data-i18n-title="profile.changePhoto"
+                                title="Fotoğrafı Değiştir"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <input 
+                            type="file" 
+                            id="avatar-upload" 
+                            accept="image/*" 
+                            class="hidden"
+                        >
+                    </div>
+                    <div class="mt-4">
+                        <h2 id="profile-username" class="text-2xl font-bold text-white mb-2" data-i18n="profile.player">Oyuncu</h2>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4" id="stats-grid-container">
+                </div>
+            </div>
+
+            <!-- ============ DASHBOARD SECTION (inside Overview) ============ -->
+            <div class="mt-10" id="dashboard-section">
+                <!-- Section Divider -->
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent"></div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span data-i18n="dashboard.title">Performans Dashboard</span>
+                    </h2>
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent"></div>
+                </div>
+
+                <!-- Charts Row 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Win/Loss Doughnut -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                            <span data-i18n="dashboard.winLossChart">Kazanma / Kaybetme Dağılımı</span>
+                        </h3>
+                        <div class="flex justify-center" style="max-height: 280px;">
+                            <canvas id="dash-winloss-chart"></canvas>
+                        </div>
+                        <div id="dash-winloss-legend" class="flex justify-center gap-6 mt-4 text-sm"></div>
+                    </div>
+
+                    <!-- Performance Line Chart (last 10 games) -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-violet-400 inline-block"></span>
+                            <span data-i18n="dashboard.performanceChart">Son Maçlar Performansı</span>
+                        </h3>
+                        <div style="max-height: 280px;">
+                            <canvas id="dash-performance-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Points Scored vs Against Bar Chart -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                            <span data-i18n="dashboard.pointsChart">Son Maçlarda Atılan / Yenilen Puan</span>
+                        </h3>
+                        <div style="max-height: 280px;">
+                            <canvas id="dash-points-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Game Mode Distribution Polar Area Chart -->
+                    <div class="stat-card">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-pink-400 inline-block"></span>
+                            <span data-i18n="dashboard.gameModeChart">Oyun Modu Dağılımı</span>
+                        </h3>
+                        <div class="flex justify-center" style="max-height: 280px;">
+                            <canvas id="dash-gamemode-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Streak & Performance Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="stat-card text-center">
+                        <p class="text-xs text-white/50 uppercase tracking-wider mb-2" data-i18n="dashboard.currentStreak">Mevcut Seri</p>
+                        <p id="dash-current-streak" class="text-4xl font-extrabold text-orange-400">0</p>
+                        <p id="dash-streak-type" class="text-sm text-white/60 mt-1">-</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-xs text-white/50 uppercase tracking-wider mb-2" data-i18n="dashboard.bestStreak">En İyi Galibiyet Serisi</p>
+                        <p id="dash-best-streak" class="text-4xl font-extrabold text-amber-400">0</p>
+                        <p class="text-sm text-white/60 mt-1" data-i18n="dashboard.consecutive">Ardışık Galibiyet</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-xs text-white/50 uppercase tracking-wider mb-2" data-i18n="dashboard.pointsPerGame">Maç Başı Puan</p>
+                        <p id="dash-points-per-game" class="text-4xl font-extrabold text-teal-400">0</p>
+                        <p class="text-sm text-white/60 mt-1" data-i18n="dashboard.average">Ortalama</p>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ============ END DASHBOARD SECTION ============ -->
+        </div>
+
+        <div class="tab-panel" id="history-panel">
+            <div class="stat-card">
+                <h3 class="text-lg font-bold text-white mb-4" data-i18n="profile.recentGames"> Son Oyunlar</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-white text-sm">
+                        <thead>
+                            <tr class="border-b border-white/20">
+                                <th class="py-3 px-4 text-left" data-i18n="profile.date">Tarih</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.opponent">Rakip</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.mode">Mod</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.score">Skor</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.result">Sonuç</th>
+                                <th class="py-3 px-4 text-left" data-i18n="profile.duration">Süre</th>
+                            </tr>
+                        </thead>
+                        <tbody id="game-history-table">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            
+            </div>
+        </div>
+        <div class="tab-panel" id="account-panel">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4" data-i18n="profile.accountInfo"> Hesap Bilgileri</h3>
+                    <div class="space-y-4" id="account-info-form">
+                        <div>
+                            <label class="block text-slate-300 mb-2" data-i18n="profile.displayName">Username</label>
+                            <input type="text" name="displayName" id="displayName" class="input w-full">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 mb-2" data-i18n="profile.email">E-posta</label>
+                            <input type="email" name="email" id="email" class="input w-full bg-slate-700/50 cursor-not-allowed opacity-70" readonly>
+                        </div>
+                        <button type="button" class="btn w-full" id="update-account-info" data-i18n="profile.updateInfo"> Bilgileri Güncelle</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4" data-i18n="profile.security"> Güvenlik Ayarları</h3>
+                    <div class="space-y-4" id="security-settings-form">
+                        <div>
+                            <label class="flex items-center justify-between">
+                                <span class="text-slate-300" data-i18n="profile.twoFactor">İki Faktörlü Doğrulama</span>
+                                <input type="checkbox" class="w-5 h-5 text-violet-500">
+                            </label>
+                            <p class="text-slate-400 text-sm mt-1" data-i18n="profile.twoFactorDesc">Hesabınızı extra güvenlik katmanıyla koruyun</p>
+                        </div>
+                        <div>
+                            <label class="flex items-center justify-between">
+                                <span class="text-slate-300" data-i18n="profile.emailNotifications">E-posta Bildirimleri</span>
+                                <input type="checkbox" checked class="w-5 h-5 text-violet-500">
+                            </label>
+                            <p class="text-slate-400 text-sm mt-1" data-i18n="profile.emailNotificationsDesc">Oyun güncellemeleri ve etkinlik bildirimleri</p>
+                        </div>
+                        <div>
+                            <label class="flex items-center justify-between">
+                                <span class="text-slate-300" data-i18n="profile.profileVisibility">Profil Görünürlüğü</span>
+                                <select class="input">
+                                    <option value="public" data-i18n="profile.public">Herkese Açık</option>
+                                    <option value="friends" data-i18n="profile.friendsOnly">Sadece Arkadaşlar</option>
+                                    <option value="private" data-i18n="profile.private">Özel</option>
+                                </select>
+                            </label>
+                        </div>
+                        <button id="open-change-password-modal" class="btn w-full" data-i18n="profile.changePassword"> Şifre Değiştir</button>
+                    </div>
+                </div>
+                <div class="card border-rose-600 bg-rose-900/20 lg:col-span-2">
+                    <h3 class="text-lg font-semibold text-rose-300 mb-4" data-i18n="profile.dangerZone"> Tehlikeli Bölge</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h4 class="text-rose-200 font-medium" data-i18n="profile.accountActions">Hesap İşlemleri</h4>
+                            <div class="space-y-2">
+                                <button class="btn bg-rose-700 hover:bg-rose-600 w-full text-sm" data-i18n="profile.resetData"> Tüm Verileri Sıfırla</button>
+                                <button class="btn bg-rose-800 hover:bg-rose-700 w-full text-sm" data-i18n="profile.exportData"> Veri Dışa Aktar</button>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="text-rose-200 font-medium" data-i18n="profile.deleteAccount">Hesap Silme</h4>
+                            <p class="text-rose-200 text-sm" data-i18n="profile.deleteWarning">
+                                Hesabınızı silmek geri alınamaz bir işlemdir. Tüm verileriniz kalıcı olarak silinecektir.
+                            </p>
+                            <button class="btn btn-danger w-full" data-i18n="profile.deletePermanent"> Hesabı Kalıcı Olarak Sil</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="file" id="photo-upload" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" class="hidden">
+</div>
+
+<!-- Şifre Değiştir Modal -->
+<div id="change-password-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+  <div class="bg-slate-800/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 max-w-md w-full relative animate-fade-in">
+    <button id="close-change-password-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-white" data-i18n="profile.changePassword">Şifre Değiştir</h2>
+    </div>
+
+    <form id="change-password-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1" data-i18n="profile.currentPassword">Mevcut Şifre</label>
+        <input type="password" id="cp-current-password" required placeholder="••••••••"
+          class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1" data-i18n="profile.newPassword">Yeni Şifre</label>
+        <input type="password" id="cp-new-password" required placeholder="••••••••"
+          class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+        <ul class="mt-2 space-y-1 text-xs">
+          <li id="cp-req-length" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.minLength">En az 8 karakter</span></li>
+          <li id="cp-req-lowercase" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.lowercase">En az bir küçük harf</span></li>
+          <li id="cp-req-uppercase" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.uppercase">En az bir büyük harf</span></li>
+          <li id="cp-req-number" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.number">En az bir rakam</span></li>
+          <li id="cp-req-special" class="flex items-center gap-2 text-slate-500"><span class="cp-req-icon">○</span> <span data-i18n="password.special">En az bir özel karakter</span></li>
+        </ul>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1" data-i18n="profile.confirmNewPassword">Yeni Şifre Tekrar</label>
+        <input type="password" id="cp-confirm-password" required placeholder="••••••••"
+          class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+        <p id="cp-confirm-error" class="text-red-400 text-xs mt-1 hidden" data-i18n="password.mismatch">Şifreler eşleşmiyor</p>
+      </div>
+      <p id="cp-error" class="text-red-400 text-xs hidden"></p>
+      <p id="cp-success" class="text-green-400 text-xs hidden"></p>
+      <button type="submit" id="cp-submit-btn" disabled
+        class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+        <span id="cp-btn-text" data-i18n="profile.changePassword">Şifre Değiştir</span>
+        <div id="cp-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
+      </button>
+    </form>
+  </div>
+</div>

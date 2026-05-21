@@ -1,0 +1,9 @@
+node_modules/
+dist/
+npm-debug.log*
+.DS_Store
+.vscode/
+.env
+*.log
+coverage/
+.nyc_output/

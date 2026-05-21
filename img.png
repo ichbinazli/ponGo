@@ -1,0 +1,72 @@
+<div class="text-center mb-12 sm:mb-16">
+    <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent mb-4 sm:mb-6">
+        ponGO
+    </h1>
+    <p class="text-lg sm:text-xl text-slate-300 mb-6 sm:mb-8 max-w-3xl mx-auto px-4" data-i18n="home.subtitle">
+        Modern koyu arayüz ile çarpıcı görseller ve rekabetçi oynanışın birleştiği mükemmel Pong deneyimi
+    </p>
+    
+    <!-- Team Image - Centered -->
+    <div class="flex justify-center items-center px-4 mt-8 sm:mt-12">
+        <div class="max-w-4xl w-full">
+            <img src="image/img.png" 
+                 alt="ft_transcendence Team" 
+                 class="w-full h-auto rounded-2xl shadow-md hover:scale-105 transition-transform duration-300 mx-auto">
+        </div>
+    </div>
+
+    <!-- Team Members Section -->
+<div class="mt-16 sm:mt-20 max-w-6xl mx-auto px-4">
+    <h2 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent mb-4 sm:mb-6" data-i18n="home.team">Ekibimiz</h2>
+    
+    <!-- First Row - 3 Members -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
+        <!-- Team Member 1 -->
+        <div class="card group">
+            <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-slate-100 mb-2">Kerem ÇEVİK</h3>
+                <p class="text-sm text-yellow-400 font-medium mb-3">DevOps</p>
+                <p class="text-sm text-slate-400">Docker & Deployment</p>
+            </div>
+        </div>
+
+        <!-- Team Member 2 -->
+        <div class="card group">
+            <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-slate-100 mb-2">Neslihan Doğan</h3>
+                <p class="text-sm text-blue-400 font-medium mb-3">Game / AI </p>
+                <p class="text-sm text-slate-400">3D Graphics & Game Logic</p>
+            </div>
+        </div>
+
+        <!-- Team Member 3 -->
+        <div class="card group">
+            <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-slate-100 mb-2">Nazlı ANAPA</h3>
+                <p class="text-sm text-purple-400 font-medium mb-3">Frontend</p>
+                <p class="text-sm text-slate-400">UI/UX & Design System</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row - 2 Members Centered -->
+    <div class="flex justify-center gap-6 sm:gap-8">
+        <!-- Team Member 4 -->
+        <div class="card group max-w-sm w-full">
+            <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-slate-100 mb-2">Furkan GÜMÜŞAY</h3>
+                <p class="text-sm text-green-400 font-medium mb-3">Backend</p>
+                <p class="text-sm text-slate-400">API & Database Architecture</p>
+            </div>
+        </div>
+
+        <!-- Team Member 5 -->
+        <div class="card group max-w-sm w-full">
+            <div class="flex flex-col items-center text-center">
+                <h3 class="text-xl font-semibold text-slate-100 mb-2">Enes Ali GERMEN</h3>
+                <p class="text-sm text-rose-400 font-medium mb-3">Backend</p>
+                <p class="text-sm text-slate-400">API & Database Architecture</p>
+            </div>
+        </div>
+    </div>
+</div>
