@@ -1,0 +1,25 @@
+<div class="mb-8 text-center">
+    <h1 class="text-2xl sm:text-3xl font-bold text-slate-100 mb-4" data-i18n="leaderboard.title"> Skor Tablosu</h1>
+    <p class="text-slate-300 text-sm sm:text-base" data-i18n="leaderboard.subtitle">En iyi oyuncuları keşfedin ve sıralamadaki yerinizi görün.</p>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12" id="podium-container">
+</div>
+
+<div class="card">
+    <div class="overflow-x-auto">
+        <table class="w-full text-slate-100 text-sm sm:text-base">
+            <thead>
+                <tr class="border-b border-slate-700">
+                    <th class="py-2 sm:py-4 px-2 sm:px-4 text-left" data-i18n="leaderboard.rank">Sıra</th>
+                    <th class="py-2 sm:py-4 px-2 sm:px-4 text-left" data-i18n="leaderboard.player">Oyuncu</th>
+                    <th class="py-2 sm:py-4 px-2 sm:px-4 text-left hidden sm:table-cell" data-i18n="leaderboard.points">Puan</th>
+                    <th class="py-2 sm:py-4 px-2 sm:px-4 text-left hidden md:table-cell" data-i18n="leaderboard.gamesPlayed">Oyun Sayısı</th>
+                    <th class="py-2 sm:py-4 px-2 sm:px-4 text-left" data-i18n="leaderboard.winRate">KO</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-table">
+            </tbody>
+        </table>
+    </div>
+</div>

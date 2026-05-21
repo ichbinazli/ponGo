@@ -1,0 +1,92 @@
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="max-w-md w-full">
+
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-white mb-2">ft_transcendence</h1>
+      <p class="text-slate-400" data-i18n="login.welcome">Oyun dünyasına hoş geldiniz</p>
+    </div>
+
+    <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8">
+      <h2 class="text-2xl font-bold text-center text-white mb-8" data-i18n="login.title">
+        Giriş Yap
+      </h2>
+
+      <form id="login-form" class="space-y-6">
+
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="login.email">
+            E-Posta
+          </label>
+          <input type="text" name="email" id="email" required placeholder="kullanici@example.com" class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400
+                   focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2" data-i18n="login.password">
+            Şifre
+          </label>
+          <input type="password" name="password" id="password" required placeholder="••••••••" class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400
+                   focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition" />
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <a href="/reset-password" data-route class="text-purple-400 hover:text-purple-300 transition"
+            data-i18n="login.forgotPassword">
+            Şifremi unuttum
+          </a>
+          <a href="/register" data-route class="text-purple-400 hover:text-purple-300 transition"
+            data-i18n="login.newAccount">
+            Yeni hesap oluştur
+          </a>
+        </div>
+
+        <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold
+                 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600
+                 transition transform hover:scale-[1.02] active:scale-[0.98]" data-i18n="login.submit">
+          Giriş Yap
+        </button>
+
+
+        <button type="button" id="guest-login-btn" class="w-full bg-black text-white font-semibold
+                 py-3 rounded-xl
+                 hover:bg-neutral-900
+                 transition transform hover:scale-[1.02] active:scale-[0.98]
+                 flex items-center justify-center gap-3
+                 border border-white/10">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/8/8d/42_Logo.svg" alt="42 Logo"
+            class="h-5 w-5 brightness-0 invert" />
+          <span data-i18n="login.intra">Intra ile Giriş Yap</span>
+        </button>
+
+
+      </form>
+
+      <!-- 2FA Adımı (Login sonrası, requiresTwoFactor ise gösterilir) -->
+      <div id="twofa-step" class="hidden">
+        <div class="text-center mb-6">
+          <div class="text-4xl mb-3">🔐</div>
+          <h3 class="text-xl font-bold text-white mb-2">İki Faktörlü Doğrulama</h3>
+          <p class="text-slate-400 text-sm">E-posta adresinize 6 haneli doğrulama kodu gönderildi.</p>
+        </div>
+
+        <div class="space-y-4">
+          <input type="text" id="twofa-login-code" maxlength="6" placeholder="000000" class="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400
+                   focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition
+                   text-center text-2xl tracking-[0.6em] font-mono" autocomplete="one-time-code" />
+          <button id="twofa-login-verify-btn" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold
+                   py-3 rounded-xl hover:from-purple-600 hover:to-pink-600
+                   transition transform hover:scale-[1.02] active:scale-[0.98]">
+            Doğrula ve Giriş Yap
+          </button>
+          <button id="twofa-login-resend-btn"
+            class="w-full text-sm text-purple-400 hover:text-purple-300 transition py-2" type="button">
+            Kodu tekrar gönder
+          </button>
+          <button id="twofa-login-back-btn" class="w-full text-sm text-slate-400 hover:text-slate-300 transition py-1"
+            type="button">
+            ← Giriş sayfasına dön
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
