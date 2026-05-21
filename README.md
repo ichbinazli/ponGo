@@ -58,9 +58,9 @@ gibi özellikler geliştirilmiştir.
 ## 📸 Ekran Görüntüleri
 
 <p float="left">
-  <img src="images/img.png" width="250"/>
-  <img src="images/img1.png" width="250"/>
-  <img src="images/img2.png" width="250"/>
+  <img src="images/img.png.png" width="250"/>
+  <img src="images/img1.png.png" width="250"/>
+  <img src="images/img2.png.png" width="250"/>
 </p>
 ---
 
